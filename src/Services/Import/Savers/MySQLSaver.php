@@ -6,7 +6,8 @@ namespace App\Services\Import\Savers;
 
 class MySQLSaver implements Saver
 {
-    public function Save(){
+    /** @var ImportRequest $request */
+    public function Save(array $requests){
         
     }
 }
