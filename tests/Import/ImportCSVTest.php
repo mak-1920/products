@@ -88,4 +88,18 @@ class ImportCSVTest extends TestCase
             $this->assertEquals(count($import->getFailed()), $rows);
         }
     }
+
+
+
+    public function testWithValidAndInvalidRows(): void
+    {
+        $import = new ImportCSV(
+            __DIR__.'/csv/2_valid_3_invalid.csv', 
+            new CSVSettings(),
+            true
+        );
+
+        $this->assertEquals(count($import->getComplete()), 2);
+        $this->assertEquals(count($import->getFailed()), 3);
+    }
 }

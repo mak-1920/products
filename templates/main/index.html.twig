@@ -10,5 +10,13 @@
 
 <div class="wrapper">
     {{ form(form) }}
+
+    {% if not import is null and import.getFailed|length > 0 %}
+        <ul>    
+            {% for request in import.failed %}
+                <li>{{ request }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </div>
 {% endblock %}

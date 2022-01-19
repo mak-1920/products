@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ImportByCSVType extends AbstractType
@@ -18,19 +19,57 @@ class ImportByCSVType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('separator', TextType::class, [
+            ->add('delimiter', TextType::class, [
+                'required' => true,
                 'data' => ',',
                 'constraints' => [
-                    new NotBlank(),  
+                    new NotBlank(),
+                    new Length(min: 1, max: 1),
+                ],
+                'attr' => [
+                    'minlength' => 1,
+                    'maxlength' => 1,
+                ],
+            ])
+            ->add('enclosure', TextType::class, [
+                'required' => true,
+                'data' => '"',
+                'constraints' => [
+                    new NotBlank(),
+                    new Length(min: 1, max: 1),
+                ],
+                'attr' => [
+                    'minlength' => 1,
+                    'maxlength' => 1,
+                ],
+            ])
+            ->add('escape', TextType::class, [
+                'required' => true,
+                'data' => '"',
+                'constraints' => [
+                    new NotBlank(),
+                    new Length(min: 1, max: 1),
+                ],
+                'attr' => [
+                    'minlength' => 1,
+                    'maxlength' => 1,
                 ],
             ])
             ->add('file', FileType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),  
                 ],
             ])
+            ->add('haveHeader', CheckboxType::class, [
+                'mapped' => false,
+                'required' => false,
+                // 'false_values' => [false],
+            ])
             ->add('testmode', CheckboxType::class, [
-                
+                'mapped' => false,
+                'required' => false,
+                // 'false_values' => [false],
             ])
             ->add('import', SubmitType::class, [
                 

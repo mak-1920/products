@@ -25,19 +25,28 @@ class Import
     #[ORM\Column(type: 'datetimetz_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private DateTimeImmutable $date;
 
-    #[ORM\ManyToOne(targetEntity: product::class, inversedBy: 'imports')]
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'imports')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product;
 
-    public function __construct(
+    public function __construct()
+    {
+        $this->date = new DateTimeImmutable();
+    }
+
+    static public function Create(
         Product $product,
         int $cost,
         int $count,
-    )
+    ) : Import
     {
-        $this->setProduct($product);
-        $this->setCost($cost);
-        $this->setCount($count);
+        $import = new Import();
+
+        $import->setProduct($product);
+        $import->setCost($cost);
+        $import->setCount($count);
+
+        return $import;
     }
 
     public function getId(): int

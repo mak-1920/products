@@ -1,12 +1,9 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Repository\Tmp;
 
-namespace App\Repository;
-
-use App\Entity\Product;
+use App\Entity\Tmp\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,25 +19,32 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getExistsProducts(array $products) : array
+    // /**
+    //  * @return Product[] Returns an array of Product objects
+    //  */
+    /*
+    public function findByExampleField($value)
     {
         return $this->createQueryBuilder('p')
-            ->addSelect('i')
-            ->where('p.name IN (:names)')
-            ->setParameter('names', $products, Connection::PARAM_STR_ARRAY)
-            ->leftJoin('p.imports', 'i')
+            ->andWhere('p.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('p.id', 'ASC')
+            ->setMaxResults(10)
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
+    */
 
-    public function saveProducts(array $products) : void
+    /*
+    public function findOneBySomeField($value): ?Product
     {
-        $em = $this->getEntityManager();
-
-        foreach($products as $product){
-            $em->persist($product);
-        }
-
-        $em->flush();
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
+    */
 }

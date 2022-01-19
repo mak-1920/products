@@ -23,15 +23,13 @@ class Product
     #[ORM\Column(type: 'boolean', options: ['default' => 'false'])]
     private bool $discontinued;
 
-    #[ORM\OneToMany(mappedBy: 'Product', targetEntity: Import::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Import::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $imports;
 
-    public function __construct(string $name, bool $isDiscontinued = false)
+    public function __construct()
     {
         $this->imports = new ArrayCollection();
-
-        $this->setName($name);
-        $this->setDiscontinued($isDiscontinued);
+        $this->discontinued = false;
     }
 
     public function getId(): int

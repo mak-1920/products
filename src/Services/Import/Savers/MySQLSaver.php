@@ -15,6 +15,12 @@ class MySQLSaver implements Saver
     /** @var Product[] $requests */
     private array $products;
 
+    /** @var ImportRequest[] $requests */
+    private array $requests;
+
+    /** @var string[] $productsNames */
+    private array $productsNames;
+
     public function __construct(
         private ProductRepository $productRepository,
     )
@@ -24,17 +30,19 @@ class MySQLSaver implements Saver
     /** @var ImportRequest $request */
     public function Save(array $requests): void
     {
-        $this->requestsInfo = [];
+        $this->products = [];
+        $this->requests = $requests;
+        $this->productsNames = $this->getProductsNamesByObjMethod($this->requests, 'getProduct');
 
-        $this->setProducts($requests);
-        $this->setRequestsForProducts($requests);
+        $this->setProducts();
+        $this->setRequestsForProducts();
 
         $this->productRepository->saveProducts($this->products);
     }
 
-    private function setProducts(array $requests) : void
+    private function setProducts() : void
     {
-        $products = $this->getProducts($requests);
+        $products = $this->getProducts();
 
         /** @var Product $product */
         foreach($products as $product) {
@@ -43,22 +51,27 @@ class MySQLSaver implements Saver
         }
     }
 
-    private function setRequestsForProducts(array $requests) : void
+    private function setRequestsForProducts() : void
     {
         /** @var ImportRequest $request */
-        foreach($requests as $request) {
+        foreach($this->requests as $request) {
             $productName = $request->getProduct();
-            new Import(
-                $this->products[$productName],
+            /** @var Product $product */
+            $product = $this->products[$productName];
+            
+            $import = Import::Create(
+                $product,
                 $request->getCost(),
                 $request->getCount()
             );
+
+            $product->addImport($import);
         }
     }
 
-    private function getProducts(array $requests) : array
+    private function getProducts() : array
     {
-        $existsProducts = $this->getExistsProducts($requests);
+        $existsProducts = $this->getExistsProducts();
         $newProducts = $this->getNewProducts($existsProducts);
 
         $products = array_merge(
@@ -69,11 +82,9 @@ class MySQLSaver implements Saver
         return $products;
     }
 
-    private function getExistsProducts(array $requests) : array
+    private function getExistsProducts() : array
     {
-        $productsNames = $this->getProductsNamesFromRequests($requests);
-
-        $exists = $this->productRepository->getExistsProducts($productsNames);
+        $exists = $this->productRepository->getExistsProducts($this->productsNames);
         return $exists;
     }
 
@@ -91,7 +102,9 @@ class MySQLSaver implements Saver
         $productsEnt = [];
 
         foreach($products as $product) {
-            $productsEnt[] = new Product($product);
+            $productEnt = new Product();
+            $productEnt->setName($product);
+            $productsEnt[] = $productEnt;
         }
 
         return $productsEnt;
@@ -99,18 +112,20 @@ class MySQLSaver implements Saver
 
     private function getNotExistsProducts(array $existsProducts) : array
     {
-        $notExists = array_diff($this->productsNames, $existsProducts);
+        $existsProductsNames = $this->getProductsNamesByObjMethod($existsProducts, 'getName');
+        
+        $notExists = array_diff($this->productsNames, $existsProductsNames);
 
         return $notExists;
     }
 
-    private function getProductsNamesFromRequests($products) : array
+    private function getProductsNamesByObjMethod(array $requests, string $methodName) : array
     {
         $productsNames = [];
 
-        /** @var Product $product */
-        foreach($products as $product) {
-            $productsNames[] = $product->getName();
+        /** @var ImportRequest $request */
+        foreach($requests as $request) {
+            $productsNames[] = $request->$methodName();
         }
 
         return $productsNames;
