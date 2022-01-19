@@ -89,7 +89,7 @@ class ImportRequest
 
     private function isValidCost(string $cost) : bool
     {
-        return (bool)preg_match('/\d+\$/i', $cost);
+        return (bool)preg_match('/^\d+\$$/i', $cost);
     }
 
     private function isValidCount(string $count) : bool

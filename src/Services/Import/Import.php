@@ -21,7 +21,7 @@ abstract class Import
     public function __construct(
         array $data,
         protected bool $isTest,
-        private Saver $saver,
+        private ?Saver $saver = null,
     )
     {
         $this->failed = [];
@@ -44,8 +44,6 @@ abstract class Import
 
     public function SaveRequests() : void
     {
-        $this->sortRequestsByGroups();
-
         if($this->isTest) {
             return;
         }

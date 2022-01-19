@@ -15,28 +15,31 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $name;
+    private string $name;
 
     #[ORM\Column(type: 'boolean', options: ['default' => 'false'])]
-    private $discontinued;
+    private bool $discontinued;
 
     #[ORM\OneToMany(mappedBy: 'Product', targetEntity: Import::class, orphanRemoval: true)]
-    private $imports;
+    private Collection $imports;
 
-    public function __construct()
+    public function __construct(string $name, bool $isDiscontinued = false)
     {
         $this->imports = new ArrayCollection();
+
+        $this->setName($name);
+        $this->setDiscontinued($isDiscontinued);
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -48,7 +51,7 @@ class Product
         return $this;
     }
 
-    public function getDiscontinued(): ?bool
+    public function getDiscontinued(): bool
     {
         return $this->discontinued;
     }

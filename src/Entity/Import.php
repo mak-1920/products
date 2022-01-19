@@ -27,14 +27,25 @@ class Import
 
     #[ORM\ManyToOne(targetEntity: product::class, inversedBy: 'imports')]
     #[ORM\JoinColumn(nullable: false)]
-    private $product;
+    private ?Product $product;
 
-    public function getId(): ?int
+    public function __construct(
+        Product $product,
+        int $cost,
+        int $count,
+    )
+    {
+        $this->setProduct($product);
+        $this->setCost($cost);
+        $this->setCount($count);
+    }
+
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getCost(): ?int
+    public function getCost(): int
     {
         return $this->cost;
     }
@@ -46,7 +57,7 @@ class Import
         return $this;
     }
 
-    public function getCount(): ?int
+    public function getCount(): int
     {
         return $this->count;
     }
@@ -58,16 +69,9 @@ class Import
         return $this;
     }
 
-    public function getDate(): ?\DateTimeImmutable
+    public function getDate(): DateTimeImmutable
     {
         return $this->date;
-    }
-
-    public function setDate(\DateTimeImmutable $date): self
-    {
-        $this->date = $date;
-
-        return $this;
     }
 
     public function getProduct(): ?Product

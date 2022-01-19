@@ -19,7 +19,7 @@ class ImportCSV extends Import
         string $filePath,
         CSVSettings $csvSettings,
         bool $isTest,
-        Saver $saver,
+        Saver $saver = null,
     )
     {
         $data = $this->setDataFromFile($filePath, $csvSettings);

@@ -23,12 +23,13 @@ class ImportRequestTest extends TestCase
         }
     }
 
-    public function testNotValidCost(): void
+    public function testNotValidValue(): void
     {
         $requests = [
             new ImportRequest(['apple', '1a$', '10']),
             new ImportRequest(['apple', '0$', '10a']),
             new ImportRequest(['apple', '1', '0']),
+            new ImportRequest(['apple', '10', '10']),
             new ImportRequest(['apple', '10000', '10000']),
             new ImportRequest(['', '1$', '10']),
             new ImportRequest(['apple', '1$', '10', '123']),

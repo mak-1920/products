@@ -6,7 +6,6 @@ namespace App\Tests\Import;
 
 use App\Tests\Import\Helpers\Import;
 use PHPUnit\Framework\TestCase;
-use App\Tests\Import\Helpers\Saver;
 
 class ImportTest extends TestCase
 {
@@ -20,7 +19,7 @@ class ImportTest extends TestCase
             ['apple', '1000$', '100'],
         ];
 
-        $import = new Import($data, true, new Saver());
+        $import = new Import($data, true);
 
         $this->assertEquals(count($import->getComplete()), count($data));
         $this->assertEquals(count($import->getFailed()), 0);
@@ -32,7 +31,7 @@ class ImportTest extends TestCase
             ['apple', '1001$', '100'],
         ];
 
-        $import = new Import($data, true, new Saver());
+        $import = new Import($data, true);
 
         $this->assertEquals(count($import->getFailed()), count($data));
         $this->assertEquals(count($import->getComplete()), 0);
@@ -44,7 +43,7 @@ class ImportTest extends TestCase
             ['apple', '4$', '9'],
         ];
 
-        $import = new Import($data, true, new Saver());
+        $import = new Import($data, true);
 
         $this->assertEquals(count($import->getFailed()), count($data));
         $this->assertEquals(count($import->getComplete()), 0);
@@ -62,7 +61,7 @@ class ImportTest extends TestCase
             ['apple', '4$', '9'],
         ];
 
-        $import = new Import($data, true, new Saver());
+        $import = new Import($data, true);
 
         $this->assertEquals(count($import->getComplete()), 5);
         $this->assertEquals(count($import->getFailed()), 2);
@@ -74,7 +73,7 @@ class ImportTest extends TestCase
             ['apple', '10$', '100'],
         ];
 
-        $import = new Import($data, true, new Saver());
+        $import = new Import($data, true);
 
         $this->assertEquals(count($import->getComplete()), 1);
         $this->assertEquals((string)$import->getComplete()[0], 'apple, 10$, 100 (Valid)');
