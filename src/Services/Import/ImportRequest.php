@@ -68,7 +68,7 @@ class ImportRequest
 
     public function __toString() : string
     {
-        return $this->inString . ' ' . ($this->isValidFormat ? '(Valid)' : '(Not valid)');
+        return $this->inString . ' ' . ($this->isValidFormat ? '(Valid)' : '(Invalid)');
     }
 
     public function getIsValid() : bool
