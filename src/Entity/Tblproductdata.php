@@ -40,13 +40,17 @@ class Tblproductdata
     #[ORM\Column(name: "stmTimestamp", type: "datetime", nullable: false)]
     private DateTime $stmtimestamp;
 
-    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Request::class, orphanRemoval: true)]
-    private Collection $requests;
+    #[ORM\Column(type: 'float')]
+    private int $stock;
+
+    #[ORM\Column(type: 'float')]
+    private $cost;
 
     public function __construct()
     {
         $this->stmtimestamp = new DateTime();
         $this->requests = new ArrayCollection();
+        $this->dtmadded = new DateTime();
     }
 
     public function getIntproductdataid(): ?int
@@ -119,32 +123,26 @@ class Tblproductdata
         return $this->stmtimestamp;
     }
 
-    /**
-     * @return Collection|Request[]
-     */
-    public function getRequests(): Collection
+    public function getStock(): ?int
     {
-        return $this->requests;
+        return $this->stock;
     }
 
-    public function addRequest(Request $request): self
+    public function setStock(int $stock): self
     {
-        if (!$this->requests->contains($request)) {
-            $this->requests[] = $request;
-            $request->setProduct($this);
-        }
+        $this->stock = $stock;
 
         return $this;
     }
 
-    public function removeRequest(Request $request): self
+    public function getCost(): ?float
     {
-        if ($this->requests->removeElement($request)) {
-            // set the owning side to null (unless already changed)
-            if ($request->getProduct() === $this) {
-                $request->setProduct(null);
-            }
-        }
+        return $this->cost;
+    }
+
+    public function setCost(float $cost): self
+    {
+        $this->cost = $cost;
 
         return $this;
     }

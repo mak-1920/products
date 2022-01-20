@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Savers;
 
-use App\Entity\Import;
-use App\Entity\Product;
-use App\Repository\ImportRepository;
-use App\Repository\ProductRepository;
 use App\Repository\TblproductdataRepository;
 use App\Services\Import\ImportRequest;
+use App\Entity\Tblproductdata;
+use App\Entity\Request;
+use DateTime;
+use Symfony\Component\PropertyAccess\Exception\UninitializedPropertyException;
 
 class MySQLSaver implements Saver
 {
@@ -33,102 +33,109 @@ class MySQLSaver implements Saver
     {
         $this->products = [];
         $this->requests = $requests;
-        $this->productsNames = $this->getProductsNamesByObjMethod($this->requests, 'getProduct');
+        $this->productsNames = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName', false);
+
+        $this->setInvalidProductsWithExistsProductCode();
+        $this->setDiscontinued();
 
         $this->setProducts();
-        $this->setRequestsForProducts();
 
         $this->productRepository->saveProducts($this->products);
     }
 
+    private function setInvalidProductsWithExistsProductCode() : void
+    {
+        $codes = $this->getProductsFieldsByObjMethod($this->requests, 'getProductCode', true);
+        $existsCodes = $this->productRepository->getExistsProductCodes($codes);
+
+        foreach($this->requests as $request) {
+            if($request->getIsValid()) {
+                if(array_search($request->getProductCode(), $existsCodes) !== false) {
+                    $request->setIsValid(false);
+                } else {
+                    $existsCodes[] = $request->getProductCode();
+                }
+            }
+        }
+    }
+
+    private function setDiscontinued() : void
+    {
+        $names = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName', true);
+        $discontinuedProducts = $this->productRepository->getDiscontinuedProductsByNames($names);
+        $discontinuedProducts = $this->transformDiscontinuedArr($discontinuedProducts);
+
+        foreach($this->requests as $request) {
+            if($request->getIsValid()) {
+                if(array_key_exists($request->getProductName(), $discontinuedProducts)) {
+                    $request->setDiscontinuedDate($discontinuedProducts[$request->getProductName()]);
+                }
+            }
+        }
+    }
+
+    private function transformDiscontinuedArr(array $array) : array
+    {
+        $result = [];
+
+        for($i = 0; $i < count($array); $i++) {
+            $result[$array[$i]['strproductname']] = $array[$i]['dtmdiscontinued'];
+        }
+
+        return $result;
+    }
+    
     private function setProducts() : void
     {
         $products = $this->getProducts();
 
-        /** @var Product $product */
+        /** @var Tblproductdata $product */
         foreach($products as $product) {
-            $productName = $product->getName();
-            $this->products[$productName] = $product;
+            $this->products[] = $product;
         }
-    }
-
-    private function setRequestsForProducts() : void
-    {
-        // /** @var ImportRequest $request */
-        // foreach($this->requests as $request) {
-        //     $productName = $request->getProduct();
-        //     /** @var Product $product */
-        //     $product = $this->products[$productName];
-            
-        //     $import = Import::Create(
-        //         $product,
-        //         $request->getCost(),
-        //         $request->getCount()
-        //     );
-
-        //     $product->addImport($import);
-        // }
     }
 
     private function getProducts() : array
     {
-        $existsProducts = $this->getExistsProducts();
-        $newProducts = $this->getNewProducts($existsProducts);
+        $products = [];
 
-        $products = array_merge(
-            $existsProducts, 
-            $newProducts
-        );
-
-        return $products;
-    }
-
-    private function getExistsProducts() : array
-    {
-        $exists = $this->productRepository->getExistsProducts($this->productsNames);
-        return $exists;
-    }
-
-    private function getNewProducts(array $existsProducts) : array
-    {
-        $newProducts = $this->getNotExistsProducts($existsProducts);
-
-        $products = $this->createNewProducts($newProducts);
-
-        return $products;
-    }
-
-    private function createNewProducts(array $products) : array
-    {
-        $productsEnt = [];
-
-        // foreach($products as $product) {
-        //     $productEnt = new Product();
-        //     $productEnt->setName($product);
-        //     $productsEnt[] = $productEnt;
-        // }
-
-        return $productsEnt;
-    }
-
-    private function getNotExistsProducts(array $existsProducts) : array
-    {
-        $existsProductsNames = $this->getProductsNamesByObjMethod($existsProducts, 'getName');
-        
-        $notExists = array_diff($this->productsNames, $existsProductsNames);
-
-        return $notExists;
-    }
-
-    private function getProductsNamesByObjMethod(array $requests, string $methodName) : array
-    {
-        $productsNames = [];
-
-        /** @var ImportRequest $request */
-        foreach($requests as $request) {
-            $productsNames[] = $request->$methodName();
+        foreach($this->requests as $request) {
+            if($request->getIsValid()) {
+                $products[] = $this->createProduct($request);
+            }
         }
 
-        return $productsNames;
+        return $products;
+    }
+
+    private function createProduct(ImportRequest $request) : Tblproductdata
+    {
+        $product = new Tblproductdata();
+
+        $product->setStrproductcode($request->getProductCode());
+        $product->setStrproductname($request->getProductName());
+        $product->setStrproductdesc($request->getProductDecs());
+        $product->setStock($request->getStock());
+        $product->setCost($request->getCost());
+        if($request->getDiscontinued()) {
+            $product->setDtmdiscontinued(
+                $request->getDiscontinuedDate() ?? new DateTime()
+            );
+        }
+
+        return $product;
+    }
+
+    private function getProductsFieldsByObjMethod(array $rows, string $methodName, bool $checkValid) : array
+    {
+        $result = [];
+
+        /** @var ImportRequest $row */
+        foreach($rows as $row) {
+            if($checkValid && $row->getIsValid()) {
+                $result[] = $row->$methodName();
+            }
+        }
+        return $result;
     }
 }

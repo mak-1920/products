@@ -12,34 +12,39 @@ abstract class Import
     /** @var ImportRequest[] $requests **/
     protected array $requests;
 
-    /** @var ImportRequest[] $failed */
-    private array $failed;
-
-    /** @var ImportRequest[] $complete */
-    private array $complete;
-
     public function __construct(
         array $data,
         protected bool $isTest,
         private ?Saver $saver = null,
     )
     {
-        $this->failed = [];
-        $this->complete = [];
         $this->setRequestsFromData($data);
-        $this->sortRequestsByGroups();
+        $this->setValidByRules();
     }
 
     abstract protected function setRequestsFromData(array $data) : void;
 
     public function getFailed() : array
     {
-        return $this->failed;
+        return $this->getCompleteOrFailed(false);
     }
 
     public function getComplete() : array
     {
-        return $this->complete;
+        return $this->getCompleteOrFailed(true);
+    }
+
+    private function getCompleteOrFailed(bool $isComplete) : array
+    {
+        $result = [];
+
+        foreach($this->requests as $request) {
+            if($request->getIsValid() === $isComplete) {
+                $result[] = $request;
+            }
+        }
+        
+        return $result;
     }
 
     public function SaveRequests() : void
@@ -48,16 +53,14 @@ abstract class Import
             return;
         }
 
-        $this->saver->Save($this->complete);
+        $this->saver->Save($this->requests);
     }
 
-    private function sortRequestsByGroups() : void 
+    private function setValidByRules() : void 
     {
         foreach($this->requests as $request) {
-            if($this->checkValidation($request)) {
-                $this->complete[] = $request;
-            } else {
-                $this->failed[] = $request;
+            if($request->getIsValid()) {
+                $request->setIsValid($this->checkValidation($request));
             }
         }
     }

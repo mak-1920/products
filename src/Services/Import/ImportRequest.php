@@ -15,6 +15,7 @@ class ImportRequest
     private int $stock;
     private float $cost;
     private bool $discontinued;
+    private ?DateTime $discontinuedDate;
     private string $inString;
 
     private const COLUMNS_COUNT = 6;
@@ -24,6 +25,8 @@ class ImportRequest
     )
     {   
         $isValidFormat = $this->isValidData($data);
+        
+        $this->discontinuedDate = null;
         $this->setIsValid($isValidFormat);
         $this->setInfo($data);
     }
@@ -53,6 +56,16 @@ class ImportRequest
         return $this->discontinued;
     }
 
+    public function getDiscontinuedDate() : ?DateTime
+    {
+        return $this->discontinuedDate;
+    }
+
+    public function setDiscontinuedDate(?DateTime $date) : void
+    {
+        $this->discontinuedDate = $date;
+    }
+
     public function __toString() : string
     {
         return $this->inString . ' ' . ($this->isValidFormat ? '(Valid)' : '(Not valid)');
@@ -63,7 +76,7 @@ class ImportRequest
         return $this->isValidFormat;
     }
 
-    private function setIsValid(bool $value) : void
+    public function setIsValid(bool $value) : void
     {
         $this->isValidFormat = $value;
     }
