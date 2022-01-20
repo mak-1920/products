@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Import;
 
-use function PHPUnit\Framework\isEmpty;
+use DateTime;
 
 class ImportRequest
 {
     private bool $isValidFormat;
-    private string $product;
-    private int $count;
-    private int $cost;
+    private string $productCode;
+    private string $productName;
+    private string $productDecs;
+    private int $stock;
+    private float $cost;
+    private bool $discontinued;
     private string $inString;
+
+    private const COLUMNS_COUNT = 6;
 
     public function __construct(
         array $data,
@@ -20,27 +25,37 @@ class ImportRequest
     {   
         $isValidFormat = $this->isValidData($data);
         $this->setIsValid($isValidFormat);
-        $this->setFields($data);
+        $this->setInfo($data);
+    }
+
+    public function getProductCode() : string
+    {
+        return $this->productCode;
+    }
+    public function getProductName() : string
+    {
+        return $this->productName;
+    }
+    public function getProductDecs() : string
+    {
+        return $this->productDecs;
+    }
+    public function getStock() : int
+    {
+        return $this->stock;
+    }
+    public function getCost() : float
+    {
+        return $this->cost;
+    }
+    public function getDiscontinued() : bool
+    {
+        return $this->discontinued;
     }
 
     public function __toString() : string
     {
         return $this->inString . ' ' . ($this->isValidFormat ? '(Valid)' : '(Not valid)');
-    }
-
-    public function getProduct() : string
-    {
-        return $this->product;
-    }
-
-    public function getCount() : int
-    {
-        return $this->count;
-    }
-
-    public function getCost() : int
-    {
-        return $this->cost;
     }
 
     public function getIsValid() : bool
@@ -53,14 +68,17 @@ class ImportRequest
         $this->isValidFormat = $value;
     }
 
-    private function setFields(array $data) : void
+    private function setInfo(array $data) : void
     {
         $this->setString($data);
 
         if($this->isValidFormat) {
-            $this->product = $data[0];
-            $this->cost = (int)substr($data[1], 0, -1);
-            $this->count = (int)$data[2];
+            $this->productCode = $data[0];
+            $this->productName = $data[1];
+            $this->productDecs = $data[2];
+            $this->stock = (int)$data[3];
+            $this->cost = (float)$data[4];
+            $this->discontinued = $this->stringIsNullOrEmpty($data[5]) ? false : (bool)$data[5];
         }
     }
 
@@ -73,28 +91,23 @@ class ImportRequest
     {
         return $this->isValidArgsCount($data)
             && !$this->stringIsNullOrEmpty($data[0])
-            && $this->isValidCost($data[1])
-            && $this->isValidCount($data[2]); 
+            && !$this->stringIsNullOrEmpty($data[1])
+            && !$this->stringIsNullOrEmpty($data[3])
+            && $this->isValidCost($data[4]);
     }
 
     private function isValidArgsCount(array $data) : bool
     {
-        return count($data) == 3;
+        return count($data) == self::COLUMNS_COUNT;
     }
 
-    private function stringIsNullOrEmpty(string $str) : bool
+    private function stringIsNullOrEmpty(?string $str) : bool
     {
         return $str == null || trim($str) == ''; 
     }
 
     private function isValidCost(string $cost) : bool
     {
-        return (bool)preg_match('/^\d+\$$/i', $cost);
+        return (bool)preg_match('/^\d+(\.\d{2})?$/i', $cost);
     }
-
-    private function isValidCount(string $count) : bool
-    {
-        return is_numeric($count);
-    }
-
 }

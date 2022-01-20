@@ -65,7 +65,7 @@ abstract class Import
     private function checkValidation(ImportRequest $request) : bool
     {
         return $request->getIsValid()
-            && !($request->getCost() < 5 && $request->getCount() < 10)
+            && !($request->getCost() < 5 && $request->getStock() < 10)
             && !($request->getCost() > 1000);
     }
 }

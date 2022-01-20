@@ -1,32 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Tests\Import;
 
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
-use App\Tests\Import\Helpers\Saver;
 use PHPUnit\Framework\TestCase;
 
 class ImportCSVTest extends TestCase
 {
-    public function testValidateWithoutHeaders(): void
+    public function testValid(): void
     {
         $import = new ImportCSV(
-            __DIR__.'/csv/normal_without_headers.csv', 
-            new CSVSettings(),
-            true
-        );
-
-        $this->assertEquals(count($import->getComplete()), 5);
-        $this->assertEquals(count($import->getFailed()), 0);
-    }
-
-    public function testValidateWithHeadersInDefaultOrder(): void
-    {
-        $import = new ImportCSV(
-            __DIR__.'/csv/normal_with_headers_in_default_order.csv', 
+            __DIR__.'/csv/normal_data_with_header.csv', 
             new CSVSettings(haveHeader: true),
             true
         );
@@ -35,67 +20,35 @@ class ImportCSVTest extends TestCase
         $this->assertEquals(count($import->getFailed()), 0);
     }
 
-    public function testValidateWithHeadersInNotDefaultOrder1(): void
-    {
-        for($i = 1; $i <= 5; $i++) {
-            $import = new ImportCSV(
-                __DIR__.'/csv/normal_with_headers_in_not_default_order_' . $i . '.csv', 
-                new CSVSettings(haveHeader: true),
-                true
-            );
-
-            $this->assertEquals(count($import->getComplete()), 5);
-            $this->assertEquals(count($import->getFailed()), 0);
-        }
-    }
-
-    public function testWithLessColums(): void
+    public function testInvalidBySyntax(): void
     {
         $import = new ImportCSV(
-            __DIR__.'/csv/invalid_with_less_columns.csv', 
-            new CSVSettings(),
+            __DIR__.'/csv/invalid_rows_by_syntax.csv', 
+            new CSVSettings(haveHeader: true),
             true
         );
 
         $this->assertEquals(count($import->getComplete()), 0);
-        $this->assertEquals(count($import->getFailed()), 5);
+        $this->assertEquals(count($import->getFailed()), 3);
     }
 
-    public function testWithMoreColums(): void
+    public function testInvalidByRules(): void
     {
         $import = new ImportCSV(
-            __DIR__.'/csv/invalid_with_more_columns.csv', 
-            new CSVSettings(),
+            __DIR__.'/csv/invalid_rows_by_rules.csv', 
+            new CSVSettings(haveHeader: true),
             true
         );
 
         $this->assertEquals(count($import->getComplete()), 0);
-        $this->assertEquals(count($import->getFailed()), 5);
+        $this->assertEquals(count($import->getFailed()), 3);
     }
 
-    public function testWithInvalidDataInCSV(): void
-    {
-        $columnName = ['product' => 1, 'cost' => 4, 'count' => 2];
-
-        foreach($columnName as $name => $rows) {
-            $import = new ImportCSV(
-                __DIR__.'/csv/invalid_with_error_in_' . $name . '.csv', 
-                new CSVSettings(),
-                true
-            );
-
-            $this->assertEquals(count($import->getComplete()), 0);
-            $this->assertEquals(count($import->getFailed()), $rows);
-        }
-    }
-
-
-
-    public function testWithValidAndInvalidRows(): void
+    public function test2Valid3Invalid(): void
     {
         $import = new ImportCSV(
             __DIR__.'/csv/2_valid_3_invalid.csv', 
-            new CSVSettings(),
+            new CSVSettings(haveHeader: true),
             true
         );
 

@@ -8,6 +8,7 @@ use App\Entity\Import;
 use App\Entity\Product;
 use App\Repository\ImportRepository;
 use App\Repository\ProductRepository;
+use App\Repository\TblproductdataRepository;
 use App\Services\Import\ImportRequest;
 
 class MySQLSaver implements Saver
@@ -22,7 +23,7 @@ class MySQLSaver implements Saver
     private array $productsNames;
 
     public function __construct(
-        private ProductRepository $productRepository,
+        private TblproductdataRepository $productRepository,
     )
     {
     }
@@ -53,20 +54,20 @@ class MySQLSaver implements Saver
 
     private function setRequestsForProducts() : void
     {
-        /** @var ImportRequest $request */
-        foreach($this->requests as $request) {
-            $productName = $request->getProduct();
-            /** @var Product $product */
-            $product = $this->products[$productName];
+        // /** @var ImportRequest $request */
+        // foreach($this->requests as $request) {
+        //     $productName = $request->getProduct();
+        //     /** @var Product $product */
+        //     $product = $this->products[$productName];
             
-            $import = Import::Create(
-                $product,
-                $request->getCost(),
-                $request->getCount()
-            );
+        //     $import = Import::Create(
+        //         $product,
+        //         $request->getCost(),
+        //         $request->getCount()
+        //     );
 
-            $product->addImport($import);
-        }
+        //     $product->addImport($import);
+        // }
     }
 
     private function getProducts() : array
@@ -101,11 +102,11 @@ class MySQLSaver implements Saver
     {
         $productsEnt = [];
 
-        foreach($products as $product) {
-            $productEnt = new Product();
-            $productEnt->setName($product);
-            $productsEnt[] = $productEnt;
-        }
+        // foreach($products as $product) {
+        //     $productEnt = new Product();
+        //     $productEnt->setName($product);
+        //     $productsEnt[] = $productEnt;
+        // }
 
         return $productsEnt;
     }

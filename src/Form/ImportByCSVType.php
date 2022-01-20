@@ -32,26 +32,20 @@ class ImportByCSVType extends AbstractType
                 ],
             ])
             ->add('enclosure', TextType::class, [
-                'required' => true,
-                'data' => '"',
+                'data' => '',
                 'constraints' => [
-                    new NotBlank(),
-                    new Length(min: 1, max: 1),
+                    new Length(min: 0, max: 1),
                 ],
                 'attr' => [
-                    'minlength' => 1,
                     'maxlength' => 1,
                 ],
             ])
             ->add('escape', TextType::class, [
-                'required' => true,
-                'data' => '"',
+                'data' => '',
                 'constraints' => [
-                    new NotBlank(),
-                    new Length(min: 1, max: 1),
+                    new Length(min: 0, max: 1),
                 ],
                 'attr' => [
-                    'minlength' => 1,
                     'maxlength' => 1,
                 ],
             ])
@@ -64,12 +58,11 @@ class ImportByCSVType extends AbstractType
             ->add('haveHeader', CheckboxType::class, [
                 'mapped' => false,
                 'required' => false,
-                // 'false_values' => [false],
+                'data' => true,
             ])
             ->add('testmode', CheckboxType::class, [
                 'mapped' => false,
                 'required' => false,
-                // 'false_values' => [false],
             ])
             ->add('import', SubmitType::class, [
                 

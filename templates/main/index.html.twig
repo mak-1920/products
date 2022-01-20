@@ -9,7 +9,7 @@
 </style>
 
 <div class="wrapper">
-    {{ form(form) }}
+    {{ form(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
 
     {% if not import is null and import.getFailed|length > 0 %}
         <ul>    

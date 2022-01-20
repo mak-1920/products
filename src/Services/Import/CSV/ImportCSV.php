@@ -11,7 +11,7 @@ use League\Csv\Reader;
 
 class ImportCSV extends Import
 {
-    static private array $headerTitles = ['product', 'cost', 'count'];
+    static private array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
     
     private bool $headerMustSynchronization;
 
