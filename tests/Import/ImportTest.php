@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Import;
 
+use App\Services\Import\CSV\CSVSettings;
+use App\Services\Import\CSV\ImportCSV;
 use App\Tests\Import\Helpers\Import;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class ImportTest extends TestCase
 {
-    public function testWithValidData(): void
+    public function testWithValidData() : void
     {
         $data = [
             ['P0001','TV','32” Tv','10','399.99',''],
@@ -26,7 +29,7 @@ class ImportTest extends TestCase
         $this->assertEquals(count($import->getFailed()), 0);
     }
 
-    public function testWithBigCost(): void
+    public function testWithBigCost() : void
     {
         $data = [
             ['P0001','TV','32” Tv','10','1001.00',''],
@@ -38,7 +41,7 @@ class ImportTest extends TestCase
         $this->assertEquals(count($import->getComplete()), 0);
     }
 
-    public function testWithSmallCostAndCount(): void
+    public function testWithSmallCostAndCount() : void
     {
         $data = [
             ['P0001','TV','32” Tv','9','4.99',''],
@@ -50,7 +53,7 @@ class ImportTest extends TestCase
         $this->assertEquals(count($import->getComplete()), 0);
     }
 
-    public function testWith2FailedRow(): void
+    public function testWith2FailedRow() : void
     {
         $data = [
             ['P0001','TV','32” Tv','10','399.99',''],
@@ -69,7 +72,7 @@ class ImportTest extends TestCase
         $this->assertEquals(count($import->getFailed()), 2);
     }
 
-    public function testStringInRequest(): void
+    public function testStringInRequest() : void
     {
         $data = [
             ['P0001','TV','32” Tv','10','399.99','yes'],
@@ -84,5 +87,29 @@ class ImportTest extends TestCase
         $this->assertEquals(count($failed), 1);
         $this->assertEquals((string)$complete[0], 'P0001, TV, 32” Tv, 10, 399.99, yes (Valid)');
         $this->assertEquals((string)$failed[0], 'P0001, TV, 32” Tv, 9, 4.99, yes (Invalid)');
+    }
+
+    public function testGetCompleteOrFailedRequests() : void
+    {
+        $import = new ImportCSV(
+            __DIR__.'/csv/2_valid_3_invalid.csv', 
+            new CSVSettings(haveHeader: true),
+            true
+        );
+
+        $this->assertEquals(count($this->invokeMethod($import, 'getCompleteOrFailed', [true])), 2);
+        $this->assertEquals(count($this->invokeMethod($import, 'getCompleteOrFailed', [false])), 3);
+    }
+
+    private function invokeMethod(
+        object &$object, 
+        string $methodName, 
+        array $parameters = [])
+    {
+        $reflection = new ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
     }
 }
