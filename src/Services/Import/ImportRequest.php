@@ -107,7 +107,8 @@ class ImportRequest
             && !$this->stringIsNullOrEmpty($data[0])
             && !$this->stringIsNullOrEmpty($data[1])
             && !$this->stringIsNullOrEmpty($data[3])
-            && $this->isValidCost($data[4]);
+            && $this->isValidCost($data[4])
+            && $this->isSatisfiesRules($data);
     }
 
     private function isValidArgsCount(array $data) : bool
@@ -123,5 +124,11 @@ class ImportRequest
     private function isValidCost(string $cost) : bool
     {
         return (bool)preg_match('/^\d+(\.\d{2})?$/i', $cost);
+    }
+
+    private function isSatisfiesRules(array $data) : bool
+    {
+        return !(round((float)$data[4], 2) < 5 && (int)$data[3] < 10)
+            && !(round((float)$data[4], 2) > 1000);
     }
 }

@@ -19,7 +19,6 @@ abstract class Import
     )
     {
         $this->setRequestsFromData($data);
-        $this->setValidByRules();
     }
 
     abstract protected function setRequestsFromData(array $data) : void;
@@ -59,21 +58,5 @@ abstract class Import
         }
 
         $this->saver->Save($this->requests);
-    }
-
-    private function setValidByRules() : void 
-    {
-        foreach($this->requests as $request) {
-            if($request->getIsValid()) {
-                $request->setIsValid($this->checkValidation($request));
-            }
-        }
-    }
-
-    private function checkValidation(ImportRequest $request) : bool
-    {
-        return $request->getIsValid()
-            && !(round($request->getCost(), 2) < 5 && $request->getStock() < 10)
-            && !(round($request->getCost(), 2) > 1000);
     }
 }
