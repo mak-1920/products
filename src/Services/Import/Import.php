@@ -24,6 +24,11 @@ abstract class Import
 
     abstract protected function setRequestsFromData(array $data) : void;
 
+    public function getRequests() : array
+    {
+        return $this->requests;
+    }
+
     public function getFailed() : array
     {
         return $this->getCompleteOrFailed(false);

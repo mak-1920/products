@@ -12,11 +12,17 @@
     {{ form(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
 
     {% if not import is null and import.getFailed|length > 0 %}
-        <ul>    
-            {% for request in import.failed %}
-                <li>{{ request }}</li>
-            {% endfor %}
-        </ul>
+        <p>Processed: {{ import.requests|length }}</p>
+        <p>Success: {{ import.complete|length }}</p>
+        <p>Failed: {{ import.failed|length }}</p>
+        <p>
+            Errors:
+            <ul>    
+                {% for request in import.failed %}
+                    <li>{{ request }}</li>
+                {% endfor %}
+            </ul>
+        </p>
     {% endif %}
 </div>
 {% endblock %}
