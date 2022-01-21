@@ -8,12 +8,14 @@ use App\Services\Import\Import;
 use App\Services\Import\ImportRequest;
 use App\Services\Import\Savers\Saver;
 use League\Csv\Reader;
+use League\Csv\SyntaxError;
 
 class ImportCSV extends Import
 {
     static private array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
     
     private bool $headerMustSynchronization;
+    private Reader $csv;
 
     public function __construct(
         string $filePath,
@@ -45,12 +47,17 @@ class ImportCSV extends Import
 
     private function setDataFromFile(string $filePath, CSVSettings $settings) : array
     {
-        $csv = Reader::createFromPath($filePath);
+        $this->csv = Reader::createFromPath($filePath);
         
-        $this->setCSVSettings($csv, $settings);
-        $this->headerMustSynchronization = $this->headerIsMustSynchronization($csv);
+        $this->setCSVSettings($settings);
+        $this->headerMustSynchronization = $this->headerIsMustSynchronization();
 
-        $records = $csv->getRecords();
+        try{
+            $records = $this->csv->getRecords();
+        }
+        catch (SyntaxError) {
+            return [];
+        }
         $rows = [];
 
         foreach($records as $record) {
@@ -60,28 +67,33 @@ class ImportCSV extends Import
         return $rows;
     }
 
-    private function setCSVSettings(Reader $csv, CSVSettings $settings) : void
+    private function setCSVSettings(CSVSettings $settings) : void
     {
-        $csv->setDelimiter($settings->getDelimiter());
-        $csv->setEscape($settings->getEscape());
-        $csv->setEnclosure($settings->getEnclosure());
+        $this->csv->setDelimiter($settings->getDelimiter());
+        $this->csv->setEscape($settings->getEscape());
+        $this->csv->setEnclosure($settings->getEnclosure());
         if($settings->isHavingHeader()) {
-            $csv->setHeaderOffset(0);
+            $this->csv->setHeaderOffset(0);
         }
     }
 
-    private function headerIsMustSynchronization($csv) : bool
+    private function headerIsMustSynchronization() : bool
     {
-        if($csv->getHeaderOffset() === null) {
+        if($this->csv->getHeaderOffset() === null) {
             return false;
         }
 
-        return $this->checkHeader($csv);        
+        return $this->checkHeader();        
     }
 
-    private function checkHeader($csv) : bool
+    private function checkHeader() : bool
     {
-        $header = $csv->getHeader();
+        try{
+            $header = $this->csv->getHeader();
+        } 
+        catch(SyntaxError) {
+            return false;
+        }
 
         return $this->checkCountTitles($header)
             && $this->checkExistsTitles($header);

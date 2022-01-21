@@ -18,6 +18,7 @@ abstract class Import
         private ?Saver $saver = null,
     )
     {
+        $this->requests = [];
         $this->setRequestsFromData($data);
     }
 
