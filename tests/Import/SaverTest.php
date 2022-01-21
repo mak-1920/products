@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use App\Services\Import\ImportRequest;
 use DateTime;
+use ReflectionClass;
 
 class SaverTest extends KernelTestCase
 {
@@ -66,7 +67,7 @@ class SaverTest extends KernelTestCase
         $this->assertEquals(count($import->getFailed()), 5);
     }
 
-    public function testDisctontinueds() : void
+    public function testDiscontinueds() : void
     {
         $import = new ImportCSV(
             __DIR__.'/csv/saver_discontinueds.csv',
@@ -88,5 +89,44 @@ class SaverTest extends KernelTestCase
 
         $this->assertEquals($requests[5]->getDiscontinued(), true);
         $this->assertEquals($requests[5]->getDiscontinuedDate(), $requests[0]->getDiscontinuedDate());
+    }
+
+    public function testGetProductsFieldsByObjMethod() : void
+    {
+        $requests = [
+            new ImportRequest(['P0001','TV','32” Tv','10','399.98','']),
+            new ImportRequest(['','TV2','32” Tv','10','399.99','']),
+        ];
+
+        $this->assertEquals($this->invokeMethod($this->saver, 'getProductsFieldsByObjMethod', [$requests, 'getProductname']), ['TV']);
+        $this->assertEquals($this->invokeMethod($this->saver, 'getProductsFieldsByObjMethod', [$requests, 'getCost']), ['399.98']);
+    }
+
+    public function testTransformDiscontinuedArr() : void
+    {
+        $data = [
+            ['strproductname' => 'TV', 'dtmdiscontinued' => new DateTime('2022-01-20 15:12:38')],
+            ['strproductname' => 'Cd Player', 'dtmdiscontinued' => new DateTime('2022-01-20 16:10:00')],
+        ];
+
+        $result = $this->invokeMethod($this->saver, 'transformDiscontinuedArr', [$data]);
+
+        $this->assertEquals(count($result), count($data));
+        $this->assertArrayHasKey('TV', $result);
+        $this->assertArrayHasKey('Cd Player', $result);
+        $this->assertEquals($result['TV'], new DateTime('2022-01-20 15:12:38'));
+        $this->assertEquals($result['Cd Player'], new DateTime('2022-01-20 16:10:00'));
+    }
+
+    private function invokeMethod(
+        object &$object, 
+        string $methodName, 
+        array $parameters = [])
+    {
+        $reflection = new ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
     }
 }
