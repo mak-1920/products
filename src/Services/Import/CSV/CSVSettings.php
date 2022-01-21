@@ -8,8 +8,8 @@ class CSVSettings
 {
     public function __construct(
         private string $delimiter = ',',
-        private string $enclosure = '"',
-        private string $escape = '"',
+        private string $enclosure = ' ',
+        private string $escape = ' ',
         private bool $haveHeader = false,
     )
     {

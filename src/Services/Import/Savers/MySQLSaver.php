@@ -69,6 +69,8 @@ class MySQLSaver implements Saver
             if($request->getIsValid()) {
                 if(array_key_exists($request->getProductName(), $discontinuedProducts)) {
                     $request->setDiscontinuedDate($discontinuedProducts[$request->getProductName()]);
+                } else if ($request->getDiscontinued()) {
+                    $discontinuedProducts[$request->getProductName()] = $request->getDiscontinuedDate();
                 }
             }
         }

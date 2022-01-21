@@ -63,6 +63,7 @@ class ImportRequest
 
     public function setDiscontinuedDate(?DateTime $date) : void
     {
+        $this->discontinued = true;
         $this->discontinuedDate = $date;
     }
 
