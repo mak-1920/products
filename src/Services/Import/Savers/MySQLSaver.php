@@ -33,7 +33,7 @@ class MySQLSaver implements Saver
     {
         $this->products = [];
         $this->requests = $requests;
-        $this->productsNames = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName', false);
+        $this->productsNames = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName');
 
         $this->setInvalidProductsWithExistsProductCode();
         $this->setDiscontinued();
@@ -45,7 +45,7 @@ class MySQLSaver implements Saver
 
     private function setInvalidProductsWithExistsProductCode() : void
     {
-        $codes = $this->getProductsFieldsByObjMethod($this->requests, 'getProductCode', true);
+        $codes = $this->getProductsFieldsByObjMethod($this->requests, 'getProductCode');
         $existsCodes = $this->productRepository->getExistsProductCodes($codes);
 
         foreach($this->requests as $request) {
@@ -61,7 +61,7 @@ class MySQLSaver implements Saver
 
     private function setDiscontinued() : void
     {
-        $names = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName', true);
+        $names = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName');
         $discontinuedProducts = $this->productRepository->getDiscontinuedProductsByNames($names);
         $discontinuedProducts = $this->transformDiscontinuedArr($discontinuedProducts);
 
@@ -128,13 +128,13 @@ class MySQLSaver implements Saver
         return $product;
     }
 
-    private function getProductsFieldsByObjMethod(array $rows, string $methodName, bool $checkValid) : array
+    private function getProductsFieldsByObjMethod(array $rows, string $methodName) : array
     {
         $result = [];
 
         /** @var ImportRequest $row */
         foreach($rows as $row) {
-            if($checkValid && $row->getIsValid()) {
+            if($row->getIsValid()) {
                 $result[] = $row->$methodName();
             }
         }
