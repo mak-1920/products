@@ -52,7 +52,7 @@ class ImportByCSVType extends AbstractType
             ->add('file', FileType::class, [
                 'required' => true,
                 'constraints' => [
-                    new NotBlank(),  
+                    new NotBlank(),
                 ],
             ])
             ->add('haveHeader', CheckboxType::class, [
@@ -65,7 +65,6 @@ class ImportByCSVType extends AbstractType
                 'required' => false,
             ])
             ->add('import', SubmitType::class, [
-                
             ])
         ;
     }

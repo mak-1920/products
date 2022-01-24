@@ -22,86 +22,90 @@ class ImportRequest
 
     public function __construct(
         array $data,
-    )
-    {   
+    ) {
         $isValidFormat = $this->isValidData($data);
-        
+
         $this->discontinuedDate = null;
         $this->setIsValid($isValidFormat);
         $this->setInfo($data);
     }
 
-    public function getProductCode() : string
+    public function getProductCode(): string
     {
         return $this->productCode;
     }
-    public function getProductName() : string
+
+    public function getProductName(): string
     {
         return $this->productName;
     }
-    public function getProductDecs() : string
+
+    public function getProductDecs(): string
     {
         return $this->productDecs;
     }
-    public function getStock() : int
+
+    public function getStock(): int
     {
         return $this->stock;
     }
-    public function getCost() : float
+
+    public function getCost(): float
     {
         return $this->cost;
     }
-    public function getDiscontinued() : bool
+
+    public function getDiscontinued(): bool
     {
         return $this->discontinued;
     }
 
-    public function getDiscontinuedDate() : ?DateTime
+    public function getDiscontinuedDate(): ?DateTime
     {
         return $this->discontinuedDate;
     }
 
-    public function setDiscontinuedDate(?DateTime $date) : void
+    public function setDiscontinuedDate(?DateTime $date): void
     {
         $this->discontinued = true;
         $this->discontinuedDate = $date;
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
-        return $this->inString . ' ' . ($this->isValidFormat ? '(Valid)' : '(Invalid)');
+        return $this->inString.' '.($this->isValidFormat ? '(Valid)' : '(Invalid)');
     }
 
-    public function getIsValid() : bool
+    public function getIsValid(): bool
     {
         return $this->isValidFormat;
     }
 
-    public function setIsValid(bool $value) : void
+    public function setIsValid(bool $value): void
     {
         $this->isValidFormat = $value;
     }
 
-    private function setInfo(array $data) : void
+    private function setInfo(array $data): void
     {
         $this->setString($data);
 
-        if($this->isValidFormat) {
+        if ($this->isValidFormat) {
             $this->productCode = $data[0];
             $this->productName = $data[1];
             $this->productDecs = $data[2];
-            $this->stock = (int)$data[3];
-            $this->cost = (float)$data[4];
-            $this->discontinued = $this->stringIsNullOrEmpty($data[5]) ? false : (bool)$data[5];
+            $this->stock = (int) $data[3];
+            $this->cost = (float) $data[4];
+            $this->discontinued = $this->stringIsNullOrEmpty($data[5]) ? false : (bool) $data[5];
         }
     }
 
-    private function setString($data) : void 
+    private function setString($data): void
     {
         $this->inString = implode(', ', $data);
     }
 
-    private function isValidData(array $data) : bool 
+    private function isValidData(array $data): bool
     {
         return $this->isValidArgsCount($data)
             && !$this->stringIsNullOrEmpty($data[0])
@@ -111,24 +115,24 @@ class ImportRequest
             && $this->isSatisfiesRules($data);
     }
 
-    private function isValidArgsCount(array $data) : bool
+    private function isValidArgsCount(array $data): bool
     {
-        return count($data) == self::COLUMNS_COUNT;
+        return self::COLUMNS_COUNT == count($data);
     }
 
-    private function stringIsNullOrEmpty(?string $str) : bool
+    private function stringIsNullOrEmpty(?string $str): bool
     {
-        return $str == null || trim($str) == ''; 
+        return null == $str || '' == trim($str);
     }
 
-    private function isValidCost(string $cost) : bool
+    private function isValidCost(string $cost): bool
     {
-        return (bool)preg_match('/^\d+(\.\d{2})?$/i', $cost);
+        return (bool) preg_match('/^\d+(\.\d{2})?$/i', $cost);
     }
 
-    private function isSatisfiesRules(array $data) : bool
+    private function isSatisfiesRules(array $data): bool
     {
-        return !(round((float)$data[4], 2) < 5 && (int)$data[3] < 10)
-            && !(round((float)$data[4], 2) > 1000);
+        return !(round((float) $data[4], 2) < 5 && (int) $data[3] < 10)
+            && !(round((float) $data[4], 2) > 1000);
     }
 }

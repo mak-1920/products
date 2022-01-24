@@ -6,10 +6,8 @@ namespace App\Repository;
 
 use App\Entity\Tblproductdata;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\Persistence\ManagerRegistry;
-use App\Services\Import\Savers\RequestInfo;
 use Doctrine\DBAL\Connection;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Import|null find($id, $lockMode = null, $lockVersion = null)
@@ -24,7 +22,7 @@ class TblproductdataRepository extends ServiceEntityRepository
         parent::__construct($registry, Tblproductdata::class);
     }
 
-    public function getExistsProductCodes(array $codes) : array
+    public function getExistsProductCodes(array $codes): array
     {
         return $this->createQueryBuilder('p')
             ->select('p.strproductcode')
@@ -35,7 +33,7 @@ class TblproductdataRepository extends ServiceEntityRepository
             ;
     }
 
-    public function getDiscontinuedProductsByNames(array $names) : array
+    public function getDiscontinuedProductsByNames(array $names): array
     {
         return $this->createQueryBuilder('p')
             ->select('p.strproductname, p.dtmdiscontinued')
@@ -49,11 +47,11 @@ class TblproductdataRepository extends ServiceEntityRepository
             ;
     }
 
-    public function saveProducts(array $products) : void 
+    public function saveProducts(array $products): void
     {
         $em = $this->getEntityManager();
 
-        foreach($products as $product) {
+        foreach ($products as $product) {
             $em->persist($product);
         }
 

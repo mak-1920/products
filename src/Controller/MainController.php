@@ -19,11 +19,11 @@ class MainController extends AbstractController
     public function index(Request $request, MySQLSaver $saver): Response
     {
         $import = null;
-        
+
         $form = $this->createForm(ImportByCSVType::class);
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $import = new ImportCSV(
                 $request->files->get('import_by_csv')['file']->getPathname(),
                 new CSVSettings(

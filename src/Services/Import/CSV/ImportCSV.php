@@ -12,8 +12,8 @@ use League\Csv\SyntaxError;
 
 class ImportCSV extends Import
 {
-    static private array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
-    
+    private static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
+
     private bool $headerMustSynchronization;
     private Reader $csv;
 
@@ -22,19 +22,18 @@ class ImportCSV extends Import
         CSVSettings $csvSettings,
         bool $isTest,
         Saver $saver = null,
-    )
-    {
+    ) {
         $data = $this->setDataFromFile($filePath, $csvSettings);
 
-        parent::__construct($data, $isTest, $saver);   
+        parent::__construct($data, $isTest, $saver);
     }
 
-    protected function setRequestsFromData(array $data) : void
+    protected function setRequestsFromData(array $data): void
     {
-        foreach($data as $row) {
-            if($this->headerMustSynchronization) {
+        foreach ($data as $row) {
+            if ($this->headerMustSynchronization) {
                 $request = [];
-                for($i = 0; $i < count(self::$headerTitles); $i++){
+                for ($i = 0; $i < count(self::$headerTitles); ++$i) {
                     $request[] = $row[self::$headerTitles[$i]];
                 }
                 $this->requests[] = new ImportRequest($request);
@@ -45,53 +44,51 @@ class ImportCSV extends Import
         }
     }
 
-    private function setDataFromFile(string $filePath, CSVSettings $settings) : array
+    private function setDataFromFile(string $filePath, CSVSettings $settings): array
     {
         $this->csv = Reader::createFromPath($filePath);
-        
+
         $this->setCSVSettings($settings);
         $this->headerMustSynchronization = $this->headerIsMustSynchronization();
 
-        try{
+        try {
             $records = $this->csv->getRecords();
-        }
-        catch (SyntaxError) {
+        } catch (SyntaxError) {
             return [];
         }
         $rows = [];
 
-        foreach($records as $record) {
+        foreach ($records as $record) {
             $rows[] = $record;
         }
 
         return $rows;
     }
 
-    private function setCSVSettings(CSVSettings $settings) : void
+    private function setCSVSettings(CSVSettings $settings): void
     {
         $this->csv->setDelimiter($settings->getDelimiter());
         $this->csv->setEscape($settings->getEscape());
         $this->csv->setEnclosure($settings->getEnclosure());
-        if($settings->isHavingHeader()) {
+        if ($settings->isHavingHeader()) {
             $this->csv->setHeaderOffset(0);
         }
     }
 
-    private function headerIsMustSynchronization() : bool
+    private function headerIsMustSynchronization(): bool
     {
-        if($this->csv->getHeaderOffset() === null) {
+        if (null === $this->csv->getHeaderOffset()) {
             return false;
         }
 
-        return $this->checkHeader();        
+        return $this->checkHeader();
     }
 
-    private function checkHeader() : bool
+    private function checkHeader(): bool
     {
-        try{
+        try {
             $header = $this->csv->getHeader();
-        } 
-        catch(SyntaxError) {
+        } catch (SyntaxError) {
             return false;
         }
 
@@ -99,18 +96,19 @@ class ImportCSV extends Import
             && $this->checkExistsTitles($header);
     }
 
-    private function checkCountTitles(array $header) : bool
+    private function checkCountTitles(array $header): bool
     {
         return count($header) == count(self::$headerTitles);
     }
 
-    private function checkExistsTitles(array $header) : bool 
+    private function checkExistsTitles(array $header): bool
     {
-        for($i = 0; $i < count(self::$headerTitles); $i++) {
-            if(array_search(self::$headerTitles[$i], $header) === false) {
+        for ($i = 0; $i < count(self::$headerTitles); ++$i) {
+            if (false === array_search(self::$headerTitles[$i], $header)) {
                 return false;
             }
         }
+
         return true;
     }
 }

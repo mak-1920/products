@@ -7,37 +7,35 @@ namespace App\Entity;
 use App\Repository\TblproductdataRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-#[ORM\Table(name:"tblProductData")]
+#[ORM\Table(name: 'tblProductData')]
 #[ORM\Entity(repositoryClass: TblproductdataRepository::class)]
-#[UniqueEntity(fields: ["strProductCode"])]
+#[UniqueEntity(fields: ['strProductCode'])]
 class Tblproductdata
 {
-
     #[ORM\Id]
-    #[ORM\Column(name: "intProductDataId", type: "integer", nullable: false, options: ["unsigned" => true])]
-    #[ORM\GeneratedValue(strategy: "IDENTITY")]
+    #[ORM\Column(name: 'intProductDataId', type: 'integer', nullable: false, options: ['unsigned' => true])]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private int $intproductdataid;
 
-    #[ORM\Column(name: "strProductName", type: "string", length: 50, nullable: false)]
+    #[ORM\Column(name: 'strProductName', type: 'string', length: 50, nullable: false)]
     private string $strproductname;
 
-    #[ORM\Column(name: "strProductDesc", type: "string", length: 255, nullable: false)]
+    #[ORM\Column(name: 'strProductDesc', type: 'string', length: 255, nullable: false)]
     private string $strproductdesc;
 
-    #[ORM\Column(name: "strProductCode", type: "string", length: 10, nullable: false, unique:true)]
+    #[ORM\Column(name: 'strProductCode', type: 'string', length: 10, nullable: false, unique: true)]
     private string $strproductcode;
 
-    #[ORM\Column(name: "dtmAdded", type: "datetime", nullable: true)]
+    #[ORM\Column(name: 'dtmAdded', type: 'datetime', nullable: true)]
     private ?DateTime $dtmadded;
 
-    #[ORM\Column(name: "dtmDiscontinued", type: "datetime", nullable: true)]
+    #[ORM\Column(name: 'dtmDiscontinued', type: 'datetime', nullable: true)]
     private ?DateTime $dtmdiscontinued;
 
-    #[ORM\Column(name: "stmTimestamp", type: "datetime", nullable: false)]
+    #[ORM\Column(name: 'stmTimestamp', type: 'datetime', nullable: false)]
     private DateTime $stmtimestamp;
 
     #[ORM\Column(type: 'float')]
