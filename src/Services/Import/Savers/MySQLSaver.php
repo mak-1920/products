@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Savers;
 
-use App\Entity\Tblproductdata;
-use App\Repository\TblproductdataRepository;
+use App\Entity\ProductData;
+use App\Repository\ProductDataRepository;
 use App\Services\Import\ImportRequest;
 use DateTime;
 
@@ -21,7 +21,7 @@ class MySQLSaver implements Saver
     private array $productsNames;
 
     public function __construct(
-        private TblproductdataRepository $productRepository,
+        private ProductDataRepository $productRepository,
     ) {
     }
 
@@ -88,7 +88,7 @@ class MySQLSaver implements Saver
     {
         $products = $this->getProducts();
 
-        /** @var Tblproductdata $product */
+        /** @var ProductData $product */
         foreach ($products as $product) {
             $this->products[] = $product;
         }
@@ -107,9 +107,9 @@ class MySQLSaver implements Saver
         return $products;
     }
 
-    private function createProduct(ImportRequest $request): Tblproductdata
+    private function createProduct(ImportRequest $request): ProductData
     {
-        $product = new Tblproductdata();
+        $product = new ProductData();
 
         $product->setStrproductcode($request->getProductCode());
         $product->setStrproductname($request->getProductName());
@@ -125,11 +125,13 @@ class MySQLSaver implements Saver
         return $product;
     }
 
+    /**
+     * @param ImportRequest[] $rows
+     */
     private function getProductsFieldsByObjMethod(array $rows, string $methodName): array
     {
         $result = [];
 
-        /** @var ImportRequest $row */
         foreach ($rows as $row) {
             if ($row->getIsValid()) {
                 $result[] = $row->$methodName();

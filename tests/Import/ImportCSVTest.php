@@ -113,7 +113,7 @@ class ImportCSVTest extends TestCase
         foreach($fileTitles as $title => $testResult) {
             $import = $this->getImport([__DIR__ . '/csv/' . $title]);
 
-            $this->assertEquals($this->invokeMethod($import, 'checkHeader'), $testResult);
+            $this->assertEquals($this->invokeMethod($import, 'isValidHeader'), $testResult);
         }
     }
 
@@ -129,7 +129,7 @@ class ImportCSVTest extends TestCase
         foreach($fileTitles as $title => $testResult) {
             $import = $this->getImport([__DIR__ . '/csv/' . $title]);
 
-            $this->assertEquals($this->invokeMethod($import, 'checkHeader'), $testResult);
+            $this->assertEquals($this->invokeMethod($import, 'isValidHeader'), $testResult);
         }
     }
 

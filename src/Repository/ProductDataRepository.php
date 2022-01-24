@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\Entity\Tblproductdata;
+use App\Entity\ProductData;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,11 +15,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Import[]    findAll()
  * @method Import[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TblproductdataRepository extends ServiceEntityRepository
+class ProductDataRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Tblproductdata::class);
+        parent::__construct($registry, ProductData::class);
     }
 
     public function getExistsProductCodes(array $codes): array

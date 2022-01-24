@@ -50,7 +50,7 @@ abstract class Import
         return $result;
     }
 
-    public function SaveRequests(): void
+    public function saveRequests(): void
     {
         if ($this->isTest) {
             return;

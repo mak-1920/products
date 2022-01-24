@@ -2,7 +2,7 @@
 
 namespace App\Tests\Import;
 
-use App\Repository\TblproductdataRepository;
+use App\Repository\ProductDataRepository;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
 use App\Services\Import\Savers\MySQLSaver;
@@ -20,7 +20,7 @@ class SaverTest extends KernelTestCase
     protected function setUp() : void
     {
         /** @var MockObject $saver */
-        $repository = $this->createMock(TblproductdataRepository::class);
+        $repository = $this->createMock(ProductDataRepository::class);
 
         $repository->expects($this->any())
             ->method('getExistsProductCodes')

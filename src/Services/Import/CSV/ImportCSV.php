@@ -15,7 +15,7 @@ class ImportCSV extends Import
 {
     private static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
 
-    private bool $headerMustSynchronization;
+    private bool $headerMustSynchronize;
     private Reader $csv;
 
     public function __construct(
@@ -32,7 +32,7 @@ class ImportCSV extends Import
     protected function setRequestsFromData(array $data): void
     {
         foreach ($data as $row) {
-            if ($this->headerMustSynchronization) {
+            if ($this->headerMustSynchronize) {
                 $request = [];
                 for ($i = 0; $i < count(self::$headerTitles); ++$i) {
                     $request[] = $row[self::$headerTitles[$i]];
@@ -62,7 +62,7 @@ class ImportCSV extends Import
         $this->csv = Reader::createFromPath($filePath);
 
         $this->setCSVSettings($settings);
-        $this->headerMustSynchronization = $this->headerIsMustSynchronization();
+        $this->headerMustSynchronize = $this->isNeedSynchronizeColumnNamesWithArrayElements();
 
         try {
             $records = $this->csv->getRecords();
@@ -88,16 +88,16 @@ class ImportCSV extends Import
         }
     }
 
-    private function headerIsMustSynchronization(): bool
+    private function isNeedSynchronizeColumnNamesWithArrayElements(): bool
     {
         if (null === $this->csv->getHeaderOffset()) {
             return false;
         }
 
-        return $this->checkHeader();
+        return $this->isValidHeader();
     }
 
-    private function checkHeader(): bool
+    private function isValidHeader(): bool
     {
         try {
             $header = $this->csv->getHeader();
@@ -105,16 +105,16 @@ class ImportCSV extends Import
             return false;
         }
 
-        return $this->checkCountTitles($header)
-            && $this->checkExistsTitles($header);
+        return $this->isValidCountTitles($header)
+            && $this->isValidTitles($header);
     }
 
-    private function checkCountTitles(array $header): bool
+    private function isValidCountTitles(array $header): bool
     {
         return count($header) == count(self::$headerTitles);
     }
 
-    private function checkExistsTitles(array $header): bool
+    private function isValidTitles(array $header): bool
     {
         for ($i = 0; $i < count(self::$headerTitles); ++$i) {
             if (false === array_search(self::$headerTitles[$i], $header)) {

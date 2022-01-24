@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\TblproductdataRepository;
+use App\Repository\ProductDataRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,9 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Table(name: 'tblProductData')]
-#[ORM\Entity(repositoryClass: TblproductdataRepository::class)]
+#[ORM\Entity(repositoryClass: ProductDataRepository::class)]
 #[UniqueEntity(fields: ['strProductCode'])]
-class Tblproductdata
+class ProductData
 {
     #[ORM\Id]
     #[ORM\Column(name: 'intProductDataId', type: 'integer', nullable: false, options: ['unsigned' => true])]
