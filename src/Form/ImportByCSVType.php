@@ -50,6 +50,7 @@ class ImportByCSVType extends AbstractType
                 ],
             ])
             ->add('file', FileType::class, [
+                'multiple' => true,
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),

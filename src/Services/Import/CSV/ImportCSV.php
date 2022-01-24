@@ -9,6 +9,7 @@ use App\Services\Import\ImportRequest;
 use App\Services\Import\Savers\Saver;
 use League\Csv\Reader;
 use League\Csv\SyntaxError;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportCSV extends Import
 {
@@ -18,12 +19,12 @@ class ImportCSV extends Import
     private Reader $csv;
 
     public function __construct(
-        string $filePath,
+        array $files,
         CSVSettings $csvSettings,
         bool $isTest,
         Saver $saver = null,
     ) {
-        $data = $this->setDataFromFile($filePath, $csvSettings);
+        $data = $this->setDataFromFiles($files, $csvSettings);
 
         parent::__construct($data, $isTest, $saver);
     }
@@ -42,6 +43,18 @@ class ImportCSV extends Import
                 $this->requests[] = new ImportRequest($row);
             }
         }
+    }
+
+    /** @param UploadedFile[] $files */
+    private function setDataFromFiles(array $files, CSVSettings $csvSettings): array
+    {
+        $records = [];
+
+        foreach ($files as $file) {
+            $records = array_merge($records, $this->setDataFromFile($file->getRealPath(), $csvSettings));
+        }
+
+        return $records;
     }
 
     private function setDataFromFile(string $filePath, CSVSettings $settings): array

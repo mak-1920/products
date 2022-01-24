@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Repository\TblproductdataRepository;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -92,31 +93,31 @@ class Tblproductdata
         return $this;
     }
 
-    public function getDtmadded(): ?\DateTimeInterface
+    public function getDtmadded(): ?DateTimeInterface
     {
         return $this->dtmadded;
     }
 
-    public function setDtmadded(?\DateTimeInterface $dtmadded): self
+    public function setDtmadded(?DateTimeInterface $dtmadded): self
     {
         $this->dtmadded = $dtmadded;
 
         return $this;
     }
 
-    public function getDtmdiscontinued(): ?\DateTimeInterface
+    public function getDtmdiscontinued(): ?DateTimeInterface
     {
         return $this->dtmdiscontinued;
     }
 
-    public function setDtmdiscontinued(?\DateTimeInterface $dtmdiscontinued): self
+    public function setDtmdiscontinued(?DateTimeInterface $dtmdiscontinued): self
     {
         $this->dtmdiscontinued = $dtmdiscontinued;
 
         return $this;
     }
 
-    public function getStmtimestamp(): ?\DateTimeInterface
+    public function getStmtimestamp(): ?DateTimeInterface
     {
         return $this->stmtimestamp;
     }

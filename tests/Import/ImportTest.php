@@ -9,9 +9,40 @@ use App\Services\Import\CSV\ImportCSV;
 use App\Tests\Import\Helpers\Import;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportTest extends TestCase
 {
+    private function getFiles(array $pathes): array
+    {
+        $files = [];
+        foreach($pathes as $path) {
+            $file = $this->getMockBuilder(UploadedFile::class)
+                ->disableOriginalConstructor()
+                ->onlyMethods(['getRealPath'])
+                ->getMock();
+
+            $file->expects($this->once())
+                ->method('getRealPath')
+                ->will($this->returnValue($path));
+
+            $files[] = $file;
+        }
+
+        return $files;
+    }
+
+    private function getImport(array $pathes): ImportCSV
+    {
+        $import = new ImportCSV(
+            $this->getFiles($pathes),
+            new CSVSettings(haveHeader: true),
+            true
+        );
+
+        return $import;
+    }
+
     public function testWithValidData() : void
     {
         $data = [
@@ -91,11 +122,11 @@ class ImportTest extends TestCase
 
     public function testGetCompleteOrFailedRequests() : void
     {
-        $import = new ImportCSV(
+        $pathes = [
             __DIR__.'/csv/2_valid_3_invalid.csv', 
-            new CSVSettings(haveHeader: true),
-            true
-        );
+        ];
+
+        $import = $this->getImport($pathes);
 
         $this->assertEquals(count($this->invokeMethod($import, 'getCompleteOrFailed', [true])), 2);
         $this->assertEquals(count($this->invokeMethod($import, 'getCompleteOrFailed', [false])), 3);

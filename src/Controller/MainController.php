@@ -25,7 +25,7 @@ class MainController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $import = new ImportCSV(
-                $request->files->get('import_by_csv')['file']->getPathname(),
+                $request->files->get('import_by_csv')['file'],
                 new CSVSettings(
                     $form->get('delimiter')->getData() ?? ' ',
                     $form->get('enclosure')->getData() ?? ' ',

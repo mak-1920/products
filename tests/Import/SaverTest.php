@@ -11,6 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use App\Services\Import\ImportRequest;
 use DateTime;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class SaverTest extends KernelTestCase
 {
@@ -35,14 +36,44 @@ class SaverTest extends KernelTestCase
         $this->saver = new MySQLSaver($repository);
     }
 
-    public function testAllRowsValidWithoutErrorsAndNotDiscontinueds() : void
+    private function getFiles(array $pathes): array
+    {
+        $files = [];
+        foreach($pathes as $path) {
+            $file = $this->getMockBuilder(UploadedFile::class)
+                ->disableOriginalConstructor()
+                ->onlyMethods(['getRealPath'])
+                ->getMock();
+
+            $file->expects($this->once())
+                ->method('getRealPath')
+                ->will($this->returnValue($path));
+
+            $files[] = $file;
+        }
+
+        return $files;
+    }
+
+    private function getImport(array $pathes): ImportCSV
     {
         $import = new ImportCSV(
-            __DIR__.'/csv/saver_valid_without_errors_and_not_disctontinueds.csv',
+            $this->getFiles($pathes),
             new CSVSettings(haveHeader: true),
             false,
             $this->saver
         );
+
+        return $import;
+    }
+
+    public function testAllRowsValidWithoutErrorsAndNotDiscontinueds() : void
+    {
+        $pathes = [
+            __DIR__.'/csv/saver_valid_without_errors_and_not_disctontinueds.csv',
+        ];
+
+        $import = $this->getImport($pathes);
         
         $import->SaveRequests();
 
@@ -53,12 +84,11 @@ class SaverTest extends KernelTestCase
 
     public function testWithExistsAndRepeatersProductCodesAndNotDiscontinueds() : void
     {
-        $import = new ImportCSV(
+        $pathes = [
             __DIR__.'/csv/saver_with_exists_and_repeaters_product_codes_and_not_disctontinueds.csv',
-            new CSVSettings(haveHeader: true),
-            false,
-            $this->saver
-        );
+        ];
+
+        $import = $this->getImport($pathes);
         
         $import->SaveRequests();
 
@@ -69,12 +99,11 @@ class SaverTest extends KernelTestCase
 
     public function testDiscontinueds() : void
     {
-        $import = new ImportCSV(
+        $pathes = [
             __DIR__.'/csv/saver_discontinueds.csv',
-            new CSVSettings(haveHeader: true),
-            false,
-            $this->saver
-        );
+        ];
+
+        $import = $this->getImport($pathes);
         
         $import->SaveRequests();
         /** @var ImportRequest[] $requests */
