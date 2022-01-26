@@ -11,7 +11,7 @@ use DateTime;
 
 class MySQLSaver implements Saver
 {
-    /** @var Product[] $requests */
+    /** @var ProductData[] $products */
     private array $products;
 
     /** @var ImportRequest[] $requests */
@@ -25,7 +25,11 @@ class MySQLSaver implements Saver
     ) {
     }
 
-    /** @var ImportRequest $request */
+    /**
+     * @param ImportRequest[] $requests
+     *
+     * @return void
+     */
     public function Save(array $requests): void
     {
         $this->products = [];
@@ -40,6 +44,9 @@ class MySQLSaver implements Saver
         $this->productRepository->saveProducts($this->products);
     }
 
+    /**
+     * @return void
+     */
     private function setInvalidProductsWithExistsProductCode(): void
     {
         $codes = $this->getProductsFieldsByObjMethod($this->requests, 'getProductCode');
@@ -56,6 +63,9 @@ class MySQLSaver implements Saver
         }
     }
 
+    /**
+     * @return void
+     */
     private function setDiscontinued(): void
     {
         $names = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName');
@@ -73,6 +83,11 @@ class MySQLSaver implements Saver
         }
     }
 
+    /**
+     * @param array{dtmdiscontinued: DateTime, strproductname: string} $array
+     *
+     * @return array<string, DateTime>
+     */
     private function transformDiscontinuedArr(array $array): array
     {
         $result = [];
@@ -84,6 +99,9 @@ class MySQLSaver implements Saver
         return $result;
     }
 
+    /**
+     * @return void
+     */
     private function setProducts(): void
     {
         $products = $this->getProducts();
@@ -94,6 +112,9 @@ class MySQLSaver implements Saver
         }
     }
 
+    /**
+     * @return ProductData[]
+     */
     private function getProducts(): array
     {
         $products = [];
@@ -107,13 +128,18 @@ class MySQLSaver implements Saver
         return $products;
     }
 
+    /**
+     * @param ImportRequest $request
+     *
+     * @return ProductData
+     */
     private function createProduct(ImportRequest $request): ProductData
     {
         $product = new ProductData();
 
         $product->setStrproductcode($request->getProductCode());
         $product->setStrproductname($request->getProductName());
-        $product->setStrproductdesc($request->getProductDecs());
+        $product->setStrproductdesc($request->getProductDesc());
         $product->setStock($request->getStock());
         $product->setCost($request->getCost());
         if ($request->getDiscontinued()) {
@@ -127,6 +153,9 @@ class MySQLSaver implements Saver
 
     /**
      * @param ImportRequest[] $rows
+     * @param string $methodName
+     *
+     * @return string[]
      */
     private function getProductsFieldsByObjMethod(array $rows, string $methodName): array
     {

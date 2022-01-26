@@ -7,6 +7,8 @@ namespace App\Services\Import\CSV;
 use App\Services\Import\Import;
 use App\Services\Import\ImportRequest;
 use App\Services\Import\Savers\Saver;
+use League\CSV\Exception;
+use League\Csv\InvalidArgument;
 use League\Csv\Reader;
 use League\Csv\SyntaxError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,6 +20,14 @@ class ImportCSV extends Import
     private bool $headerMustSynchronize;
     private Reader $csv;
 
+    /**
+     * @param UploadedFile[] $files
+     * @param CSVSettings $csvSettings
+     * @param bool $isTest
+     * @param Saver|null $saver
+     *
+     * @throws InvalidArgument|Exception
+     */
     public function __construct(
         array $files,
         CSVSettings $csvSettings,
@@ -29,6 +39,11 @@ class ImportCSV extends Import
         parent::__construct($data, $isTest, $saver);
     }
 
+    /**
+     * @param string[][] $data
+     *
+     * @return void
+     */
     protected function setRequestsFromData(array $data): void
     {
         foreach ($data as $row) {
@@ -45,7 +60,14 @@ class ImportCSV extends Import
         }
     }
 
-    /** @param UploadedFile[] $files */
+    /**
+     * @param UploadedFile[] $files
+     * @param CSVSettings $csvSettings
+     *
+     * @return string[][]
+     *
+     * @throws InvalidArgument|Exception
+     */
     private function setDataFromFiles(array $files, CSVSettings $csvSettings): array
     {
         $records = [];
@@ -57,6 +79,14 @@ class ImportCSV extends Import
         return $records;
     }
 
+    /**
+     * @param string $filePath
+     * @param CSVSettings $settings
+     *
+     * @return string[][]
+     *
+     * @throws InvalidArgument|Exception
+     */
     private function setDataFromFile(string $filePath, CSVSettings $settings): array
     {
         $this->csv = Reader::createFromPath($filePath);
@@ -78,6 +108,14 @@ class ImportCSV extends Import
         return $rows;
     }
 
+    /**
+     * @param CSVSettings $settings
+     *
+     * @return void
+     *
+     * @throws Exception
+     * @throws InvalidArgument
+     */
     private function setCSVSettings(CSVSettings $settings): void
     {
         $this->csv->setDelimiter($settings->getDelimiter());
@@ -88,6 +126,9 @@ class ImportCSV extends Import
         }
     }
 
+    /**
+     * @return bool
+     */
     private function isNeedSynchronizeColumnNamesWithArrayElements(): bool
     {
         if (null === $this->csv->getHeaderOffset()) {
@@ -97,6 +138,9 @@ class ImportCSV extends Import
         return $this->isValidHeader();
     }
 
+    /**
+     * @return bool
+     */
     private function isValidHeader(): bool
     {
         try {
@@ -109,15 +153,25 @@ class ImportCSV extends Import
             && $this->isValidTitles($header);
     }
 
+    /**
+     * @param string[] $header
+     *
+     * @return bool
+     */
     private function isValidCountTitles(array $header): bool
     {
         return count($header) == count(self::$headerTitles);
     }
 
+    /**
+     * @param string[] $header
+     *
+     * @return bool
+     */
     private function isValidTitles(array $header): bool
     {
         for ($i = 0; $i < count(self::$headerTitles); ++$i) {
-            if (false === array_search(self::$headerTitles[$i], $header)) {
+            if (!in_array(self::$headerTitles[$i], $header)) {
                 return false;
             }
         }

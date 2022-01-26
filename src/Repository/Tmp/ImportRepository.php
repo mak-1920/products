@@ -9,8 +9,8 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method Import|null find($id, $lockMode = null, $lockVersion = null)
  * @method Import|null findOneBy(array $criteria, array $orderBy = null)
- * @method Import[]    findAll()
- * @method Import[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Import[] findAll()
+ * @method Import[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ImportRepository extends ServiceEntityRepository
 {

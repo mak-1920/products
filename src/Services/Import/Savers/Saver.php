@@ -8,6 +8,8 @@ use App\Services\Import\ImportRequest;
 
 interface Saver
 {
-    /** @var ImportRequest $request */
+    /**
+     * @param ImportRequest[] $requests
+     */
     public function Save(array $requests);
 }

@@ -18,6 +18,10 @@ return $config->setRules([
             'import_classes' => true, 
             'import_constants' => true, 
             'import_functions' => true
-        ]
+        ],
+        'no_superfluous_phpdoc_tags' => false,
+        'phpdoc_align' => [
+            'align' => 'left',
+        ],
     ])
     ->setFinder($finder);

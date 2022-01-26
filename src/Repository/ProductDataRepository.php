@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\ProductData;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Import|null find($id, $lockMode = null, $lockVersion = null)
- * @method Import|null findOneBy(array $criteria, array $orderBy = null)
- * @method Import[]    findAll()
- * @method Import[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ProductData|null find($id, $lockMode = null, $lockVersion = null)
+ * @method ProductData|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ProductData[] findAll()
+ * @method ProductData[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ProductDataRepository extends ServiceEntityRepository
 {
@@ -22,6 +23,11 @@ class ProductDataRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductData::class);
     }
 
+    /**
+     * @param string[] $codes
+     *
+     * @return string[]
+     */
     public function getExistsProductCodes(array $codes): array
     {
         return $this->createQueryBuilder('p')
@@ -33,6 +39,11 @@ class ProductDataRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * @param string[] $names
+     *
+     * @return array{strproductname: string, dtmdiscontinued: DateTime}
+     */
     public function getDiscontinuedProductsByNames(array $names): array
     {
         return $this->createQueryBuilder('p')
@@ -47,6 +58,11 @@ class ProductDataRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * @param ProductData[] $products
+     *
+     * @return void
+     */
     public function saveProducts(array $products): void
     {
         $em = $this->getEntityManager();
