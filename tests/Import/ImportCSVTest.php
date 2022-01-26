@@ -4,36 +4,26 @@ namespace App\Tests\Import;
 
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use SplFileObject;
 
 class ImportCSVTest extends TestCase
 {
-    private function getFiles(array $pathes): array
+    private function getFiles(array $paths): array
     {
         $files = [];
-        foreach($pathes as $path) {
-            $file = $this->getMockBuilder(UploadedFile::class)
-                ->disableOriginalConstructor()
-                ->onlyMethods(['getRealPath'])
-                ->getMock();
-
-            $file->expects($this->once())
-                ->method('getRealPath')
-                ->will($this->returnValue($path));
-
-            $files[] = $file;
+        foreach($paths as $path) {
+            $files[] = new SplFileObject($path);
         }
 
         return $files;
     }
 
-    private function getImport(array $pathes): ImportCSV
+    private function getImport(array $paths): ImportCSV
     {
         $import = new ImportCSV(
-            $this->getFiles($pathes),
+            $this->getFiles($paths),
             new CSVSettings(haveHeader: true),
             true
         );
@@ -43,93 +33,79 @@ class ImportCSVTest extends TestCase
 
     public function testValid() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/normal_data_with_header.csv', 
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
 
-        $this->assertEquals(count($import->getComplete()), 5);
-        $this->assertEquals(count($import->getFailed()), 0);
+        $this->assertCount(5, $import->getComplete());
+        $this->assertCount(0, $import->getFailed());
     }
 
     public function testInvalidBySyntax() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/invalid_rows_by_syntax.csv', 
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
 
-        $this->assertEquals(count($import->getComplete()), 0);
-        $this->assertEquals(count($import->getFailed()), 3);
+        $this->assertCount(0, $import->getComplete());
+        $this->assertCount(3, $import->getFailed());
     }
 
     public function testInvalidByRules() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/invalid_rows_by_rules.csv', 
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
 
-        $this->assertEquals(count($import->getComplete()), 0);
-        $this->assertEquals(count($import->getFailed()), 3);
+        $this->assertCount(0, $import->getComplete());
+        $this->assertCount(3, $import->getFailed());
     }
 
     public function test2Valid3Invalid() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/2_valid_3_invalid.csv', 
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
 
-        $this->assertEquals(count($import->getComplete()), 2);
-        $this->assertEquals(count($import->getFailed()), 3);
+        $this->assertCount(2, $import->getComplete());
+        $this->assertCount(3, $import->getFailed());
     }
 
     public function testWithRepeatedNamesByColumns() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/header_with_more_columns.csv', 
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
 
-        $this->assertEquals(count($import->getComplete()), 0);
-        $this->assertEquals(count($import->getFailed()), 0);
+        $this->assertCount(0, $import->getComplete());
+        $this->assertCount(0, $import->getFailed());
     }
 
     public function testCheckHeader() : void
     {
-        $fileTitles = [
-            'header_valid_shuffle.csv' => true,
-            'header_valid.csv' => true,
-            'header_with_less_colums.csv' => false,
-            'header_with_more_columns.csv' => false,
+        $headers = [
+            'Discontinued,Stock,Product Code,Product Description,Cost in GBP,Product Name' => true,
+            'Product Code,Product Name,Product Description,Stock,Cost in GBP,Discontinued' => true,
+            'Product Code,Product Name,Product Description,Stock,Cost in GBP' => false,
+            'Product Code,Product Name,Product Description,Stock,Cost in GBP,Discontinued,Product Name' => false,
         ];
 
-        foreach($fileTitles as $title => $testResult) {
-            $import = $this->getImport([__DIR__ . '/csv/' . $title]);
+        foreach($headers as $header => $testResult) {
+            $titles = explode(',', $header);
 
-            $this->assertEquals($this->invokeMethod($import, 'isValidHeader'), $testResult);
-        }
-    }
+            $import = $this->getImport([__DIR__ . '/csv/header_valid.csv']);
 
-    public function testCheckMustSynchronization() : void
-    {
-        $fileTitles = [
-            'header_valid_shuffle.csv' => true,
-            'header_valid.csv' => true,
-            'header_with_less_colums.csv' => false,
-            'header_with_more_columns.csv' => false,
-        ];
-
-        foreach($fileTitles as $title => $testResult) {
-            $import = $this->getImport([__DIR__ . '/csv/' . $title]);
-
-            $this->assertEquals($this->invokeMethod($import, 'isValidHeader'), $testResult);
+            $this->assertEquals($testResult, $this->invokeMethod($import, 'isValidHeader', [$titles]));
         }
     }
 
@@ -143,13 +119,16 @@ class ImportCSVTest extends TestCase
         $import = $this->getImport($fileTitles);
         $requests = $import->getRequests();
 
-        $this->assertEquals(count($requests), 2);
-        $this->assertEquals(count($import->getComplete()), 2);
-        $this->assertEquals(count($import->getFailed()), 0);
-        $this->assertEquals((string)$requests[0], 'P0001, TV, 32” Tv, 10, 399.99,  (Valid)');
-        $this->assertEquals((string)$requests[1], 'P0009, Harddisk, Great for storing data, 0, 99.99,  (Valid)');
+        $this->assertCount(2, $requests);
+        $this->assertCount(2, $import->getComplete());
+        $this->assertCount(0, $import->getFailed());
+        $this->assertEquals('P0001, TV, 32” Tv, 10, 399.99,  (Valid)', (string)$requests[0]);
+        $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99,  (Valid)', (string)$requests[1]);
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     private function invokeMethod(
         object &$object, 
         string $methodName, 

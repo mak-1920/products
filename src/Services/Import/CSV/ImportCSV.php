@@ -7,26 +7,21 @@ namespace App\Services\Import\CSV;
 use App\Services\Import\Import;
 use App\Services\Import\ImportRequest;
 use App\Services\Import\Savers\Saver;
-use League\CSV\Exception;
-use League\Csv\InvalidArgument;
-use League\Csv\Reader;
-use League\Csv\SyntaxError;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Port\Csv\CsvReader;
+use Port\Exception\DuplicateHeadersException;
+use SplFileObject;
 
 class ImportCSV extends Import
 {
     private static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
 
     private bool $headerMustSynchronize;
-    private Reader $csv;
 
     /**
-     * @param UploadedFile[] $files
+     * @param SplFileObject[] $files
      * @param CSVSettings $csvSettings
      * @param bool $isTest
      * @param Saver|null $saver
-     *
-     * @throws InvalidArgument|Exception
      */
     public function __construct(
         array $files,
@@ -61,47 +56,40 @@ class ImportCSV extends Import
     }
 
     /**
-     * @param UploadedFile[] $files
+     * @param SplFileObject[] $files
      * @param CSVSettings $csvSettings
      *
      * @return string[][]
-     *
-     * @throws InvalidArgument|Exception
      */
     private function setDataFromFiles(array $files, CSVSettings $csvSettings): array
     {
         $records = [];
 
         foreach ($files as $file) {
-            $records = array_merge($records, $this->setDataFromFile($file->getRealPath(), $csvSettings));
+            $records = array_merge($records, $this->setDataFromFile($file, $csvSettings));
         }
 
         return $records;
     }
 
     /**
-     * @param string $filePath
+     * @param SplFileObject $file
      * @param CSVSettings $settings
      *
      * @return string[][]
-     *
-     * @throws InvalidArgument|Exception
      */
-    private function setDataFromFile(string $filePath, CSVSettings $settings): array
+    private function setDataFromFile(SplFileObject $file, CSVSettings $settings): array
     {
-        $this->csv = Reader::createFromPath($filePath);
+        $reader = $this->getReader($file, $settings);
 
-        $this->setCSVSettings($settings);
-        $this->headerMustSynchronize = $this->isNeedSynchronizeColumnNamesWithArrayElements();
-
-        try {
-            $records = $this->csv->getRecords();
-        } catch (SyntaxError) {
+        if(is_null($reader)) {
             return [];
         }
-        $rows = [];
 
-        foreach ($records as $record) {
+        $this->headerMustSynchronize = $this->isNeedSynchronizeColumnNamesWithArrayElements($reader->getColumnHeaders());
+
+        $rows = [];
+        foreach ($reader as $record) {
             $rows[] = $record;
         }
 
@@ -109,46 +97,32 @@ class ImportCSV extends Import
     }
 
     /**
+     * @param SplFileObject $file
      * @param CSVSettings $settings
-     *
-     * @return void
-     *
-     * @throws Exception
-     * @throws InvalidArgument
+     * @return ?CsvReader
      */
-    private function setCSVSettings(CSVSettings $settings): void
+    private function getReader(SplFileObject $file, CSVSettings $settings) : ?CsvReader
     {
-        $this->csv->setDelimiter($settings->getDelimiter());
-        $this->csv->setEscape($settings->getEscape());
-        $this->csv->setEnclosure($settings->getEnclosure());
+        $reader = new CsvReader($file, $settings->getDelimiter(), $settings->getEnclosure(), $settings->getEscape());
+        $reader->setStrict(false);
         if ($settings->isHavingHeader()) {
-            $this->csv->setHeaderOffset(0);
+            try {
+                $reader->setHeaderRowNumber(0);
+            } catch (DuplicateHeadersException) {
+                return null;
+            }
         }
+
+        return $reader;
     }
 
     /**
+     * @param string[] $header
+     *
      * @return bool
      */
-    private function isNeedSynchronizeColumnNamesWithArrayElements(): bool
+    private function isValidHeader(array $header): bool
     {
-        if (null === $this->csv->getHeaderOffset()) {
-            return false;
-        }
-
-        return $this->isValidHeader();
-    }
-
-    /**
-     * @return bool
-     */
-    private function isValidHeader(): bool
-    {
-        try {
-            $header = $this->csv->getHeader();
-        } catch (SyntaxError) {
-            return false;
-        }
-
         return $this->isValidCountTitles($header)
             && $this->isValidTitles($header);
     }
@@ -177,5 +151,19 @@ class ImportCSV extends Import
         }
 
         return true;
+    }
+
+    /**
+     * @param string[] $header
+     *
+     * @return bool
+     */
+    private function isNeedSynchronizeColumnNamesWithArrayElements(array $header): bool
+    {
+        if (0 === count($header)) {
+            return false;
+        }
+
+        return $this->isValidHeader($header);
     }
 }

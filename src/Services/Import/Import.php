@@ -12,7 +12,7 @@ abstract class Import
     protected array $requests;
 
     /**
-     * @param string[] $data
+     * @param string[][] $data
      * @param bool $isTest
      * @param Saver|null $saver
      */
@@ -26,7 +26,7 @@ abstract class Import
     }
 
     /**
-     * @param string[] $data
+     * @param string[][] $data
      *
      * @return void
      */

@@ -42,7 +42,9 @@
         "symfony/web-link": "6.0.*",
         "symfony/yaml": "6.0.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "portphp/portphp": "dev-master",
+        "portphp/csv": "dev-master"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.5",
@@ -58,6 +60,16 @@
     "require-migr": {
         "symfony/maker-bundle": "^1.36"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/portphp"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/csv"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
