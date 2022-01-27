@@ -6,9 +6,9 @@ use App\Repository\ProductDataRepository;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
 use App\Services\Import\Savers\DoctrineSaver;
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use App\Services\Import\ImportRequest;
 use DateTime;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -29,17 +29,23 @@ class SaverTest extends KernelTestCase
         $repository->expects($this->any())
             ->method('getDiscontinuedProductsByNames')
             ->willReturn([
-                ['strproductname' => 'TV', 'dtmdiscontinued' => new DateTime('2022-01-20 15:12:38')],
-                ['strproductname' => 'Cd Player', 'dtmdiscontinued' => new DateTime('2022-01-20 16:10:00')],
+                ['name' => 'TV', 'timeOfDiscontinued' => new DateTime('2022-01-20 15:12:38')],
+                ['name' => 'Cd Player', 'timeOfDiscontinued' => new DateTime('2022-01-20 16:10:00')],
             ]);
 
-        $this->saver = new DoctrineSaver($repository);
+        $em = $this->createMock(EntityManager::class);
+
+        $em->expects($this->any())
+            ->method('getRepository')
+            ->willReturn($repository);
+
+        $this->saver = new DoctrineSaver($em);
     }
 
-    private function getFiles(array $pathes): array
+    private function getFiles(array $paths): array
     {
         $files = [];
-        foreach($pathes as $path) {
+        foreach($paths as $path) {
             $file = $this->getMockBuilder(UploadedFile::class)
                 ->disableOriginalConstructor()
                 ->onlyMethods(['getRealPath'])
@@ -55,10 +61,10 @@ class SaverTest extends KernelTestCase
         return $files;
     }
 
-    private function getImport(array $pathes): ImportCSV
+    private function getImport(array $paths): ImportCSV
     {
         $import = new ImportCSV(
-            $this->getFiles($pathes),
+            $this->getFiles($paths),
             new CSVSettings(haveHeader: true),
             false,
             $this->saver
@@ -69,78 +75,64 @@ class SaverTest extends KernelTestCase
 
     public function testAllRowsValidWithoutErrorsAndNotDiscontinueds() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/saver_valid_without_errors_and_not_disctontinueds.csv',
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
         
         $import->SaveRequests();
 
-        $this->assertEquals(count($import->getRequests()), 6);
-        $this->assertEquals(count($import->getComplete()), 6);
-        $this->assertEquals(count($import->getFailed()), 0);
+        $this->assertCount(6, $import->getRequests());
+        $this->assertCount(6, $import->getComplete());
+        $this->assertCount(0, $import->getFailed());
     }
 
-    public function testWithExistsAndRepeatersProductCodesAndNotDiscontinueds() : void
+    public function testWithExistsAndRepeatersProductCodesAndNotDiscontinued() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/saver_with_exists_and_repeaters_product_codes_and_not_disctontinueds.csv',
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
         
         $import->SaveRequests();
 
-        $this->assertEquals(count($import->getRequests()), 6);
-        $this->assertEquals(count($import->getComplete()), 1);
-        $this->assertEquals(count($import->getFailed()), 5);
+        $this->assertCount(6, $import->getRequests());
+        $this->assertCount(1, $import->getComplete());
+        $this->assertCount(5, $import->getFailed());
     }
 
-    public function testDiscontinueds() : void
+    public function testDiscontinued() : void
     {
-        $pathes = [
+        $paths = [
             __DIR__.'/csv/saver_discontinueds.csv',
         ];
 
-        $import = $this->getImport($pathes);
+        $import = $this->getImport($paths);
         
         $import->SaveRequests();
-        /** @var ImportRequest[] $requests */
-        $requests = $import->getRequests();
+        $requests = $import->getComplete();
 
-        $this->assertEquals(count($import->getRequests()), 6);
-        $this->assertEquals(count($import->getComplete()), 6);
-        $this->assertEquals(count($import->getFailed()), 0);
+        $this->assertCount(6, $import->getRequests());
+        $this->assertCount(6, $import->getComplete());
+        $this->assertCount(0, $import->getFailed());
 
-        $this->assertEquals($requests[1]->getDiscontinued(), true);
-        $this->assertEquals($requests[1]->getDiscontinuedDate(), new DateTime('2022-01-20 15:12:38'));
+        $this->assertEquals(new DateTime('2022-01-20 15:12:38'), $requests[1]['timeOfDiscontinued']);
 
-        $this->assertEquals($requests[5]->getDiscontinued(), true);
-        $this->assertEquals($requests[5]->getDiscontinuedDate(), $requests[0]->getDiscontinuedDate());
-    }
-
-    public function testGetProductsFieldsByObjMethod() : void
-    {
-        $requests = [
-            new ImportRequest(['P0001','TV','32” Tv','10','399.98','']),
-            new ImportRequest(['','TV2','32” Tv','10','399.99','']),
-        ];
-
-        $this->assertEquals($this->invokeMethod($this->saver, 'getProductsFieldsByObjMethod', [$requests, 'getProductname']), ['TV']);
-        $this->assertEquals($this->invokeMethod($this->saver, 'getProductsFieldsByObjMethod', [$requests, 'getCost']), ['399.98']);
+        $this->assertEquals($requests[5]['timeOfDiscontinued'], $requests[0]['timeOfDiscontinued']);
     }
 
     public function testTransformDiscontinuedArr() : void
     {
         $data = [
-            ['strproductname' => 'TV', 'dtmdiscontinued' => new DateTime('2022-01-20 15:12:38')],
-            ['strproductname' => 'Cd Player', 'dtmdiscontinued' => new DateTime('2022-01-20 16:10:00')],
+            ['name' => 'TV', 'timeOfDiscontinued' => new DateTime('2022-01-20 15:12:38')],
+            ['name' => 'Cd Player', 'timeOfDiscontinued' => new DateTime('2022-01-20 16:10:00')],
         ];
 
         $result = $this->invokeMethod($this->saver, 'transformDiscontinuedArr', [$data]);
 
-        $this->assertEquals(count($result), count($data));
+        $this->assertSameSize($result, $data);
         $this->assertArrayHasKey('TV', $result);
         $this->assertArrayHasKey('Cd Player', $result);
         $this->assertEquals($result['TV'], new DateTime('2022-01-20 15:12:38'));

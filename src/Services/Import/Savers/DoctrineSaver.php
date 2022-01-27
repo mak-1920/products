@@ -37,13 +37,15 @@ class DoctrineSaver implements Saver
 
         $transporter->addStep($this->getFilterByExistsCodes($validRows));
         $transporter->process();
+        $transporter->addStep($this->getFilterByClonedCodes());
         $transporter->addStep($this->getConverterByDiscontinued($validRows));
-
         $transporter->addStep($this->getConverterKeys());
 
-        $doctrineWriter = new DoctrineWriter($this->em, ProductData::class);
-        $doctrineWriter->disableTruncate();
-        $transporter->addWriter($doctrineWriter);
+        if($_ENV['APP_ENV'] != 'test') {
+            $doctrineWriter = new DoctrineWriter($this->em, ProductData::class);
+            $doctrineWriter->disableTruncate();
+            $transporter->addWriter($doctrineWriter);
+        }
         $transporter->process();
 
         return $validRows;
@@ -59,13 +61,22 @@ class DoctrineSaver implements Saver
         $existsCodes = $this->getExistsProductCodes($rows);
 
         $filter = new FilterStep();
-        $filter->add(function ($el) use ($existsCodes) {
-            $isExists = in_array($el['Product Code'], $existsCodes);
-            if (!$isExists) {
-                $existsCodes[] = $el['Product Code'];
-            }
+        $filter->add(fn ($el) => !in_array($el['Product Code'], $existsCodes));
 
-            return !$isExists;
+        return $filter;
+    }
+
+    private function getFilterByClonedCodes() : FilterStep
+    {
+        $codes = [];
+
+        $filter = new FilterStep();
+        $filter->add(function($el) use(&$codes) {
+            $exists = in_array($el['Product Code'], $codes);
+            if(!$exists) {
+                $codes[] = $el['Product Code'];
+            }
+            return !$exists;
         });
 
         return $filter;
@@ -81,7 +92,7 @@ class DoctrineSaver implements Saver
         $discontinued = $this->getDiscontinued($rows);
 
         $converter = new ConverterStep();
-        $converter->add(function ($el) use ($discontinued) {
+        $converter->add(function ($el) use (&$discontinued) {
             if (array_key_exists($el['Product Name'], $discontinued)) {
                 $el['Discontinued'] = $discontinued[$el['Product Name']];
             } elseif ($el['Discontinued']) {
