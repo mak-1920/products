@@ -7,7 +7,6 @@ namespace App\Entity;
 use App\Repository\ProductDataRepository;
 use DateTime;
 use DateTimeInterface;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -19,63 +18,62 @@ class ProductData
     #[ORM\Id]
     #[ORM\Column(name: 'intProductDataId', type: 'integer', nullable: false, options: ['unsigned' => true])]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $intproductdataid;
+    private int $id;
 
     #[ORM\Column(name: 'strProductName', type: 'string', length: 50, nullable: false)]
-    private string $strproductname;
+    private string $name;
 
     #[ORM\Column(name: 'strProductDesc', type: 'string', length: 255, nullable: false)]
-    private string $strproductdesc;
+    private string $descriptions;
 
     #[ORM\Column(name: 'strProductCode', type: 'string', length: 10, unique: true, nullable: false)]
-    private string $strproductcode;
+    private string $code;
 
     #[ORM\Column(name: 'dtmAdded', type: 'datetime', nullable: true)]
-    private ?DateTime $dtmadded;
+    private ?DateTime $timeOfCreate;
 
     #[ORM\Column(name: 'dtmDiscontinued', type: 'datetime', nullable: true)]
-    private ?DateTime $dtmdiscontinued;
+    private ?DateTime $timeOfDiscontinued;
 
     #[ORM\Column(name: 'stmTimestamp', type: 'datetime', nullable: false)]
     private DateTime $stmtimestamp;
 
-    #[ORM\Column(type: 'float')]
+    #[ORM\Column(name: 'intStock', type: 'integer')]
     private int $stock;
 
-    #[ORM\Column(type: 'float')]
-    private $cost;
+    #[ORM\Column(name: 'floatCost', type: 'float')]
+    private float $cost;
 
     public function __construct()
     {
         $this->stmtimestamp = new DateTime();
-        $this->requests = new ArrayCollection();
-        $this->dtmadded = new DateTime();
+        $this->timeOfCreate = new DateTime();
     }
 
     /**
      * @return int|null
      */
-    public function getIntproductdataid(): ?int
+    public function getId(): ?int
     {
-        return $this->intproductdataid;
+        return $this->id;
     }
 
     /**
      * @return string|null
      */
-    public function getStrproductname(): ?string
+    public function getName(): ?string
     {
-        return $this->strproductname;
+        return $this->name;
     }
 
     /**
-     * @param string $strproductname
+     * @param string $name
      *
      * @return $this
      */
-    public function setStrproductname(string $strproductname): self
+    public function setName(string $name): self
     {
-        $this->strproductname = $strproductname;
+        $this->name = $name;
 
         return $this;
     }
@@ -83,19 +81,19 @@ class ProductData
     /**
      * @return string|null
      */
-    public function getStrproductdesc(): ?string
+    public function getDescriptions(): ?string
     {
-        return $this->strproductdesc;
+        return $this->descriptions;
     }
 
     /**
-     * @param string $strproductdesc
+     * @param string $descriptions
      *
      * @return $this
      */
-    public function setStrproductdesc(string $strproductdesc): self
+    public function setDescriptions(string $descriptions): self
     {
-        $this->strproductdesc = $strproductdesc;
+        $this->descriptions = $descriptions;
 
         return $this;
     }
@@ -103,19 +101,19 @@ class ProductData
     /**
      * @return string|null
      */
-    public function getStrproductcode(): ?string
+    public function getCode(): ?string
     {
-        return $this->strproductcode;
+        return $this->code;
     }
 
     /**
-     * @param string $strproductcode
+     * @param string $code
      *
      * @return $this
      */
-    public function setStrproductcode(string $strproductcode): self
+    public function setCode(string $code): self
     {
-        $this->strproductcode = $strproductcode;
+        $this->code = $code;
 
         return $this;
     }
@@ -123,19 +121,19 @@ class ProductData
     /**
      * @return DateTimeInterface|null
      */
-    public function getDtmadded(): ?DateTimeInterface
+    public function getTimeOfCreate(): ?DateTimeInterface
     {
-        return $this->dtmadded;
+        return $this->timeOfCreate;
     }
 
     /**
-     * @param DateTimeInterface|null $dtmadded
+     * @param DateTimeInterface|null $timeOfCreate
      *
      * @return $this
      */
-    public function setDtmadded(?DateTimeInterface $dtmadded): self
+    public function setTimeOfCreate(?DateTimeInterface $timeOfCreate): self
     {
-        $this->dtmadded = $dtmadded;
+        $this->timeOfCreate = $timeOfCreate;
 
         return $this;
     }
@@ -143,19 +141,19 @@ class ProductData
     /**
      * @return DateTimeInterface|null
      */
-    public function getDtmdiscontinued(): ?DateTimeInterface
+    public function getTimeOfDiscontinued(): ?DateTimeInterface
     {
-        return $this->dtmdiscontinued;
+        return $this->timeOfDiscontinued;
     }
 
     /**
-     * @param DateTimeInterface|null $dtmdiscontinued
+     * @param DateTimeInterface|null $timeOfDiscontinued
      *
      * @return $this
      */
-    public function setDtmdiscontinued(?DateTimeInterface $dtmdiscontinued): self
+    public function setTimeOfDiscontinued(?DateTimeInterface $timeOfDiscontinued): self
     {
-        $this->dtmdiscontinued = $dtmdiscontinued;
+        $this->timeOfDiscontinued = $timeOfDiscontinued;
 
         return $this;
     }
