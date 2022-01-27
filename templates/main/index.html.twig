@@ -11,15 +11,19 @@
 <div class="wrapper">
     {{ form(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
 
-    {% if not import is null and import.getFailed|length > 0 %}
+    {% if not import is null and import.requests|length > 0 %}
         <p>Processed: {{ import.requests|length }}</p>
+        {#{% for row in import.requests %}
+            <p>{{ row|join(',') }}</p>
+        {% endfor %}
+        {{ import.failed|length }}#}
         <p>Success: {{ import.complete|length }}</p>
         <p>Failed: {{ import.failed|length }}</p>
         <p>
             Errors:
-            <ul>    
+            <ul>
                 {% for request in import.failed %}
-                    <li>{{ request }}</li>
+                    <li>{{ request|join(', ') }}</li>
                 {% endfor %}
             </ul>
         </p>

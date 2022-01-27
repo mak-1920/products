@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5e43afc5c5f4ede1bb05f9b6f61eb722",
+    "content-hash": "9d01584523b3a8bec0eb1f752dc86c0e",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2032,17 +2032,73 @@
             "time": "2022-01-26T11:09:29+00:00"
         },
         {
+            "name": "portphp/doctrine",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mak-1920/doctrine.git",
+                "reference": "986e27d50e9e899d37298832b041335b2375f1e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mak-1920/doctrine/zipball/986e27d50e9e899d37298832b041335b2375f1e3",
+                "reference": "986e27d50e9e899d37298832b041335b2375f1e3",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/common": "^3.2",
+                "portphp/portphp": "*"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Port\\Doctrine\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Port\\Doctrine\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David de Boer",
+                    "email": "david@ddeboer.nl"
+                },
+                {
+                    "name": "Markus Bachmann",
+                    "email": "markus.bachmann@bachi.biz"
+                },
+                {
+                    "name": "Community contributors",
+                    "homepage": "https://github.com/portphp/doctrine/graphs/contributors"
+                }
+            ],
+            "description": "Doctrine ORM/ODM reader and writer for Port",
+            "homepage": "https://github.com/portphp",
+            "support": {
+                "issues": "https://github.com/portphp/portphp/issues",
+                "source": "https://github.com/portphp/doctrine",
+                "docs": "https://portphp.readthedocs.org"
+            },
+            "time": "2022-01-26T14:01:05+00:00"
+        },
+        {
             "name": "portphp/portphp",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mak-1920/portphp.git",
-                "reference": "227fdf077f2370b1db623b42bc9ba946a4073027"
+                "reference": "84fdf0610ae7dd72035338df609e9004b329b6c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mak-1920/portphp/zipball/227fdf077f2370b1db623b42bc9ba946a4073027",
-                "reference": "227fdf077f2370b1db623b42bc9ba946a4073027",
+                "url": "https://api.github.com/repos/mak-1920/portphp/zipball/84fdf0610ae7dd72035338df609e9004b329b6c9",
+                "reference": "84fdf0610ae7dd72035338df609e9004b329b6c9",
                 "shasum": ""
             },
             "require": {
@@ -2113,7 +2169,67 @@
                     "url": "https://github.com/ddeboer"
                 }
             ],
-            "time": "2022-01-25T15:23:04+00:00"
+            "time": "2022-01-26T14:13:01+00:00"
+        },
+        {
+            "name": "portphp/steps",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mak-1920/steps.git",
+                "reference": "fb8e0b6bbe4a6e35479c8be7931e558997e64710"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mak-1920/steps/zipball/fb8e0b6bbe4a6e35479c8be7931e558997e64710",
+                "reference": "fb8e0b6bbe4a6e35479c8be7931e558997e64710",
+                "shasum": ""
+            },
+            "require": {
+                "portphp/portphp": "*",
+                "seld/signal-handler": "^1.0",
+                "symfony/property-access": "^2.3 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
+                "symfony/validator": "^2.5 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
+            },
+            "conflict": {
+                "symfony/validator": "<2.5"
+            },
+            "suggest": {
+                "symfony/property-access": "Used in MappingStep",
+                "symfony/validator": "Used in ValidatorStep"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Port\\Steps\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David de Boer",
+                    "email": "david@ddeboer.nl"
+                },
+                {
+                    "name": "Markus Bachmann",
+                    "email": "markus.bachmann@bachi.biz"
+                },
+                {
+                    "name": "Community contributors",
+                    "homepage": "https://github.com/portphp/boilerplate/graphs/contributors"
+                }
+            ],
+            "description": "Step aggregator for Port",
+            "homepage": "https://github.com/portphp",
+            "support": {
+                "issues": "https://github.com/portphp/portphp/issues",
+                "source": "https://github.com/portphp/boilerplate",
+                "docs": "https://portphp.readthedocs.org"
+            },
+            "time": "2022-01-26T14:34:28+00:00"
         },
         {
             "name": "psr/cache",
@@ -2372,6 +2488,58 @@
                 "source": "https://github.com/php-fig/log/tree/1.1.4"
             },
             "time": "2021-05-03T11:20:27+00:00"
+        },
+        {
+            "name": "seld/signal-handler",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Seldaek/signal-handler.git",
+                "reference": "0852a32d804c6a80f428f6e815eb383ff1c4c2fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Seldaek/signal-handler/zipball/0852a32d804c6a80f428f6e815eb383ff1c4c2fd",
+                "reference": "0852a32d804c6a80f428f6e815eb383ff1c4c2fd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "psr/log": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Seld\\Signal\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be"
+                }
+            ],
+            "description": "Simple unix signal handler that silently fails on windows for easy cross-platform development",
+            "keywords": [
+                "posix",
+                "sigint",
+                "signal",
+                "sigterm",
+                "unix"
+            ],
+            "support": {
+                "issues": "https://github.com/Seldaek/signal-handler/issues",
+                "source": "https://github.com/Seldaek/signal-handler/tree/1.2.0"
+            },
+            "time": "2019-07-29T10:26:24+00:00"
         },
         {
             "name": "sensio/framework-extra-bundle",
@@ -10183,7 +10351,9 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "portphp/portphp": 20,
-        "portphp/csv": 20
+        "portphp/csv": 20,
+        "portphp/doctrine": 20,
+        "portphp/steps": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

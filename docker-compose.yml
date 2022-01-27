@@ -4,7 +4,7 @@ services:
   nginx:
     image: nginx:1.20
     ports:
-      - 80:80
+      - "80:80"
     volumes:
       - ./:/var/www/php
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
@@ -38,7 +38,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - 8080:80
+      - "8080:80"
     volumes:
       - pma-data:/var/lib/pma
 

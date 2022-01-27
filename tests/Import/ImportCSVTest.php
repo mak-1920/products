@@ -6,7 +6,7 @@ use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use SplFileObject;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportCSVTest extends TestCase
 {
@@ -14,7 +14,16 @@ class ImportCSVTest extends TestCase
     {
         $files = [];
         foreach($paths as $path) {
-            $files[] = new SplFileObject($path);
+            $file = $this->getMockBuilder(UploadedFile::class)
+                ->disableOriginalConstructor()
+                ->onlyMethods(['getRealPath'])
+                ->getMock();
+
+            $file->expects($this->once())
+                ->method('getRealPath')
+                ->will($this->returnValue($path));
+
+            $files[] = $file;
         }
 
         return $files;
@@ -27,6 +36,8 @@ class ImportCSVTest extends TestCase
             new CSVSettings(haveHeader: true),
             true
         );
+
+        $import->saveRequests();
 
         return $import;
     }
@@ -122,8 +133,8 @@ class ImportCSVTest extends TestCase
         $this->assertCount(2, $requests);
         $this->assertCount(2, $import->getComplete());
         $this->assertCount(0, $import->getFailed());
-        $this->assertEquals('P0001, TV, 32” Tv, 10, 399.99,  (Valid)', (string)$requests[0]);
-        $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99,  (Valid)', (string)$requests[1]);
+        $this->assertEquals('TV, P0001, , 32” Tv, 10, 399.99', implode(', ', $requests[0]));
+        $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[1]));
     }
 
     /**

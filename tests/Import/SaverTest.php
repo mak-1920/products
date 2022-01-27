@@ -5,7 +5,7 @@ namespace App\Tests\Import;
 use App\Repository\ProductDataRepository;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
-use App\Services\Import\Savers\MySQLSaver;
+use App\Services\Import\Savers\DoctrineSaver;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use App\Services\Import\ImportRequest;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class SaverTest extends KernelTestCase
 {
-    private MySQLSaver $saver;
+    private DoctrineSaver $saver;
 
     protected function setUp() : void
     {
@@ -33,7 +33,7 @@ class SaverTest extends KernelTestCase
                 ['strproductname' => 'Cd Player', 'dtmdiscontinued' => new DateTime('2022-01-20 16:10:00')],
             ]);
 
-        $this->saver = new MySQLSaver($repository);
+        $this->saver = new DoctrineSaver($repository);
     }
 
     private function getFiles(array $pathes): array

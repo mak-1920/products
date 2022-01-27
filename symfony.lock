@@ -177,8 +177,14 @@
     "portphp/csv": {
         "version": "2.0.x-dev"
     },
+    "portphp/doctrine": {
+        "version": "dev-master"
+    },
     "portphp/portphp": {
         "version": "dev"
+    },
+    "portphp/steps": {
+        "version": "dev-master"
     },
     "psr/cache": {
         "version": "3.0.0"
@@ -242,6 +248,9 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
+    },
+    "seld/signal-handler": {
+        "version": "1.2.0"
     },
     "sensio/framework-extra-bundle": {
         "version": "6.2",

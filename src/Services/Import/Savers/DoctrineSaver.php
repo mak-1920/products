@@ -8,8 +8,9 @@ use App\Entity\ProductData;
 use App\Repository\ProductDataRepository;
 use App\Services\Import\ImportRequest;
 use DateTime;
+use Port\Steps\StepAggregator;
 
-class MySQLSaver implements Saver
+class DoctrineSaver implements Saver
 {
     /** @var ProductData[] $products */
     private array $products;
@@ -23,6 +24,32 @@ class MySQLSaver implements Saver
     public function __construct(
         private ProductDataRepository $productRepository,
     ) {
+        $this->products = [];
+    }
+
+    /**
+     * @param StepAggregator[] $transporters
+     *
+     * @return string[][] success
+     */
+    public function save(array $transporters): array
+    {
+//        $this->requests = $requests;
+//        $this->setProductNames($requests);
+//
+//        $this->setInvalidProductsWithExistsProductCode();
+//        $this->setDiscontinued();
+//
+//        $this->setProducts();
+//
+//        $this->productRepository->saveProducts($this->products);
+        $success = [];
+
+        foreach ($transporters as $transporter) {
+            $success[] = array_merge($success, $transporter->process());
+        }
+
+        return $success;
     }
 
     /**
@@ -30,18 +57,9 @@ class MySQLSaver implements Saver
      *
      * @return void
      */
-    public function Save(array $requests): void
+    private function setProductNames(array $requests): void
     {
-        $this->products = [];
-        $this->requests = $requests;
         $this->productsNames = $this->getProductsFieldsByObjMethod($this->requests, 'getProductName');
-
-        $this->setInvalidProductsWithExistsProductCode();
-        $this->setDiscontinued();
-
-        $this->setProducts();
-
-        $this->productRepository->saveProducts($this->products);
     }
 
     /**
@@ -54,7 +72,7 @@ class MySQLSaver implements Saver
 
         foreach ($this->requests as $request) {
             if ($request->getIsValid()) {
-                if (false !== array_search($request->getProductCode(), $existsCodes)) {
+                if (in_array($request->getProductCode(), $existsCodes)) {
                     $request->setIsValid(false);
                 } else {
                     $existsCodes[] = $request->getProductCode();
@@ -106,7 +124,6 @@ class MySQLSaver implements Saver
     {
         $products = $this->getProducts();
 
-        /** @var ProductData $product */
         foreach ($products as $product) {
             $this->products[] = $product;
         }

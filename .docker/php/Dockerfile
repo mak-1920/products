@@ -10,8 +10,8 @@ RUN apt-get update \
              libxml2-dev \
              libzip-dev \
              libpq-dev \
-             libfreetype6-dev \  
-    && pecl install xdebug \ 
+             libfreetype6-dev \
+    && pecl install xdebug \
     && docker-php-ext-configure intl --enable-intl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd && \

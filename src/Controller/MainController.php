@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Form\ImportByCSVType;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
-use App\Services\Import\Savers\MySQLSaver;
+use App\Services\Import\Savers\DoctrineSaver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class MainController extends AbstractController
 {
     #[Route('/', name: 'main')]
-    public function index(Request $request, MySQLSaver $saver): Response
+    public function index(Request $request, DoctrineSaver $saver): Response
     {
         $import = null;
 

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Savers;
 
-use App\Services\Import\ImportRequest;
+use Port\Steps\StepAggregator;
 
 interface Saver
 {
     /**
-     * @param ImportRequest[] $requests
+     * @param StepAggregator[] $transporters
+     *
+     * @return string[][] results
      */
-    public function Save(array $requests);
+    public function save(array $transporters): array;
 }

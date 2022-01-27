@@ -44,7 +44,9 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
         "portphp/portphp": "dev-master",
-        "portphp/csv": "dev-master"
+        "portphp/csv": "dev-master",
+        "portphp/doctrine": "dev-master",
+        "portphp/steps": "dev-master"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.5",
@@ -68,6 +70,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/mak-1920/csv"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/doctrine"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/steps"
         }
     ],
     "config": {
