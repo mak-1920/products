@@ -2037,17 +2037,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mak-1920/doctrine.git",
-                "reference": "986e27d50e9e899d37298832b041335b2375f1e3"
+                "reference": "ce050e43a7e1d612d54a0e9c3847fcae82f2440b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mak-1920/doctrine/zipball/986e27d50e9e899d37298832b041335b2375f1e3",
-                "reference": "986e27d50e9e899d37298832b041335b2375f1e3",
+                "url": "https://api.github.com/repos/mak-1920/doctrine/zipball/ce050e43a7e1d612d54a0e9c3847fcae82f2440b",
+                "reference": "ce050e43a7e1d612d54a0e9c3847fcae82f2440b",
                 "shasum": ""
             },
             "require": {
                 "doctrine/common": "^3.2",
                 "portphp/portphp": "*"
+            },
+            "require-dev": {
+                "doctrine/orm": "^2.11"
             },
             "default-branch": true,
             "type": "library",
@@ -2085,7 +2088,7 @@
                 "source": "https://github.com/portphp/doctrine",
                 "docs": "https://portphp.readthedocs.org"
             },
-            "time": "2022-01-26T14:01:05+00:00"
+            "time": "2022-01-27T12:33:13+00:00"
         },
         {
             "name": "portphp/portphp",
@@ -3798,16 +3801,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v2.1.2",
+            "version": "v2.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "82891fd872056499ce7a7c4aca7ffeb86a341878"
+                "reference": "110e8928b6e719e9b9f146c8fd92c41a4b74a3ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/82891fd872056499ce7a7c4aca7ffeb86a341878",
-                "reference": "82891fd872056499ce7a7c4aca7ffeb86a341878",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/110e8928b6e719e9b9f146c8fd92c41a4b74a3ac",
+                "reference": "110e8928b6e719e9b9f146c8fd92c41a4b74a3ac",
                 "shasum": ""
             },
             "require": {
@@ -3843,7 +3846,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v2.1.2"
+                "source": "https://github.com/symfony/flex/tree/v2.1.4"
             },
             "funding": [
                 {
@@ -3859,7 +3862,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-19T17:52:43+00:00"
+            "time": "2022-01-27T10:25:12+00:00"
         },
         {
             "name": "symfony/form",

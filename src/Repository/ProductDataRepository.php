@@ -31,8 +31,8 @@ class ProductDataRepository extends ServiceEntityRepository
     public function getExistsProductCodes(array $codes): array
     {
         return $this->createQueryBuilder('p')
-            ->select('p.strproductcode')
-            ->where('p.strproductcode IN (:codes)')
+            ->select('p.code')
+            ->where('p.code IN (:codes)')
             ->setParameter('codes', $codes, Connection::PARAM_STR_ARRAY)
             ->getQuery()
             ->getSingleColumnResult()
@@ -47,11 +47,11 @@ class ProductDataRepository extends ServiceEntityRepository
     public function getDiscontinuedProductsByNames(array $names): array
     {
         return $this->createQueryBuilder('p')
-            ->select('p.strproductname, p.dtmdiscontinued')
+            ->select('p.name, p.timeOfDiscontinued')
             ->distinct()
-            ->where('p.strproductname IN (:names)')
-            ->andWhere('p.dtmdiscontinued IS NOT NULL')
-            ->groupBy('p.strproductname')
+            ->where('p.name IN (:names)')
+            ->andWhere('p.timeOfDiscontinued IS NOT NULL')
+            ->groupBy('p.name')
             ->setParameter('names', $names, Connection::PARAM_STR_ARRAY)
             ->getQuery()
             ->getArrayResult()

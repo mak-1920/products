@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Import;
 
 use App\Services\Import\Savers\Saver;
+use DateTime;
 use Port\Reader;
+use Port\Reader\ArrayReader;
 use Port\Steps\Step\ConverterStep;
 use Port\Steps\Step\FilterStep;
 use Port\Steps\StepAggregator;
@@ -13,12 +15,10 @@ use Port\Writer\ArrayWriter;
 
 abstract class Import
 {
-//    /** @var ImportRequest[] $requests * */
-//    protected array $requests;
     protected static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
 
-    /** @var StepAggregator[] $transporters */
-    private array $transporters;
+    /** @var StepAggregator $transporter */
+    private StepAggregator $transporter;
 
     /** @var string[][] $success */
     private array $success;
@@ -42,7 +42,6 @@ abstract class Import
         $this->requests = [];
         $this->success = [];
         $this->failed = [];
-        $this->transporters = [];
 
         $this->setTransporters();
     }
@@ -56,7 +55,7 @@ abstract class Import
         if ($this->isTest) {
             $this->success = $this->testProcess();
         } else {
-            $this->success = $this->saver->save($this->transporters);
+            $this->success = $this->saver->save($this->transporter);
         }
         $this->failed = array_udiff($this->requests, $this->success, [$this, 'productsCompare']);
     }
@@ -64,6 +63,9 @@ abstract class Import
     private function productsCompare(array $a, array $b): int
     {
         foreach (self::$headerTitles as $title) {
+            if ('Discontinued' == $title) {
+                continue;
+            }
             if ($a[$title] != $b[$title]) {
                 return $a[$title] <=> $b[$title];
             }
@@ -79,22 +81,20 @@ abstract class Import
     {
         $result = [];
 
-        foreach ($this->transporters as $transporter) {
-            $success = [];
-            $transporter->addWriter(new ArrayWriter($success));
-            $transporter->process();
-            $result = array_merge($result, $success);
-        }
+        $success = [];
+        $this->transporter->addWriter(new ArrayWriter($success));
+        $this->transporter->process();
+        $result = array_merge($result, $success);
 
         return $result;
     }
 
     /**
-     * @return StepAggregator[]
+     * @return StepAggregator
      */
-    public function getTransporters(): array
+    public function getTransporter(): StepAggregator
     {
-        return $this->transporters;
+        return $this->transporter;
     }
 
     /**
@@ -102,21 +102,25 @@ abstract class Import
      */
     private function setTransporters(): void
     {
+        $rows = [];
+
         foreach ($this->readers as $reader) {
-            $this->addTransporter($reader);
+            foreach ($reader as $row) {
+                $rows[] = $row;
+            }
         }
+
+        $this->setTransporter(new ArrayReader($rows));
     }
 
     /**
      * @param Reader $reader
      */
-    private function addTransporter(Reader $reader): void
+    private function setTransporter(Reader $reader): void
     {
-        $transporter = new StepAggregator($reader);
-        $transporter->addStep($this->getFilters());
-        $transporter->addStep($this->getConverters());
-
-        $this->transporters[] = $transporter;
+        $this->transporter = new StepAggregator($reader);
+        $this->transporter->addStep($this->getFilters());
+        $this->transporter->addStep($this->getConverters());
     }
 
     /**
@@ -141,7 +145,10 @@ abstract class Import
         $converter->add(function ($el) {
             $el['Stock'] = (int) $el['Stock'];
             $el['Cost in GBP'] = (float) $el['Cost in GBP'];
-            $el['Discontinued'] = !$this->stringIsNullOrEmpty($el['Discontinued']) && $el['Discontinued'];
+            $discontinued = !$this->stringIsNullOrEmpty($el['Discontinued']) && $el['Discontinued'];
+            if ($discontinued) {
+                $el['Discontinued'] = new DateTime();
+            }
 
             return $el;
         });

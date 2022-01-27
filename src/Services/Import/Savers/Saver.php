@@ -9,9 +9,9 @@ use Port\Steps\StepAggregator;
 interface Saver
 {
     /**
-     * @param StepAggregator[] $transporters
+     * @param StepAggregator $transporter
      *
      * @return string[][] results
      */
-    public function save(array $transporters): array;
+    public function save(StepAggregator $transporter): array;
 }
