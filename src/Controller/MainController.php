@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\ImportByCSVType;
-use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
 use App\Services\Import\Savers\DoctrineSaver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

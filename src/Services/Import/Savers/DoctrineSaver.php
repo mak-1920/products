@@ -41,7 +41,7 @@ class DoctrineSaver implements Saver
         $transporter->addStep($this->getConverterByDiscontinued($validRows));
         $transporter->addStep($this->getConverterKeys());
 
-        if($_ENV['APP_ENV'] != 'test') {
+        if ('test' != $_ENV['APP_ENV']) {
             $doctrineWriter = new DoctrineWriter($this->em, ProductData::class);
             $doctrineWriter->disableTruncate();
             $transporter->addWriter($doctrineWriter);
@@ -66,16 +66,17 @@ class DoctrineSaver implements Saver
         return $filter;
     }
 
-    private function getFilterByClonedCodes() : FilterStep
+    private function getFilterByClonedCodes(): FilterStep
     {
         $codes = [];
 
         $filter = new FilterStep();
-        $filter->add(function($el) use(&$codes) {
+        $filter->add(function ($el) use (&$codes) {
             $exists = in_array($el['Product Code'], $codes);
-            if(!$exists) {
+            if (!$exists) {
                 $codes[] = $el['Product Code'];
             }
+
             return !$exists;
         });
 

@@ -42,7 +42,7 @@ class ImportCSV extends Import
     {
         $readers = [];
 
-        for ($i = 0; $i < count($files); $i++) {
+        for ($i = 0; $i < count($files); ++$i) {
             $reader = $this->getReader($files[$i], $csvSettings[$i]);
             if (!is_null($reader)) {
                 $readers[] = $reader;
