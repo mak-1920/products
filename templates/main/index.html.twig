@@ -26,6 +26,14 @@
                 {% endfor %}
             </ul>
         </p>
+        <p>
+            Not parsed files:
+            <ul>
+                {% for file in import.notParsedFiles %}
+                    <li>{{ file }}</li>
+                {% endfor %}
+            </ul>
+        </p>
     {% endif %}
 </div>
 {% endblock %}

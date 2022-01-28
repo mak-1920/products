@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportCSV extends Import
 {
+    /** @var string[] $notParsedFiles */
+    private array $notParsedFiles;
+
     /**
      * @param UploadedFile[] $files
      * @param CSVSettings[] $csvSettings
@@ -46,6 +49,8 @@ class ImportCSV extends Import
             $reader = $this->getReader($files[$i], $csvSettings[$i]);
             if (!is_null($reader)) {
                 $readers[] = $reader;
+            } else {
+                $this->notParsedFiles[] = $files[$i]->getClientOriginalName();
             }
         }
 
@@ -149,5 +154,13 @@ class ImportCSV extends Import
         }
 
         return true;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getNotParsedFiles() : array
+    {
+        return $this->notParsedFiles;
     }
 }
