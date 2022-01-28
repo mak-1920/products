@@ -42,7 +42,7 @@ class ProductDataRepository extends ServiceEntityRepository
     /**
      * @param string[] $names
      *
-     * @return array{strproductname: string, dtmdiscontinued: DateTime}
+     * @return array{name: string, timeOfDiscontinued: DateTime}
      */
     public function getDiscontinuedProductsByNames(array $names): array
     {

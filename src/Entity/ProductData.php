@@ -30,10 +30,10 @@ class ProductData
     private string $code;
 
     #[ORM\Column(name: 'dtmAdded', type: 'datetime', nullable: true)]
-    private ?DateTime $timeOfCreate;
+    private ?DateTime $createdAt;
 
     #[ORM\Column(name: 'dtmDiscontinued', type: 'datetime', nullable: true)]
-    private ?DateTime $timeOfDiscontinued;
+    private ?DateTime $discontinuedAt;
 
     #[ORM\Column(name: 'stmTimestamp', type: 'datetime', nullable: false)]
     private DateTime $stmtimestamp;
@@ -47,7 +47,7 @@ class ProductData
     public function __construct()
     {
         $this->stmtimestamp = new DateTime();
-        $this->timeOfCreate = new DateTime();
+        $this->createdAt = new DateTime();
     }
 
     /**
@@ -121,19 +121,19 @@ class ProductData
     /**
      * @return DateTimeInterface|null
      */
-    public function getTimeOfCreate(): ?DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
-        return $this->timeOfCreate;
+        return $this->createdAt;
     }
 
     /**
-     * @param DateTimeInterface|null $timeOfCreate
+     * @param DateTimeInterface|null $createdAt
      *
      * @return $this
      */
-    public function setTimeOfCreate(?DateTimeInterface $timeOfCreate): self
+    public function setCreatedAt(?DateTimeInterface $createdAt): self
     {
-        $this->timeOfCreate = $timeOfCreate;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -141,19 +141,19 @@ class ProductData
     /**
      * @return DateTimeInterface|null
      */
-    public function getTimeOfDiscontinued(): ?DateTimeInterface
+    public function getDiscontinuedAt(): ?DateTimeInterface
     {
-        return $this->timeOfDiscontinued;
+        return $this->discontinuedAt;
     }
 
     /**
-     * @param DateTimeInterface|null $timeOfDiscontinued
+     * @param DateTimeInterface|null $discontinuedAt
      *
      * @return $this
      */
-    public function setTimeOfDiscontinued(?DateTimeInterface $timeOfDiscontinued): self
+    public function setDiscontinuedAt(?DateTimeInterface $discontinuedAt): self
     {
-        $this->timeOfDiscontinued = $timeOfDiscontinued;
+        $this->discontinuedAt = $discontinuedAt;
 
         return $this;
     }

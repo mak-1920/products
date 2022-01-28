@@ -157,7 +157,7 @@ class DoctrineSaver implements Saver
     }
 
     /**
-     * @param array{dtmdiscontinued: DateTime, strproductname: string} $array
+     * @param array{name: string, timeOfDiscontinued: DateTime} $array
      *
      * @return array<string, DateTime>
      */
