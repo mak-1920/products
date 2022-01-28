@@ -31,12 +31,13 @@ class ImportCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('file', InputArgument::REQUIRED, 'CSV file for import')
-            ->addOption('delimiter', 'd', InputOption::VALUE_REQUIRED, 'Columns separator character')
-            ->addOption('enclosure', 'a', InputOption::VALUE_REQUIRED, 'Character around fields')
-            ->addOption('escape', 's', InputOption::VALUE_REQUIRED, 'Rows separator character')
+            ->setHelp('Files is separated by ",", characters are written without separators ')
+            ->addArgument('files', InputArgument::REQUIRED, 'array of CSV file for import')
+            ->addOption('delimiter', 'd', InputOption::VALUE_REQUIRED, 'Columns separator character for each file')
+            ->addOption('enclosure', 'a', InputOption::VALUE_REQUIRED, 'Character around fields for each file')
+            ->addOption('escape', 's', InputOption::VALUE_REQUIRED, 'Rows separator character for each file')
+            ->addOption('haveHeader', null, InputOption::VALUE_REQUIRED, '1 if CSV have header, 0 if haven\'t for each file')
             ->addOption('testmode', 't', InputOption::VALUE_NONE, 'Enable testmode and don\'t save data in DB')
-            ->addOption('non-header', null, InputOption::VALUE_NONE, 'Use, if CSV haven\'t header')
         ;
     }
 
@@ -44,10 +45,10 @@ class ImportCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $file = $input->getArgument('file');
+        $files = explode(',', $input->getArgument('files'));
 
-        $settings = $this->getCSVSettings($input);
-        $import = $this->getImport($file, $settings, $input);
+        $settings = $this->getCSVSettings($input, count($files));
+        $import = $this->getImport($files, $settings, $input);
 
         $this->printImportStatus($import, $io);
 
@@ -56,41 +57,60 @@ class ImportCommand extends Command
 
     /**
      * @param InputInterface $input
+     * @param int $fileCount
      *
-     * @return CSVSettings
+     * @return CSVSettings[]
      */
-    private function getCSVSettings(InputInterface $input): CSVSettings
+    private function getCSVSettings(InputInterface $input, int $fileCount): array
     {
-        $settings = new CSVSettings();
+        $settings = [];
 
-        $options = ['delimiter', 'enclosure', 'escape'];
+        $options = ['delimiter' => [], 'enclosure' => [], 'escape' => [], 'haveHeader' => []];
 
-        foreach ($options as $option) {
-            $val = $input->getOption($option);
-            if ($this->isValidCharacter($val)) {
-                call_user_func([$settings, 'set'.$option], $val);
+        $this->setCharacters($options, $input, $fileCount);
+
+        for($i = 0; $i < $fileCount; $i++){
+            $setting = new CSVSettings();
+
+            foreach ($options as $option => $val) {
+                if ($this->isValidCharacter($val[$i])) {
+                    call_user_func([$setting, 'set'.$option], $val[$i]);
+                }
             }
-        }
 
-        if (true === $input->getOption('non-header')) {
-            $settings->setHaveHeader(false);
+            $settings[] = $setting;
         }
 
         return $settings;
     }
 
     /**
-     * @param string $file
-     * @param CSVSettings $settings
+     * @param array<string, string[]> &$characters
+     * @param InputInterface $input
+     * @param int $fileCount
+     *
+     * @return void
+     */
+    private function setCharacters(array &$characters, InputInterface $input, int $fileCount) : void
+    {
+        foreach($characters as $option => &$set) {
+            $val = $input->getOption($option) ?? '';
+            $set = array_pad(str_split($val), $fileCount, ' ');
+        }
+    }
+
+    /**
+     * @param string[] $files
+     * @param CSVSettings[] $settings
      * @param InputInterface $input
      *
      * @return ImportCSV
      */
-    private function getImport(string $file, CSVSettings $settings, InputInterface $input): ImportCSV
+    private function getImport(array $files, array $settings, InputInterface $input): ImportCSV
     {
         $import = new ImportCSV(
-            [new UploadedFile($file, $file)],
-            [$settings],
+            $this->getFiles($files),
+            $settings,
             $this->isTest($input),
             $this->saver,
         );
@@ -101,6 +121,22 @@ class ImportCommand extends Command
     }
 
     /**
+     * @param string[] $files
+     *
+     * @return UploadedFile[]
+     */
+    private function getFiles(array $files) : array
+    {
+        $uploadedFiles = [];
+
+        foreach($files as $file) {
+            $uploadedFiles[] = new UploadedFile($file, $file);
+        }
+
+        return $uploadedFiles;
+    }
+
+    /**
      * @param ImportCSV $import
      * @param SymfonyStyle $io
      *
@@ -108,10 +144,7 @@ class ImportCommand extends Command
      */
     private function printImportStatus(ImportCSV $import, SymfonyStyle $io): void
     {
-        if (!$this->isValidFile($import, $io)) {
-            return;
-        }
-
+        $this->printInvalidFiles($import, $io);
         $this->printInfoAboutProcessedRows($import, $io);
         $this->printInfoAboutValidRows($import, $io);
         $this->printInfoAboutInvalidRows($import, $io);
@@ -141,17 +174,15 @@ class ImportCommand extends Command
      * @param ImportCSV $import
      * @param SymfonyStyle $io
      *
-     * @return bool
+     * @return void
      */
-    private function isValidFile(ImportCSV $import, SymfonyStyle $io): bool
+    private function printInvalidFiles(ImportCSV $import, SymfonyStyle $io): void
     {
-        if (count($import->getNotParsedFiles()) > 0) {
-            $io->error('Unable to parse file. Check settings');
+        $files = $import->getNotParsedFiles();
 
-            return false;
+        foreach($files as $file) {
+            $io->writeln('<fg=white;bg=red>Unable to parse file "' . $file . '" Check settings</>');
         }
-
-        return true;
     }
 
     /**

@@ -41,7 +41,7 @@ class CommandTest extends KernelTestCase
         $this->testerExecute(
             __DIR__ . '/csv/multiple_4.csv',
             [
-                '--non-header' => true,
+                '--haveHeader' => '0',
             ],
         );
 
@@ -99,7 +99,7 @@ class CommandTest extends KernelTestCase
         $args = array_merge(
             $options,
             [
-                'file' => $file,
+                'files' => $file,
                 '--testmode' => true,
             ],
         );
