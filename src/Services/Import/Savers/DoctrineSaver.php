@@ -119,7 +119,7 @@ class DoctrineSaver implements Saver
             $el['cost'] = $el['Cost in GBP'];
             $el['stock'] = $el['Stock'];
             if ($el['Discontinued'] instanceof DateTime) {
-                $el['timeOfDiscontinued'] = $el['Discontinued'];
+                $el['discontinuedAt'] = $el['Discontinued'];
             }
 
             return $el;
@@ -157,7 +157,7 @@ class DoctrineSaver implements Saver
     }
 
     /**
-     * @param array{name: string, timeOfDiscontinued: DateTime} $array
+     * @param array{name: string, discontinuedAt: DateTime} $array
      *
      * @return array<string, DateTime>
      */
@@ -166,7 +166,7 @@ class DoctrineSaver implements Saver
         $result = [];
 
         for ($i = 0; $i < count($array); ++$i) {
-            $result[$array[$i]['name']] = $array[$i]['timeOfDiscontinued'];
+            $result[$array[$i]['name']] = $array[$i]['discontinuedAt'];
         }
 
         return $result;

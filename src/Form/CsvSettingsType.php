@@ -47,7 +47,6 @@ class CsvSettingsType extends AbstractType
                 ],
             ])
             ->add('haveHeader', CheckboxType::class, [
-                'mapped' => false,
                 'required' => false,
                 'data' => true,
             ])

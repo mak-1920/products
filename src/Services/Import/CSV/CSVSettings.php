@@ -47,7 +47,7 @@ class CSVSettings
     /**
      * @return bool
      */
-    public function isHavingHeader(): bool
+    public function getHaveHeader(): bool
     {
         return $this->haveHeader;
     }

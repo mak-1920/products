@@ -8,8 +8,11 @@
     {{ form_start(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
         {{ form_row(form.file) }}
         {{ form_row(form.testmode) }}
+        <div id="prototype" data-prototype="{{ form_widget(form.csvSettings.vars.prototype)|e }}"></div>
         <div class="csv-sets"></div>
-    {{ form_end(form) }}
+        {{ form_row(form.import) }}
+        {{ form_row(form._token) }}
+    {{ form_end(form, { 'render_rest': false }) }}
 
     {% if not import is null and import.requests|length > 0 %}
         <p>Processed: {{ import.requests|length }}</p>

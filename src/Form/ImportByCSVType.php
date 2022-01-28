@@ -33,6 +33,7 @@ class ImportByCSVType extends AbstractType
                 'required' => false,
             ])
             ->add('csvSettings', CollectionType::class, [
+                'by_reference' => false,
                 'allow_add' => true,
                 'entry_type' => CsvSettingsType::class,
                 'label' => false,

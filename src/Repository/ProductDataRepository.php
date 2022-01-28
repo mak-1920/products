@@ -42,15 +42,15 @@ class ProductDataRepository extends ServiceEntityRepository
     /**
      * @param string[] $names
      *
-     * @return array{name: string, timeOfDiscontinued: DateTime}
+     * @return array{name: string, discontinuedAt: DateTime}
      */
     public function getDiscontinuedProductsByNames(array $names): array
     {
         return $this->createQueryBuilder('p')
-            ->select('p.name, p.timeOfDiscontinued')
+            ->select('p.name, p.discontinuedAt')
             ->distinct()
             ->where('p.name IN (:names)')
-            ->andWhere('p.timeOfDiscontinued IS NOT NULL')
+            ->andWhere('p.discontinuedAt IS NOT NULL')
             ->groupBy('p.name')
             ->setParameter('names', $names, Connection::PARAM_STR_ARRAY)
             ->getQuery()

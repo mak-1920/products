@@ -132,6 +132,7 @@ class ImportCSVTest extends TestCase
             __DIR__ . '/csv/multiple_1.csv',
             __DIR__ . '/csv/multiple_2.csv',
             __DIR__ . '/csv/multiple_3.csv',
+            __DIR__ . '/csv/multiple_4.csv',
         ];
 
         $import = $this->getImport(
@@ -140,16 +141,18 @@ class ImportCSVTest extends TestCase
                 new CSVSettings(),
                 new CSVSettings('|', '"'),
                 new CSVSettings('|', '"', haveHeader: false),
+                new CSVSettings(haveHeader: false),
             ]
         );
         $requests = $import->getRequests();
 
-        $this->assertCount(3, $requests);
-        $this->assertCount(3, $import->getComplete());
+        $this->assertCount(4, $requests);
+        $this->assertCount(4, $import->getComplete());
         $this->assertCount(0, $import->getFailed());
         $this->assertEquals('TV, P0001, , 32” Tv, 10, 399.99', implode(', ', $requests[0]));
         $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[1]));
         $this->assertEquals('P0010, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[2]));
+        $this->assertEquals('P0001, TV, 32” Tv, 10, 399.99, ', implode(', ', $requests[3]));
     }
 
     /**

@@ -68,7 +68,7 @@ class ImportCSV extends Import
         );
         $reader->setStrict(false);
 
-        if (!$this->setHeaderSettings($reader, $settings->isHavingHeader())) {
+        if (!$this->setHeaderSettings($reader, $settings->getHaveHeader())) {
             return null;
         }
 
