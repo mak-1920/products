@@ -1,22 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello MainController!{% endblock %}
+{% block title %}Csv import{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
 <div class="wrapper">
     {{ form(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
 
     {% if not import is null and import.requests|length > 0 %}
         <p>Processed: {{ import.requests|length }}</p>
-        {#{% for row in import.requests %}
-            <p>{{ row|join(',') }}</p>
-        {% endfor %}
-        {{ import.failed|length }}#}
         <p>Success: {{ import.complete|length }}</p>
         <p>Failed: {{ import.failed|length }}</p>
         <p>
