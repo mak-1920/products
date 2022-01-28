@@ -160,7 +160,7 @@ class ImportCSV extends Import
     /**
      * @return string[]
      */
-    public function getNotParsedFiles() : array
+    public function getNotParsedFiles(): array
     {
         return $this->notParsedFiles;
     }
