@@ -29,11 +29,17 @@ class ImportCSVTest extends TestCase
         return $files;
     }
 
-    private function getImport(array $paths): ImportCSV
+    /**
+     * @param string[] $paths
+     * @param CSVSettings[] $settings
+     *
+     * @return ImportCSV
+     */
+    private function getImport(array $paths, array $settings = []): ImportCSV
     {
         $import = new ImportCSV(
             $this->getFiles($paths),
-            new CSVSettings(haveHeader: true),
+            $settings,
             true
         );
 
@@ -125,16 +131,25 @@ class ImportCSVTest extends TestCase
         $fileTitles = [
             __DIR__ . '/csv/multiple_1.csv',
             __DIR__ . '/csv/multiple_2.csv',
+            __DIR__ . '/csv/multiple_3.csv',
         ];
 
-        $import = $this->getImport($fileTitles);
+        $import = $this->getImport(
+            $fileTitles,
+            [
+                new CSVSettings(),
+                new CSVSettings('|', '"'),
+                new CSVSettings('|', '"', haveHeader: false),
+            ]
+        );
         $requests = $import->getRequests();
 
-        $this->assertCount(2, $requests);
-        $this->assertCount(2, $import->getComplete());
+        $this->assertCount(3, $requests);
+        $this->assertCount(3, $import->getComplete());
         $this->assertCount(0, $import->getFailed());
         $this->assertEquals('TV, P0001, , 32” Tv, 10, 399.99', implode(', ', $requests[0]));
         $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[1]));
+        $this->assertEquals('P0010, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[2]));
     }
 
     /**

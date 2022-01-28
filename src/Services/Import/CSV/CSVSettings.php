@@ -16,7 +16,7 @@ class CSVSettings
         private string $delimiter = ',',
         private string $enclosure = ' ',
         private string $escape = ' ',
-        private bool $haveHeader = false,
+        private bool $haveHeader = true,
     ) {
     }
 
@@ -50,5 +50,37 @@ class CSVSettings
     public function isHavingHeader(): bool
     {
         return $this->haveHeader;
+    }
+
+    /**
+     * @param ?bool $haveHeader
+     */
+    public function setHaveHeader(?bool $haveHeader): void
+    {
+        $this->haveHeader = $haveHeader ?? false;
+    }
+
+    /**
+     * @param ?string $delimiter
+     */
+    public function setDelimiter(?string $delimiter): void
+    {
+        $this->delimiter = $delimiter ?? ' ';
+    }
+
+    /**
+     * @param ?string $escape
+     */
+    public function setEscape(?string $escape): void
+    {
+        $this->escape = $escape ?? ' ';
+    }
+
+    /**
+     * @param ?string $enclosure
+     */
+    public function setEnclosure(?string $enclosure): void
+    {
+        $this->enclosure = $enclosure ?? ' ';
     }
 }

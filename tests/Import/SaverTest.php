@@ -61,11 +61,17 @@ class SaverTest extends KernelTestCase
         return $files;
     }
 
-    private function getImport(array $paths): ImportCSV
+    /**
+     * @param string[] $paths
+     * @param CSVSettings[] $settings
+     *
+     * @return ImportCSV
+     */
+    private function getImport(array $paths, array $settings = []): ImportCSV
     {
         $import = new ImportCSV(
             $this->getFiles($paths),
-            new CSVSettings(haveHeader: true),
+            $settings,
             false,
             $this->saver
         );

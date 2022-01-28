@@ -5,7 +5,11 @@
 {% block body %}
 
 <div class="wrapper">
-    {{ form(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
+    {{ form_start(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
+        {{ form_row(form.file) }}
+        {{ form_row(form.testmode) }}
+        <div class="csv-sets"></div>
+    {{ form_end(form) }}
 
     {% if not import is null and import.requests|length > 0 %}
         <p>Processed: {{ import.requests|length }}</p>

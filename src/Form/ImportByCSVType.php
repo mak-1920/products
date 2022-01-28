@@ -24,6 +24,9 @@ class ImportByCSVType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                 ],
+                'attr' => [
+                    'class' => 'import_files',
+                ],
             ])
             ->add('testmode', CheckboxType::class, [
                 'mapped' => false,
@@ -33,6 +36,9 @@ class ImportByCSVType extends AbstractType
                 'allow_add' => true,
                 'entry_type' => CsvSettingsType::class,
                 'label' => false,
+                'entry_options' => [
+                    'label' => false,
+                ],
             ])
             ->add('import', SubmitType::class, [
             ])
@@ -42,7 +48,6 @@ class ImportByCSVType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // Configure your form options here
         ]);
     }
 }

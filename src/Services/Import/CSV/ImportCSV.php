@@ -15,16 +15,18 @@ class ImportCSV extends Import
 {
     /**
      * @param UploadedFile[] $files
-     * @param CSVSettings $csvSettings
+     * @param CSVSettings[] $csvSettings
      * @param bool $isTest
      * @param Saver|null $saver
      */
     public function __construct(
         array $files,
-        CSVSettings $csvSettings,
+        array $csvSettings,
         bool $isTest,
         Saver $saver = null,
     ) {
+        $csvSettings = array_pad($csvSettings, count($files), new CSVSettings());
+
         $readers = $this->getReaders($files, $csvSettings);
 
         parent::__construct($readers, $isTest, $saver);
@@ -32,16 +34,16 @@ class ImportCSV extends Import
 
     /**
      * @param UploadedFile[] $files
-     * @param CSVSettings $csvSettings
+     * @param CSVSettings[] $csvSettings
      *
      * @return CsvReader[]
      */
-    private function getReaders(array $files, CSVSettings $csvSettings): array
+    private function getReaders(array $files, array $csvSettings): array
     {
         $readers = [];
 
-        foreach ($files as $file) {
-            $reader = $this->getReader($file, $csvSettings);
+        for ($i = 0; $i < count($files); $i++) {
+            $reader = $this->getReader($files[$i], $csvSettings[$i]);
             if (!is_null($reader)) {
                 $readers[] = $reader;
             }
