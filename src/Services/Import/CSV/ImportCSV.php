@@ -28,6 +28,7 @@ class ImportCSV extends Import
         bool $isTest,
         Saver $saver = null,
     ) {
+        $this->notParsedFiles = [];
         $csvSettings = array_pad($csvSettings, count($files), new CSVSettings());
 
         $readers = $this->getReaders($files, $csvSettings);
