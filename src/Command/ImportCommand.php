@@ -69,7 +69,7 @@ class ImportCommand extends Command
 
         $this->setCharacters($options, $input, $fileCount);
 
-        for($i = 0; $i < $fileCount; $i++){
+        for ($i = 0; $i < $fileCount; ++$i) {
             $setting = new CSVSettings();
 
             foreach ($options as $option => $val) {
@@ -91,9 +91,9 @@ class ImportCommand extends Command
      *
      * @return void
      */
-    private function setCharacters(array &$characters, InputInterface $input, int $fileCount) : void
+    private function setCharacters(array &$characters, InputInterface $input, int $fileCount): void
     {
-        foreach($characters as $option => &$set) {
+        foreach ($characters as $option => &$set) {
             $val = $input->getOption($option) ?? '';
             $set = array_pad(str_split($val), $fileCount, ' ');
         }
@@ -125,11 +125,11 @@ class ImportCommand extends Command
      *
      * @return UploadedFile[]
      */
-    private function getFiles(array $files) : array
+    private function getFiles(array $files): array
     {
         $uploadedFiles = [];
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $uploadedFiles[] = new UploadedFile($file, $file);
         }
 
@@ -180,8 +180,8 @@ class ImportCommand extends Command
     {
         $files = $import->getNotParsedFiles();
 
-        foreach($files as $file) {
-            $io->writeln('<fg=white;bg=red>Unable to parse file "' . $file . '" Check settings</>');
+        foreach ($files as $file) {
+            $io->writeln('<fg=white;bg=red>Unable to parse file "'.$file.'" Check settings</>');
         }
     }
 
