@@ -29,8 +29,8 @@ class SaverTest extends KernelTestCase
         $repository->expects($this->any())
             ->method('getDiscontinuedProductsByNames')
             ->willReturn([
-                ['name' => 'TV', 'timeOfDiscontinued' => new DateTime('2022-01-20 15:12:38')],
-                ['name' => 'Cd Player', 'timeOfDiscontinued' => new DateTime('2022-01-20 16:10:00')],
+                ['name' => 'TV', 'discontinuedAt' => new DateTime('2022-01-20 15:12:38')],
+                ['name' => 'Cd Player', 'discontinuedAt' => new DateTime('2022-01-20 16:10:00')],
             ]);
 
         $em = $this->createMock(EntityManager::class);
@@ -124,16 +124,16 @@ class SaverTest extends KernelTestCase
         $this->assertCount(6, $import->getComplete());
         $this->assertCount(0, $import->getFailed());
 
-        $this->assertEquals(new DateTime('2022-01-20 15:12:38'), $requests[1]['timeOfDiscontinued']);
+        $this->assertEquals(new DateTime('2022-01-20 15:12:38'), $requests[1]['discontinuedAt']);
 
-        $this->assertEquals($requests[5]['timeOfDiscontinued'], $requests[0]['timeOfDiscontinued']);
+        $this->assertEquals($requests[5]['discontinuedAt'], $requests[0]['discontinuedAt']);
     }
 
     public function testTransformDiscontinuedArr() : void
     {
         $data = [
-            ['name' => 'TV', 'timeOfDiscontinued' => new DateTime('2022-01-20 15:12:38')],
-            ['name' => 'Cd Player', 'timeOfDiscontinued' => new DateTime('2022-01-20 16:10:00')],
+            ['name' => 'TV', 'discontinuedAt' => new DateTime('2022-01-20 15:12:38')],
+            ['name' => 'Cd Player', 'discontinuedAt' => new DateTime('2022-01-20 16:10:00')],
         ];
 
         $result = $this->invokeMethod($this->saver, 'transformDiscontinuedArr', [$data]);

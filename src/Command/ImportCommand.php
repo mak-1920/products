@@ -184,10 +184,10 @@ class ImportCommand extends Command
     {
         $files = $import->getNotParsedFiles();
 
-        if(count($files) > 0) {
-            $io->writeln('<fg=white;bg=red>Unable to parse file: ' . count($files) . '</>');
+        if (count($files) > 0) {
+            $io->writeln('<fg=white;bg=red>Unable to parse file: '.count($files).'</>');
             foreach ($files as $file) {
-                $io->writeln('<fg=white;bg=red>' . $file . '</>');
+                $io->writeln('<fg=white;bg=red>'.$file.'</>');
             }
             $io->writeln('<fg=white;bg=red>Check settings</>');
         }

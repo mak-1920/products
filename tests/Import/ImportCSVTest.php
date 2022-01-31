@@ -16,7 +16,7 @@ class ImportCSVTest extends TestCase
         foreach($paths as $path) {
             $file = $this->getMockBuilder(UploadedFile::class)
                 ->disableOriginalConstructor()
-                ->onlyMethods(['getRealPath'])
+                ->onlyMethods(['getRealPath', 'getClientOriginalName'])
                 ->getMock();
 
             $file->expects($this->once())
@@ -152,7 +152,7 @@ class ImportCSVTest extends TestCase
         $this->assertEquals('TV, P0001, , 32” Tv, 10, 399.99', implode(', ', $requests[0]));
         $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[1]));
         $this->assertEquals('P0010, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[2]));
-        $this->assertEquals('P0001, TV, 32” Tv, 10, 399.99, ', implode(', ', $requests[3]));
+        $this->assertEquals('P0002, TV, 32” Tv, 10, 399.99, ', implode(', ', $requests[3]));
     }
 
     /**
