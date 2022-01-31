@@ -57,20 +57,4 @@ class ProductDataRepository extends ServiceEntityRepository
             ->getArrayResult()
             ;
     }
-
-    /**
-     * @param ProductData[] $products
-     *
-     * @return void
-     */
-    public function saveProducts(array $products): void
-    {
-        $em = $this->getEntityManager();
-
-        foreach ($products as $product) {
-            $em->persist($product);
-        }
-
-        $em->flush();
-    }
 }

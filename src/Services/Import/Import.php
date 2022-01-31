@@ -43,7 +43,7 @@ abstract class Import
         $this->success = [];
         $this->failed = [];
 
-        $this->setTransporters();
+        $this->setTransporter();
     }
 
     /**
@@ -60,6 +60,12 @@ abstract class Import
         $this->failed = array_udiff($this->requests, $this->success, [$this, 'productsCompare']);
     }
 
+    /**
+     * @param string[] $a
+     * @param string[] $b
+     *
+     * @return int
+     */
     private function productsCompare(array $a, array $b): int
     {
         foreach (self::$headerTitles as $title) {
@@ -100,7 +106,19 @@ abstract class Import
     /**
      * @return void
      */
-    private function setTransporters(): void
+    private function setTransporter(): void
+    {
+        $reader = $this->getArrayReaderWithRowsFromAllValidFiles();
+
+        $this->transporter = new StepAggregator($reader);
+        $this->transporter->addStep($this->getFilters());
+        $this->transporter->addStep($this->getConverters());
+    }
+
+    /**
+     * @return ArrayReader
+     */
+    private function getArrayReaderWithRowsFromAllValidFiles(): ArrayReader
     {
         $rows = [];
 
@@ -110,17 +128,7 @@ abstract class Import
             }
         }
 
-        $this->setTransporter(new ArrayReader($rows));
-    }
-
-    /**
-     * @param Reader $reader
-     */
-    private function setTransporter(Reader $reader): void
-    {
-        $this->transporter = new StepAggregator($reader);
-        $this->transporter->addStep($this->getFilters());
-        $this->transporter->addStep($this->getConverters());
+        return new ArrayReader($rows);
     }
 
     /**

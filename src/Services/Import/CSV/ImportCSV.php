@@ -7,7 +7,7 @@ namespace App\Services\Import\CSV;
 use App\Services\Import\Import;
 use App\Services\Import\Savers\Saver;
 use Port\Csv\CsvReader;
-use Port\Exception\DuplicateHeadersException;
+use Port\Exception\ReaderException;
 use SplFileObject;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -29,7 +29,7 @@ class ImportCSV extends Import
         Saver $saver = null,
     ) {
         $this->notParsedFiles = [];
-        $csvSettings = array_pad($csvSettings, count($files), new CSVSettings());
+        $csvSettings = array_pad($csvSettings, count($files), CSVSettings::getDefault());
 
         $readers = $this->getReaders($files, $csvSettings);
 
@@ -113,7 +113,7 @@ class ImportCSV extends Import
             if (!$this->isValidHeader($header)) {
                 return false;
             }
-        } catch (DuplicateHeadersException) {
+        } catch (ReaderException) {
             return false;
         }
 
@@ -127,34 +127,13 @@ class ImportCSV extends Import
      */
     private function isValidHeader(array $header): bool
     {
-        return $this->isValidCountTitles($header)
-            && $this->isValidTitles($header);
-    }
-
-    /**
-     * @param string[] $header
-     *
-     * @return bool
-     */
-    private function isValidCountTitles(array $header): bool
-    {
-        return count($header) == count(self::$headerTitles);
-    }
-
-    /**
-     * @param string[] $header
-     *
-     * @return bool
-     */
-    private function isValidTitles(array $header): bool
-    {
         for ($i = 0; $i < count(self::$headerTitles); ++$i) {
             if (!in_array(self::$headerTitles[$i], $header)) {
                 return false;
             }
         }
 
-        return true;
+        return count(self::$headerTitles) === count($header);
     }
 
     /**

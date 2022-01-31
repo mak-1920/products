@@ -11,6 +11,8 @@ class CSVSettings
     public const DEF_CHAR_ESCAPE = ' ';
     public const DEF_CHAR_HAVEHEADER = '1';
 
+    private static ?CSVSettings $default = null;
+
     /**
      * @param string $delimiter
      * @param string $enclosure
@@ -23,6 +25,16 @@ class CSVSettings
         private string $escape = self::DEF_CHAR_ESCAPE,
         private bool $haveHeader = true,
     ) {
+    }
+
+    public static function getDefault(): CSVSettings
+    {
+        if (null !== self::$default) {
+            return self::$default;
+        }
+        self::$default = new CSVSettings();
+
+        return self::$default;
     }
 
     /**

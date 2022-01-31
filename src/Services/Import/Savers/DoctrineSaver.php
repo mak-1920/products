@@ -9,6 +9,7 @@ use App\Repository\ProductDataRepository;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Port\Doctrine\DoctrineWriter;
+use Port\Reader\ArrayReader;
 use Port\Steps\Step\ConverterStep;
 use Port\Steps\Step\FilterStep;
 use Port\Steps\StepAggregator;
@@ -32,14 +33,12 @@ class DoctrineSaver implements Saver
     public function save(StepAggregator $transporter): array
     {
         $validRows = [];
-        $transporter->addWriter(new ArrayWriter($validRows));
-        $transporter->process();
+        $writer = new ArrayWriter($validRows);
+        $this->setRowsByFilterOfExistsCodes($transporter, $writer);
 
-        $transporter->addStep($this->getFilterByExistsCodes($validRows));
-        $transporter->process();
-        $transporter->addStep($this->getFilterByClonedCodes());
-        $transporter->addStep($this->getConverterByDiscontinued($validRows));
-        $transporter->addStep($this->getConverterKeys());
+        $transporter = new StepAggregator(new ArrayReader($validRows));
+        $transporter->addWriter($writer);
+        $this->setFilterAndConvertSteps($transporter, $validRows);
 
         if ('test' != $_ENV['APP_ENV']) {
             $doctrineWriter = new DoctrineWriter($this->em, ProductData::class);
@@ -49,6 +48,36 @@ class DoctrineSaver implements Saver
         $transporter->process();
 
         return $validRows;
+    }
+
+    /**
+     * @param StepAggregator $transporter
+     * @param ArrayWriter $writer
+     *
+     * @return void
+     */
+    private function setRowsByFilterOfExistsCodes(StepAggregator $transporter, ArrayWriter $writer): void
+    {
+        $validRows = [];
+
+        $transporter->addWriter($writer);
+        $transporter->process();
+
+        $transporter->addStep($this->getFilterByExistsCodes($validRows));
+        $transporter->process();
+    }
+
+    /**
+     * @param StepAggregator $transporter
+     * @param string[][] $validRows
+     *
+     * @return void
+     */
+    private function setFilterAndConvertSteps(StepAggregator $transporter, array $validRows): void
+    {
+        $transporter->addStep($this->getFilterByClonedCodes());
+        $transporter->addStep($this->getConverterByDiscontinued($validRows));
+        $transporter->addStep($this->getConverterKeys());
     }
 
     /**
