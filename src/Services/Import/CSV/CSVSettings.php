@@ -6,6 +6,11 @@ namespace App\Services\Import\CSV;
 
 class CSVSettings
 {
+    public const DEF_CHAR_DELIMITER = ',';
+    public const DEF_CHAR_ENCLOSURE = ' ';
+    public const DEF_CHAR_ESCAPE = ' ';
+    public const DEF_CHAR_HAVEHEADER = '1';
+
     /**
      * @param string $delimiter
      * @param string $enclosure
@@ -13,9 +18,9 @@ class CSVSettings
      * @param bool $haveHeader
      */
     public function __construct(
-        private string $delimiter = ',',
-        private string $enclosure = ' ',
-        private string $escape = ' ',
+        private string $delimiter = self::DEF_CHAR_DELIMITER,
+        private string $enclosure = self::DEF_CHAR_ENCLOSURE,
+        private string $escape = self::DEF_CHAR_ESCAPE,
         private bool $haveHeader = true,
     ) {
     }

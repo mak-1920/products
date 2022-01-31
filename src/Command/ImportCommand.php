@@ -95,7 +95,11 @@ class ImportCommand extends Command
     {
         foreach ($characters as $option => &$set) {
             $val = $input->getOption($option) ?? '';
-            $set = array_pad(str_split($val), $fileCount, ' ');
+            $set = array_pad(
+                str_split($val),
+                $fileCount,
+                constant(CSVSettings::class.'::DEF_CHAR_'.mb_strtoupper($option))
+            );
         }
     }
 
@@ -180,8 +184,12 @@ class ImportCommand extends Command
     {
         $files = $import->getNotParsedFiles();
 
-        foreach ($files as $file) {
-            $io->writeln('<fg=white;bg=red>Unable to parse file "'.$file.'" Check settings</>');
+        if(count($files) > 0) {
+            $io->writeln('<fg=white;bg=red>Unable to parse file: ' . count($files) . '</>');
+            foreach ($files as $file) {
+                $io->writeln('<fg=white;bg=red>' . $file . '</>');
+            }
+            $io->writeln('<fg=white;bg=red>Check settings</>');
         }
     }
 
