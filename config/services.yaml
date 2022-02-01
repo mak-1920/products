@@ -25,5 +25,9 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
 
+    App\Services\RabbitMQ\Import\SendProducer:
+        arguments:
+            - '@old_sound_rabbit_mq.import_send_producer'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

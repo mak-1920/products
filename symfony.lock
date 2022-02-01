@@ -121,11 +121,33 @@
     "nikic/php-parser": {
         "version": "v4.13.2"
     },
+    "paragonie/constant_time_encoding": {
+        "version": "v2.5.0"
+    },
+    "paragonie/random_compat": {
+        "version": "v9.99.100"
+    },
     "phar-io/manifest": {
         "version": "2.0.3"
     },
     "phar-io/version": {
         "version": "3.1.0"
+    },
+    "php-amqplib/php-amqplib": {
+        "version": "v3.1.2"
+    },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "2.11",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        },
+        "files": [
+            "config/packages/old_sound_rabbit_mq.yaml",
+            "src/Consumer/.gitignore"
+        ]
     },
     "php-cs-fixer/diff": {
         "version": "v2.0.2"
@@ -138,6 +160,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.6.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "3.0.13"
     },
     "phpspec/prophecy": {
         "version": "v1.15.0"

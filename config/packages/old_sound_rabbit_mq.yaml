@@ -1,0 +1,16 @@
+old_sound_rabbit_mq:
+    connections:
+        default:
+            url: '%env(RABBITMQ_URL)%'
+            use_socket: true
+    producers:
+        # use 'old_sound_rabbit_mq.task_producer' service to send data.
+        import_send:
+            connection:       default
+            exchange_options: { name: 'import.send', type: direct }
+    consumers:
+        import_send:
+            connection:       default
+            exchange_options: { name: 'import.send', type: direct }
+            queue_options:    { name: 'import.send'}
+            callback:         App\Services\RabbitMQ\Import\SendConsumer

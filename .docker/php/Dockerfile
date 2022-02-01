@@ -21,5 +21,6 @@ RUN apt-get update \
         intl \
         zip pcntl \
         exif opcache \
+        sockets \
     && docker-php-ext-enable xdebug \
     && docker-php-source delete
