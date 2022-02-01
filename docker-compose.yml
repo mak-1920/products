@@ -21,6 +21,7 @@ services:
       PHP_IDE_CONFIG: "serverName=IDE"
     depends_on:
       - mariadb
+      - rabbitmq
           
   mariadb:
     image: mariadb
@@ -42,7 +43,18 @@ services:
     volumes:
       - pma-data:/var/lib/pma
 
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: pass
+    ports:
+      - "8000:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 
 volumes:
   mariadb-data:
   pma-data:
+  rabbitmq_data:
