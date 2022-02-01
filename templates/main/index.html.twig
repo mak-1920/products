@@ -14,7 +14,7 @@
         {{ form_row(form._token) }}
     {{ form_end(form, { 'render_rest': false }) }}
 
-    {% if not import is null and import.requests|length > 0 %}
+    {#{% if not import is null and import.requests|length > 0 %}
         <p>Processed: {{ import.requests|length }}</p>
         <p>Success: {{ import.complete|length }}</p>
         <p>Failed: {{ import.failed|length }}</p>
@@ -34,6 +34,6 @@
                 {% endfor %}
             </ul>
         </p>
-    {% endif %}
+    {% endif %}#}
 </div>
 {% endblock %}

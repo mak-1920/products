@@ -34,7 +34,7 @@ class DoctrineSaver implements Saver
     {
         $validRows = [];
         $writer = new ArrayWriter($validRows);
-        $this->setRowsByFilterOfExistsCodes($transporter, $writer);
+        $this->setRowsByFilterOfExistsCodes($transporter, $writer, $validRows);
 
         $transporter = new StepAggregator(new ArrayReader($validRows));
         $transporter->addWriter($writer);
@@ -53,13 +53,12 @@ class DoctrineSaver implements Saver
     /**
      * @param StepAggregator $transporter
      * @param ArrayWriter $writer
+     * @param string[][] $validRows
      *
      * @return void
      */
-    private function setRowsByFilterOfExistsCodes(StepAggregator $transporter, ArrayWriter $writer): void
+    private function setRowsByFilterOfExistsCodes(StepAggregator $transporter, ArrayWriter &$writer, array &$validRows): void
     {
-        $validRows = [];
-
         $transporter->addWriter($writer);
         $transporter->process();
 
@@ -85,7 +84,7 @@ class DoctrineSaver implements Saver
      *
      * @return FilterStep
      */
-    private function getFilterByExistsCodes(array $rows): FilterStep
+    private function getFilterByExistsCodes(array &$rows): FilterStep
     {
         $existsCodes = $this->getExistsProductCodes($rows);
 
