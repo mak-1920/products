@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\ImportByCSVType;
-use App\Services\RabbitMQ\Import\MessageSerializer;
+use App\Services\Import\Logger\Logger;
+use App\Services\Import\TempFilesManager;
 use App\Services\RabbitMQ\Import\SendProducer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,22 +19,26 @@ class MainController extends AbstractController
     public function index(
         Request $request,
         SendProducer $producer,
-        MessageSerializer $messageSerializer
+        Logger $logger,
+        TempFilesManager $filesManager,
     ): Response {
         $form = $this->createForm(ImportByCSVType::class);
         $form->handleRequest($request);
+        $ids = [];
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $msg = $messageSerializer->serialize([
-                'files' => $request->files->get('import_by_csv')['file'],
+            $files = $request->files->get('import_by_csv')['file'];
+            $filesInfo = $filesManager->saveFiles($files);
+            $ids = $logger->createStatuses([
+                'files' => $filesInfo,
                 'settings' => $form->get('csvSettings')->getData(),
-                'testmode' => $form->get('testmode')->getData(),
             ]);
-            $producer->send($msg);
+            $producer->sendIDs($ids);
         }
 
         return $this->renderForm('main/index.html.twig', [
             'form' => $form,
+            'ids' => $ids,
         ]);
     }
 }

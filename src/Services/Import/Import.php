@@ -7,7 +7,6 @@ namespace App\Services\Import;
 use App\Services\Import\Savers\Saver;
 use DateTime;
 use Port\Reader;
-use Port\Reader\ArrayReader;
 use Port\Steps\Step\ConverterStep;
 use Port\Steps\Step\FilterStep;
 use Port\Steps\StepAggregator;
@@ -30,12 +29,12 @@ abstract class Import
     private array $requests;
 
     /**
-     * @param Reader[] $readers
+     * @param Reader $reader
      * @param bool $isTest
      * @param Saver|null $saver
      */
     public function __construct(
-        private array $readers,
+        private ?Reader $reader,
         protected bool $isTest,
         private ?Saver $saver = null,
     ) {
@@ -108,27 +107,9 @@ abstract class Import
      */
     private function setTransporter(): void
     {
-        $reader = $this->getArrayReaderWithRowsFromAllValidFiles();
-
-        $this->transporter = new StepAggregator($reader);
+        $this->transporter = new StepAggregator($this->reader);
         $this->transporter->addStep($this->getFilters());
         $this->transporter->addStep($this->getConverters());
-    }
-
-    /**
-     * @return ArrayReader
-     */
-    private function getArrayReaderWithRowsFromAllValidFiles(): ArrayReader
-    {
-        $rows = [];
-
-        foreach ($this->readers as $reader) {
-            foreach ($reader as $row) {
-                $rows[] = $row;
-            }
-        }
-
-        return new ArrayReader($rows);
     }
 
     /**
@@ -233,10 +214,8 @@ abstract class Import
      */
     private function setRequests(): void
     {
-        foreach ($this->readers as $reader) {
-            foreach ($reader as $row) {
-                $this->requests[] = $row;
-            }
+        foreach ($this->reader as $row) {
+            $this->requests[] = $row;
         }
     }
 

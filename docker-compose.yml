@@ -3,6 +3,7 @@ version: '3.3'
 services:
   nginx:
     image: nginx:1.20
+    restart: always
     ports:
       - "80:80"
     volumes:
@@ -13,6 +14,7 @@ services:
 
   php:
     build: ./.docker/php
+    restart: always
     working_dir: /var/www/php
     volumes:
       - .:/var/www/php
@@ -22,9 +24,11 @@ services:
     depends_on:
       - mariadb
       - rabbitmq
+      - mailcatcher
           
   mariadb:
     image: mariadb
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
@@ -45,6 +49,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.9-management
+    restart: always
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: pass
@@ -53,6 +58,10 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  mailcatcher:
+    image: dockage/mailcatcher
+    ports:
+      - "1080:1080"
 
 volumes:
   mariadb-data:

@@ -4,67 +4,69 @@ declare(strict_types=1);
 
 namespace App\Services\Import\CSV;
 
+use App\Entity\ImportStatus;
 use App\Services\Import\Import;
 use App\Services\Import\Savers\Saver;
 use Port\Csv\CsvReader;
 use Port\Exception\ReaderException;
 use SplFileObject;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportCSV extends Import
 {
-    /** @var string[] $notParsedFiles */
-    private array $notParsedFiles;
+    private bool $isParsed;
 
     /**
-     * @param UploadedFile[] $files
-     * @param CSVSettings[] $csvSettings
+     * @param ImportStatus $status
+     * @param Saver|null $saver
+     *
+     * @return ImportCSV
+     */
+    public static function ImportFileByStatus(
+        ImportStatus $status,
+        Saver|null $saver,
+    ): ImportCSV {
+        $file = new UploadedFile($status->getFileTmpName(), $status->getFileOriginalName());
+        $settings = CSVSettings::fromString($status->getCsvSettings());
+
+        $import = new ImportCSV(
+            $file,
+            $settings,
+            false,
+            $saver
+        );
+        $import->saveRequests();
+
+        return $import;
+    }
+
+    /**
+     * @param File $file
+     * @param CSVSettings $csvSetting
      * @param bool $isTest
      * @param Saver|null $saver
      */
     public function __construct(
-        array $files,
-        array $csvSettings,
+        File $file,
+        CSVSettings $csvSetting,
         bool $isTest,
         Saver $saver = null,
     ) {
-        $this->notParsedFiles = [];
-        $csvSettings = array_pad($csvSettings, count($files), CSVSettings::getDefault());
+        $this->isParsed = true;
 
-        $readers = $this->getReaders($files, $csvSettings);
+        $reader = $this->getReader($file, $csvSetting);
 
-        parent::__construct($readers, $isTest, $saver);
+        parent::__construct($reader, $isTest, $saver);
     }
 
     /**
-     * @param UploadedFile[] $files
-     * @param CSVSettings[] $csvSettings
-     *
-     * @return CsvReader[]
-     */
-    private function getReaders(array $files, array $csvSettings): array
-    {
-        $readers = [];
-
-        for ($i = 0; $i < count($files); ++$i) {
-            $reader = $this->getReader($files[$i], $csvSettings[$i]);
-            if (!is_null($reader)) {
-                $readers[] = $reader;
-            } else {
-                $this->notParsedFiles[] = $files[$i]->getClientOriginalName();
-            }
-        }
-
-        return $readers;
-    }
-
-    /**
-     * @param UploadedFile $file
+     * @param File $file
      * @param CSVSettings $settings
      *
      * @return ?CsvReader
      */
-    private function getReader(UploadedFile $file, CSVSettings $settings): ?CsvReader
+    private function getReader(File $file, CSVSettings $settings): ?CsvReader
     {
         $reader = new CsvReader(
             new SplFileObject($file->getRealPath()),
@@ -75,6 +77,8 @@ class ImportCSV extends Import
         $reader->setStrict(false);
 
         if (!$this->setHeaderSettings($reader, $settings->getHaveHeader())) {
+            $this->isParsed = false;
+
             return null;
         }
 
@@ -137,10 +141,10 @@ class ImportCSV extends Import
     }
 
     /**
-     * @return string[]
+     * @return bool
      */
-    public function getNotParsedFiles(): array
+    public function isParsed(): bool
     {
-        return $this->notParsedFiles;
+        return $this->isParsed;
     }
 }

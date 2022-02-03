@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\RabbitMQ\Import;
 
 use App\Services\Import\CSV\ImportCSV;
+use App\Services\Import\Logger\Logger;
 use App\Services\Import\Savers\DoctrineSaver;
+use App\Services\Import\TempFilesManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
@@ -13,24 +15,26 @@ use Throwable;
 class SendConsumer implements ConsumerInterface
 {
     public function __construct(
-        private MessageSerializer $messageSerializer,
         private DoctrineSaver $saver,
+        private Logger $logger,
+        private TempFilesManager $filesManager,
     ) {
     }
 
     public function execute(AMQPMessage $msg): void
     {
+        $id = (int) $msg->getBody();
+        $status = $this->logger->getStatus($id);
+
         try {
-            $data = $this->messageSerializer->deserialize($msg);
-            $import = new ImportCSV(
-                $data['files'],
-                $data['settings'],
-                $data['testmode'],
-                $this->saver
-            );
-            $import->saveRequests();
-        } catch (Throwable $exception) {
-            echo $exception->getMessage().PHP_EOL;
+            $import = ImportCSV::ImportFileByStatus($status, $this->saver);
+            $this->logger->changeStatusToComplete($status, $import);
+        } catch (Throwable) {
+            $this->logger->changeStatusToFailed($status);
+        } finally {
+            if ($status->getRemovingFile()) {
+                $this->filesManager->removeFile($status->getFileTmpName());
+            }
         }
     }
 }

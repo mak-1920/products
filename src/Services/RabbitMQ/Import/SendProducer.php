@@ -18,4 +18,16 @@ class SendProducer implements ProducerInterface
     {
         $this->producer->publish($msg);
     }
+
+    /**
+     * @param int[] $ids
+     *
+     * @return void
+     */
+    public function sendIDs(array $ids): void
+    {
+        foreach ($ids as $id) {
+            $this->send((string) $id);
+        }
+    }
 }

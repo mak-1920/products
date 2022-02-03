@@ -28,10 +28,10 @@ class ImportByCSVType extends AbstractType
                     'class' => 'import_files',
                 ],
             ])
-            ->add('testmode', CheckboxType::class, [
-                'mapped' => false,
-                'required' => false,
-            ])
+//            ->add('testmode', CheckboxType::class, [
+//                'mapped' => false,
+//                'required' => false,
+//            ])
             ->add('csvSettings', CollectionType::class, [
                 'by_reference' => false,
                 'allow_add' => true,

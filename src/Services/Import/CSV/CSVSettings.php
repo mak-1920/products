@@ -13,6 +13,18 @@ class CSVSettings
 
     private static ?CSVSettings $default = null;
 
+    public static function fromString(string $settings): CSVSettings
+    {
+        $csvSet = new CSVSettings(
+            $settings[0],
+            $settings[1],
+            $settings[2],
+            (bool) $settings[3],
+        );
+
+        return $csvSet;
+    }
+
     /**
      * @param string $delimiter
      * @param string $enclosure
@@ -27,6 +39,20 @@ class CSVSettings
     ) {
     }
 
+    public function __toString(): string
+    {
+        return sprintf(
+            '%s%s%s%b',
+            $this->getDelimiter(),
+            $this->getEnclosure(),
+            $this->getEscape(),
+            $this->getHaveHeader(),
+        );
+    }
+
+    /**
+     * @return CSVSettings
+     */
     public static function getDefault(): CSVSettings
     {
         if (null !== self::$default) {

@@ -1,5 +1,7 @@
 FROM php:8.0-fpm
 
+USER root
+
 RUN apt-get update \
   && apt-get install -y \
              apt-utils \
@@ -11,12 +13,12 @@ RUN apt-get update \
              libzip-dev \
              libpq-dev \
              libfreetype6-dev \
+             procps \
     && pecl install xdebug \
     && docker-php-ext-configure intl --enable-intl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) gd && \
     docker-php-ext-install \
-        pgsql pdo_pgsql \
         mysqli pdo_mysql \
         intl \
         zip pcntl \

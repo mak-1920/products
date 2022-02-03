@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Services\Import\CSV\CSVSettings;
-use App\Services\Import\CSV\ImportCSV;
+use App\Services\Import\Logger\Logger;
 use App\Services\Import\Savers\DoctrineSaver;
+use App\Services\Import\TempFilesManager;
+use App\Services\RabbitMQ\Import\SendProducer;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,6 +26,9 @@ class ImportCommand extends Command
 {
     public function __construct(
         private DoctrineSaver $saver,
+        private SendProducer $producer,
+        private Logger $logger,
+        private TempFilesManager $filesManager,
     ) {
         parent::__construct();
     }
@@ -37,7 +42,7 @@ class ImportCommand extends Command
             ->addOption('enclosure', 'a', InputOption::VALUE_REQUIRED, 'Character around fields for each file')
             ->addOption('escape', 's', InputOption::VALUE_REQUIRED, 'Rows separator character for each file')
             ->addOption('haveHeader', null, InputOption::VALUE_REQUIRED, '1 if CSV have header, 0 if haven\'t for each file')
-            ->addOption('testmode', 't', InputOption::VALUE_NONE, 'Enable testmode and don\'t save data in DB')
+//            ->addOption('testmode', 't', InputOption::VALUE_NONE, 'Enable testmode and don\'t save data in DB')
         ;
     }
 
@@ -48,9 +53,16 @@ class ImportCommand extends Command
         $files = explode(',', $input->getArgument('files'));
 
         $settings = $this->getCSVSettings($input, count($files));
-        $import = $this->getImport($files, $settings, $input);
+        $files = $this->getFiles($files);
+        $savedFiles = $this->filesManager->saveFiles($files);
 
-        $this->printImportStatus($import, $io);
+        $ids = $this->logger->createStatuses([
+            'files' => $savedFiles,
+            'settings' => $settings,
+        ]);
+        $this->producer->sendIDs($ids);
+
+        $io->text('Files have been uploaded and will be processed!');
 
         return Command::SUCCESS;
     }
@@ -104,24 +116,13 @@ class ImportCommand extends Command
     }
 
     /**
-     * @param string[] $files
-     * @param CSVSettings[] $settings
-     * @param InputInterface $input
+     * @param string|null $character
      *
-     * @return ImportCSV
+     * @return bool
      */
-    private function getImport(array $files, array $settings, InputInterface $input): ImportCSV
+    private function isValidCharacter(?string $character): bool
     {
-        $import = new ImportCSV(
-            $this->getFiles($files),
-            $settings,
-            $this->isTest($input),
-            $this->saver,
-        );
-
-        $import->saveRequests();
-
-        return $import;
+        return !is_null($character) && 1 === strlen($character);
     }
 
     /**
@@ -138,102 +139,5 @@ class ImportCommand extends Command
         }
 
         return $uploadedFiles;
-    }
-
-    /**
-     * @param ImportCSV $import
-     * @param SymfonyStyle $io
-     *
-     * @return void
-     */
-    private function printImportStatus(ImportCSV $import, SymfonyStyle $io): void
-    {
-        $this->printInvalidFiles($import, $io);
-        $this->printInfoAboutProcessedRows($import, $io);
-        $this->printInfoAboutValidRows($import, $io);
-        $this->printInfoAboutInvalidRows($import, $io);
-    }
-
-    /**
-     * @param InputInterface $input
-     *
-     * @return bool
-     */
-    private function isTest(InputInterface $input): bool
-    {
-        return $input->getOption('testmode');
-    }
-
-    /**
-     * @param string|null $character
-     *
-     * @return bool
-     */
-    private function isValidCharacter(?string $character): bool
-    {
-        return !is_null($character) && 1 === strlen($character);
-    }
-
-    /**
-     * @param ImportCSV $import
-     * @param SymfonyStyle $io
-     *
-     * @return void
-     */
-    private function printInvalidFiles(ImportCSV $import, SymfonyStyle $io): void
-    {
-        $files = $import->getNotParsedFiles();
-
-        if (count($files) > 0) {
-            $io->writeln('<fg=white;bg=red>Unable to parse file: '.count($files).'</>');
-            foreach ($files as $file) {
-                $io->writeln('<fg=white;bg=red>'.$file.'</>');
-            }
-            $io->writeln('<fg=white;bg=red>Check settings</>');
-        }
-    }
-
-    /**
-     * @param ImportCSV $import
-     * @param SymfonyStyle $io
-     *
-     * @return void
-     */
-    private function printInfoAboutProcessedRows(ImportCSV $import, SymfonyStyle $io): void
-    {
-        $io->writeln('<fg=white;bg=blue>Processed: '.count($import->getRequests()).'</>');
-    }
-
-    /**
-     * @param ImportCSV $import
-     * @param SymfonyStyle $io
-     *
-     * @return void
-     */
-    private function printInfoAboutValidRows(ImportCSV $import, SymfonyStyle $io): void
-    {
-        $rows = $import->getComplete();
-
-        if (count($rows) > 0) {
-            $io->writeln('<fg=white;bg=green>Success: '.count($rows).'</>');
-        }
-    }
-
-    /**
-     * @param ImportCSV $import
-     * @param SymfonyStyle $io
-     *
-     * @return void
-     */
-    private function printInfoAboutInvalidRows(ImportCSV $import, SymfonyStyle $io): void
-    {
-        $rows = $import->getFailed();
-
-        if (count($rows) > 0) {
-            $io->writeln('<fg=white;bg=red>Failed: '.count($rows).'</>');
-            foreach ($rows as $row) {
-                $io->writeln('<fg=white;bg=red>'.implode(', ', $row).'</>');
-            }
-        }
     }
 }
