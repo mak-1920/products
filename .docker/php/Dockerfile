@@ -1,7 +1,5 @@
 FROM php:8.0-fpm
 
-USER root
-
 RUN apt-get update \
   && apt-get install -y \
              apt-utils \
@@ -26,3 +24,5 @@ RUN apt-get update \
         sockets \
     && docker-php-ext-enable xdebug \
     && docker-php-source delete
+
+USER www-data

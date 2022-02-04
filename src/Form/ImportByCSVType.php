@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -28,10 +27,6 @@ class ImportByCSVType extends AbstractType
                     'class' => 'import_files',
                 ],
             ])
-//            ->add('testmode', CheckboxType::class, [
-//                'mapped' => false,
-//                'required' => false,
-//            ])
             ->add('csvSettings', CollectionType::class, [
                 'by_reference' => false,
                 'allow_add' => true,

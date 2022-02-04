@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ImportStatusRepository;
+use App\Services\Import\CSV\CSVSettings;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ImportStatusRepository::class)]
@@ -35,6 +36,70 @@ class ImportStatus
 
     #[ORM\Column(name: 'remove_file', type: 'boolean')]
     private bool $removingFile;
+
+    public function __toString(): string
+    {
+        $text = $this->getStatusHeader();
+
+        switch ($this->getStatus()) {
+            case 'STATUS_IMPORTED':
+                $text .= $this->getTextForValid();
+                break;
+            case 'STATUS_FAILED':
+                $text .= $this->getTextForInvalid();
+                break;
+            default:
+                break;
+        }
+
+        return $text;
+    }
+
+    /**
+     * @return string
+     */
+    private function getStatusHeader(): string
+    {
+        $text = substr($this->status, stripos($this->status, '_') + 1);
+        $text .= ' (id'.$this->id.')'.PHP_EOL;
+        $text .= 'File: '.$this->fileOriginalName.PHP_EOL.PHP_EOL;
+
+        return $text;
+    }
+
+    /**
+     * @return string
+     */
+    private function getTextForValid(): string
+    {
+        $text = 'Requests: '.count($this->invalidRows) + count($this->validRows).PHP_EOL;
+        $text .= 'Count of valid rows: '.count($this->validRows).PHP_EOL;
+        $text .= 'Count of invalid rows: '.count($this->invalidRows).PHP_EOL;
+        if (count($this->invalidRows) > 0) {
+            $text .= PHP_EOL.'Invalid rows: '.PHP_EOL;
+            foreach ($this->invalidRows as $row) {
+                $text .= implode(', ', $row).PHP_EOL;
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * @return string
+     */
+    private function getTextForInvalid(): string
+    {
+        $settings = CSVSettings::fromString($this->getCsvSettings());
+
+        $text = 'Settings of CSV:'.PHP_EOL;
+        $text .= 'Delimiter: '.$settings->getDelimiter().PHP_EOL;
+        $text .= 'Enclosure: '.$settings->getEnclosure().PHP_EOL;
+        $text .= 'Escape: '.$settings->getEscape().PHP_EOL;
+        $text .= 'Have header: '.$settings->getHaveHeader();
+
+        return $text;
+    }
 
     /**
      * @return int

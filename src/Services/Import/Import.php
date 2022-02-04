@@ -10,7 +10,6 @@ use Port\Reader;
 use Port\Steps\Step\ConverterStep;
 use Port\Steps\Step\FilterStep;
 use Port\Steps\StepAggregator;
-use Port\Writer\ArrayWriter;
 
 abstract class Import
 {
@@ -30,12 +29,10 @@ abstract class Import
 
     /**
      * @param Reader $reader
-     * @param bool $isTest
      * @param Saver|null $saver
      */
     public function __construct(
-        private ?Reader $reader,
-        protected bool $isTest,
+        private Reader $reader,
         private ?Saver $saver = null,
     ) {
         $this->requests = [];
@@ -51,11 +48,8 @@ abstract class Import
     public function saveRequests(): void
     {
         $this->setRequests();
-        if ($this->isTest) {
-            $this->success = $this->testProcess();
-        } else {
-            $this->success = $this->saver->save($this->transporter);
-        }
+
+        $this->success = $this->saver->save($this->transporter);
         $this->failed = array_udiff($this->requests, $this->success, [$this, 'productsCompare']);
     }
 
@@ -77,21 +71,6 @@ abstract class Import
         }
 
         return 0;
-    }
-
-    /**
-     * @return string[][] success
-     */
-    private function testProcess(): array
-    {
-        $result = [];
-
-        $success = [];
-        $this->transporter->addWriter(new ArrayWriter($success));
-        $this->transporter->process();
-        $result = array_merge($result, $success);
-
-        return $result;
     }
 
     /**

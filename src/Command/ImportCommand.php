@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Services\Import\CSV\CSVSettings;
-use App\Services\Import\Logger\Logger;
-use App\Services\Import\Savers\DoctrineSaver;
-use App\Services\Import\TempFilesManager;
-use App\Services\RabbitMQ\Import\SendProducer;
+use App\Services\Import\Sender;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,7 +13,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[AsCommand(
     name: 'app:import',
@@ -25,10 +21,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class ImportCommand extends Command
 {
     public function __construct(
-        private DoctrineSaver $saver,
-        private SendProducer $producer,
-        private Logger $logger,
-        private TempFilesManager $filesManager,
+        private Sender $sender,
     ) {
         parent::__construct();
     }
@@ -42,27 +35,19 @@ class ImportCommand extends Command
             ->addOption('enclosure', 'a', InputOption::VALUE_REQUIRED, 'Character around fields for each file')
             ->addOption('escape', 's', InputOption::VALUE_REQUIRED, 'Rows separator character for each file')
             ->addOption('haveHeader', null, InputOption::VALUE_REQUIRED, '1 if CSV have header, 0 if haven\'t for each file')
-//            ->addOption('testmode', 't', InputOption::VALUE_NONE, 'Enable testmode and don\'t save data in DB')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-
-        $files = explode(',', $input->getArgument('files'));
-
+        $files = $this->getFiles($input->getArgument('files'));
         $settings = $this->getCSVSettings($input, count($files));
-        $files = $this->getFiles($files);
-        $savedFiles = $this->filesManager->saveFiles($files);
 
-        $ids = $this->logger->createStatuses([
-            'files' => $savedFiles,
-            'settings' => $settings,
-        ]);
-        $this->producer->sendIDs($ids);
+        $ids = $this->sender->send($files, $settings);
 
-        $io->text('Files have been uploaded and will be processed!');
+        $io->info('Files have been uploaded and will be processed!');
+        $this->printIDs($ids, $io);
 
         return Command::SUCCESS;
     }
@@ -126,18 +111,28 @@ class ImportCommand extends Command
     }
 
     /**
-     * @param string[] $files
+     * @param string $filesInStr
      *
-     * @return UploadedFile[]
+     * @return string[]
      */
-    private function getFiles(array $files): array
+    private function getFiles(string $filesInStr): array
     {
-        $uploadedFiles = [];
+        $files = explode(',', $filesInStr);
 
-        foreach ($files as $file) {
-            $uploadedFiles[] = new UploadedFile($file, $file);
+        return $files;
+    }
+
+    /**
+     * @param int[] $ids
+     * @param SymfonyStyle $io
+     *
+     * @return void
+     */
+    private function printIDs(array $ids, SymfonyStyle $io)
+    {
+        $io->text('ids of requests:');
+        foreach ($ids as $id) {
+            $io->text('id'.$id);
         }
-
-        return $uploadedFiles;
     }
 }

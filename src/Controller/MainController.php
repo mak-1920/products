@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Form\ImportByCSVType;
-use App\Services\Import\Logger\Logger;
-use App\Services\Import\TempFilesManager;
-use App\Services\RabbitMQ\Import\SendProducer;
+use App\Services\Import\Sender;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,22 +16,17 @@ class MainController extends AbstractController
     #[Route('/', name: 'main')]
     public function index(
         Request $request,
-        SendProducer $producer,
-        Logger $logger,
-        TempFilesManager $filesManager,
+        Sender $sender,
     ): Response {
         $form = $this->createForm(ImportByCSVType::class);
         $form->handleRequest($request);
         $ids = [];
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $files = $request->files->get('import_by_csv')['file'];
-            $filesInfo = $filesManager->saveFiles($files);
-            $ids = $logger->createStatuses([
-                'files' => $filesInfo,
-                'settings' => $form->get('csvSettings')->getData(),
-            ]);
-            $producer->sendIDs($ids);
+            $ids = $sender->send(
+                $request->files->get('import_by_csv')['file'],
+                $form->get('csvSettings')->getData(),
+            );
         }
 
         return $this->renderForm('main/index.html.twig', [

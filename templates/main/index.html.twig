@@ -5,49 +5,24 @@
 {% block body %}
 
 <div class="wrapper">
-        {{ form_start(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
-                {{ form_row(form.file) }}
-{#                {{ form_row(form.testmode) }}#}
-                <div id="prototype" data-prototype="{{ form_widget(form.csvSettings.vars.prototype)|e }}"></div>
-                <div class="csv-sets"></div>
-                {{ form_row(form.import) }}
-                {{ form_row(form._token) }}
-        {{ form_end(form, { 'render_rest': false }) }}
+    {{ form_start(form, { 'attr': {'novalidate' : 'novalidate'} }) }}
+        {{ form_row(form.file) }}
+        <div id="prototype" data-prototype="{{ form_widget(form.csvSettings.vars.prototype)|e }}"></div>
+        <div class="csv-sets"></div>
+        {{ form_row(form.import) }}
+        {{ form_row(form._token) }}
+    {{ form_end(form, { 'render_rest': false }) }}
 
-        {% if ids|length > 0 %}
-                <p>Files have been uploaded and will be processed!</p>
-                <p>
-                        IDs of requests:
-                        <ul>
-                                {% for id in ids %}
-                                        <li>id{{ id }}</li>
-                                {% endfor %}
-                        </ul>
-                </p>
-        {% endif %}
-
-
-
-    {#{% if not import is null and import.requests|length > 0 %}
-        <p>Processed: {{ import.requests|length }}</p>
-        <p>Success: {{ import.complete|length }}</p>
-        <p>Failed: {{ import.failed|length }}</p>
-        <p>
-            Errors:
+    {% if ids|length > 0 %}
+        <p>Files have been uploaded and will be processed!</p>
+        <div>
+            IDs of requests:
             <ul>
-                {% for request in import.failed %}
-                    <li>{{ request|join(', ') }}</li>
+                {% for id in ids %}
+                    <li>id{{ id }}</li>
                 {% endfor %}
             </ul>
-        </p>
-        <p>
-            Not parsed files:
-            <ul>
-                {% for file in import.notParsedFiles %}
-                    <li>{{ file }}</li>
-                {% endfor %}
-            </ul>
-        </p>
-    {% endif %}#}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

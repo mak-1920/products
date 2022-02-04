@@ -62,8 +62,11 @@ services:
     image: dockage/mailcatcher
     ports:
       - "1080:1080"
+    volumes:
+      - mailcatcher_data:/var/lib/mailcatcher
 
 volumes:
   mariadb-data:
   pma-data:
   rabbitmq_data:
+  mailcatcher_data:

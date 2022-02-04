@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Services\RabbitMQ\Import;
+namespace App\Consumer;
 
 use App\Services\Import\CSV\ImportCSV;
 use App\Services\Import\Logger\Logger;
 use App\Services\Import\Savers\DoctrineSaver;
-use App\Services\Import\TempFilesManager;
+use App\Services\TempFilesManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
 
-class SendConsumer implements ConsumerInterface
+class ImportSendConsumer implements ConsumerInterface
 {
     public function __construct(
         private DoctrineSaver $saver,

@@ -2,50 +2,57 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Import;
+namespace App\Services;
 
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Throwable;
 
 class TempFilesManager
 {
-    private const TMP_DIR = __DIR__.'/../../../public/tmp';
+    private const TMP_DIR = __DIR__.'/../../public/tmp/';
 
     /**
-     * @param UploadedFile[] $files
+     * @param UploadedFile[]|string[] $files
      *
      * @return array<array{file: File, originalName: string}>
      */
-    public function saveFiles(array $files): array
+    public function saveFilesAndGetInfo(array $files): array
     {
         $movingFiles = [];
 
         foreach ($files as $file) {
-            $movingFiles[] = $this->saveFile($file);
+            $movingFiles[] = $this->saveFileAndGetInfo($file);
         }
 
         return $movingFiles;
     }
 
     /**
-     * @param UploadedFile $file
+     * @param UploadedFile|string $file
      *
-     * @return array{file: File, originalName: string}
+     * @return array{file: File, originalName: string, isRemoving: bool}
      */
-    public function saveFile(UploadedFile $file): array
+    #[ArrayShape([
+        'file' => "\Symfony\Component\HttpFoundation\File\File",
+        'originalName' => 'string',
+        'isRemoving' => 'bool',
+    ])]
+    public function saveFileAndGetInfo(mixed $file): array
     {
-        try {
+        if ($file instanceof UploadedFile) {
             $removing = true;
-            $newFile = $file->move(self::TMP_DIR.'/');
-        } catch (Throwable) {
+            $newFile = $file->move(self::TMP_DIR);
+            $originalName = $file->getClientOriginalName();
+        } else {
             $removing = false;
-            $newFile = $file;
+            $newFile = new File($file);
+            $originalName = $newFile->getBasename();
         }
 
         return [
             'file' => $newFile,
-            'originalName' => $file->getClientOriginalName(),
+            'originalName' => $originalName,
             'isRemoving' => $removing,
         ];
     }

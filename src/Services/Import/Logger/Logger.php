@@ -8,6 +8,7 @@ use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
@@ -20,18 +21,18 @@ class Logger
     }
 
     /**
-     * @param array $data
+     * @param array{file: File, originalName: string, isRemoving: bool} $filesInfo
+     * @param CSVSettings[] $settings
      *
      * @return int[]
      */
-    public function createStatuses(array $data): array
+    public function createStatuses(array $filesInfo, array $settings): array
     {
-        $files = $data['files'];
-        $settings = array_pad($data['settings'], count($files), CSVSettings::getDefault());
+        $settings = array_pad($settings, count($filesInfo), CSVSettings::getDefault());
         $ids = [];
 
-        for ($i = 0; $i < count($files); ++$i) {
-            $ids[] = $this->createStatus($files[$i], $settings[$i]);
+        for ($i = 0; $i < count($filesInfo); ++$i) {
+            $ids[] = $this->createStatus($filesInfo[$i], $settings[$i]);
         }
 
         return $ids;
@@ -101,65 +102,12 @@ class Logger
      */
     private function sendMail(ImportStatus $status): void
     {
-        switch ($status->getStatus()) {
-            case 'STATUS_IMPORTED':
-                $text = $this->getTextForValid($status);
-                break;
-            case 'STATUS_FAILED':
-                $text = $this->getTextForInvalid($status);
-                break;
-            default:
-                return;
-        }
-
         $mail = (new Email())
             ->from('products@prod.com')
             ->to('some-user@some.domain')
             ->subject('import')
-            ->text($text);
+            ->text((string) $status);
 
         $this->mailer->send($mail);
-    }
-
-    /**
-     * @param ImportStatus $status
-     *
-     * @return string
-     */
-    private function getTextForValid(ImportStatus $status): string
-    {
-        $text = 'Success import (id'.$status->getId().')'.PHP_EOL;
-        $text .= 'File: '.$status->getFileOriginalName().PHP_EOL.PHP_EOL;
-        $text .= 'Requests: '.count($status->getInvalidRows()) + count($status->getValidRows()).PHP_EOL;
-        $text .= 'Count of valid rows: '.count($status->getValidRows()).PHP_EOL;
-        $text .= 'Count of invalid rows: '.count($status->getInvalidRows()).PHP_EOL;
-        if (count($status->getInvalidRows()) > 0) {
-            $text .= PHP_EOL.'Invalid rows: '.PHP_EOL;
-            foreach ($status->getInvalidRows() as $row) {
-                $text .= implode(', ', $row).PHP_EOL;
-            }
-        }
-
-        return $text;
-    }
-
-    /**
-     * @param ImportStatus $status
-     *
-     * @return string
-     */
-    private function getTextForInvalid(ImportStatus $status): string
-    {
-        $settings = CSVSettings::fromString($status->getCsvSettings());
-
-        $text = 'Failed import (id'.$status->getId().')'.PHP_EOL;
-        $text .= 'File: '.$status->getFileOriginalName().PHP_EOL.PHP_EOL;
-        $text .= 'Settings of CSV:'.PHP_EOL;
-        $text .= 'Delimiter: '.$settings->getDelimiter().PHP_EOL;
-        $text .= 'Enclosure: '.$settings->getEnclosure().PHP_EOL;
-        $text .= 'Escape: '.$settings->getEscape().PHP_EOL;
-        $text .= 'Have header: '.$settings->getHaveHeader();
-
-        return $text;
     }
 }

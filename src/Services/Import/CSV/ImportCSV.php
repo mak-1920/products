@@ -33,7 +33,6 @@ class ImportCSV extends Import
         $import = new ImportCSV(
             $file,
             $settings,
-            false,
             $saver
         );
         $import->saveRequests();
@@ -44,20 +43,18 @@ class ImportCSV extends Import
     /**
      * @param File $file
      * @param CSVSettings $csvSetting
-     * @param bool $isTest
      * @param Saver|null $saver
      */
     public function __construct(
         File $file,
         CSVSettings $csvSetting,
-        bool $isTest,
         Saver $saver = null,
     ) {
         $this->isParsed = true;
 
         $reader = $this->getReader($file, $csvSetting);
 
-        parent::__construct($reader, $isTest, $saver);
+        parent::__construct($reader, $saver);
     }
 
     /**
