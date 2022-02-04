@@ -17,12 +17,22 @@
         <p>Files have been uploaded and will be processed!</p>
         <div>
             IDs of requests:
-            <ul>
+            <ul class="import-result-ids">
                 {% for id in ids %}
                     <li>id{{ id }}</li>
                 {% endfor %}
             </ul>
         </div>
+
+        <div class="import-send-result"></div>
     {% endif %}
 </div>
+
+<script {#id="mercure-import-send-url"#}>
+    const eventSource = new EventSource("{{ mercure('/import/send/{id}')|escape('js') }}");
+    eventSource.onmessage = event => {
+        console.log(JSON.parse(event.data));
+    }
+{#    {{ mercure('/import/send/___id___')|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG'))|raw }};#}
+</script>
 {% endblock %}

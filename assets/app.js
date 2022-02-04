@@ -14,4 +14,6 @@ import './styles/app.css';
 // start the Stimulus application
 
 import './bootstrap';
+
 require('./scripts/csvsettings_forms_generator');
+// require('./scripts/import_result');

@@ -10,6 +10,8 @@ use App\Services\Import\Savers\DoctrineSaver;
 use App\Services\TempFilesManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 use Throwable;
 
 class ImportSendConsumer implements ConsumerInterface
@@ -18,6 +20,7 @@ class ImportSendConsumer implements ConsumerInterface
         private DoctrineSaver $saver,
         private Logger $logger,
         private TempFilesManager $filesManager,
+        private HubInterface $hub,
     ) {
     }
 
@@ -32,9 +35,27 @@ class ImportSendConsumer implements ConsumerInterface
         } catch (Throwable) {
             $this->logger->changeStatusToFailed($status);
         } finally {
-            if ($status->getRemovingFile()) {
-                $this->filesManager->removeFile($status->getFileTmpName());
+            try {
+                if ($status->getRemovingFile()) {
+                    $this->filesManager->removeFile($status->getFileTmpName());
+                }
+            } catch (Throwable) {
+                echo 'File '.$status->getFileTmpName().' not removed';
             }
+
+            $update = new Update(
+                '/import/send/' . $status->getId(),
+                json_encode([
+                    'id' => $status->getId(),
+                    'file' => $status->getFileOriginalName(),
+                    'status' => $status->getStatus(),
+                    'complete' => $status->getValidRows(),
+                    'failed' => $status->getInvalidRows(),
+                    'settings' => $status->getCsvSettings(),
+                ])
+            );
+            $this->hub->publish($update);
+
         }
     }
 }
