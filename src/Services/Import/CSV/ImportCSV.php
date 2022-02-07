@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportCSV extends Import
 {
-    private bool $isParsed;
-
     /**
      * @param ImportStatus $status
      * @param Saver|null $saver
@@ -50,8 +48,6 @@ class ImportCSV extends Import
         CSVSettings $csvSetting,
         Saver $saver = null,
     ) {
-        $this->isParsed = true;
-
         $reader = $this->getReader($file, $csvSetting);
 
         parent::__construct($reader, $saver);
@@ -74,8 +70,6 @@ class ImportCSV extends Import
         $reader->setStrict(false);
 
         if (!$this->setHeaderSettings($reader, $settings->getHaveHeader())) {
-            $this->isParsed = false;
-
             return null;
         }
 
@@ -135,13 +129,5 @@ class ImportCSV extends Import
         }
 
         return count(self::$headerTitles) === count($header);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isParsed(): bool
-    {
-        return $this->isParsed;
     }
 }
