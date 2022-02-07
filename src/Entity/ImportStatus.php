@@ -37,6 +37,9 @@ class ImportStatus
     #[ORM\Column(name: 'remove_file', type: 'boolean')]
     private bool $removingFile;
 
+    #[ORM\Column(name: 'token', type: 'string', length: 255)]
+    private string $token;
+
     public function __toString(): string
     {
         $text = $this->getStatusHeader();
@@ -245,6 +248,18 @@ class ImportStatus
     public function setRemovingFile(bool $removingFile): self
     {
         $this->removingFile = $removingFile;
+
+        return $this;
+    }
+
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
 
         return $this;
     }

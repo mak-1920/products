@@ -15,5 +15,10 @@ import './styles/app.css';
 
 import './bootstrap';
 
+const routes = require('./scripts/fos_js_router.json')
+import Routing from '../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router.min'
+Routing.setRoutingData(routes)
+global.Routing = Routing
+
 require('./scripts/csvsettings_forms_generator');
-// require('./scripts/import_result');
+require('./scripts/import_result');

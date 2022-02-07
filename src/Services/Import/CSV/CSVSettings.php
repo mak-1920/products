@@ -63,6 +63,11 @@ class CSVSettings
         return self::$default;
     }
 
+    public static function getDefaultInString(): string
+    {
+        return self::DEF_CHAR_DELIMITER.self::DEF_CHAR_ENCLOSURE.self::DEF_CHAR_ESCAPE.self::DEF_CHAR_HAVEHEADER;
+    }
+
     /**
      * @return string
      */

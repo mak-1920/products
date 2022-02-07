@@ -29,20 +29,22 @@ class CsvSettingsType extends AbstractType
                 ],
             ])
             ->add('enclosure', TextType::class, [
-                'data' => '',
+                'data' => ' ',
                 'constraints' => [
-                    new Length(min: 0, max: 1),
+                    new Length(min: 1, max: 1),
                 ],
                 'attr' => [
+                    'minlength' => 1,
                     'maxlength' => 1,
                 ],
             ])
             ->add('escape', TextType::class, [
-                'data' => '',
+                'data' => ' ',
                 'constraints' => [
-                    new Length(min: 0, max: 1),
+                    new Length(min: 1, max: 1),
                 ],
                 'attr' => [
+                    'minlength' => 1,
                     'maxlength' => 1,
                 ],
             ])

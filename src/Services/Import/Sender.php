@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Import;
 
-use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\Logger\Logger;
 use App\Services\TempFilesManager;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
@@ -22,18 +21,19 @@ class Sender
 
     /**
      * @param UploadedFile[]|string[] $files
-     * @param CSVSettings[] $settings
+     * @param string[] $settings
+     * @param string $token
      *
      * @return int[] ids of requests
      */
-    public function send(array $files, array $settings): array
+    public function send(array $files, array $settings, string $token): array
     {
         if (0 === count($files)) {
             return [];
         }
 
         $filesInfo = $this->getFilesInfo($files);
-        $ids = $this->logger->createStatuses($filesInfo, $settings);
+        $ids = $this->logger->createStatuses($filesInfo, $settings, $token);
         $this->sendIDs($ids);
 
         return $ids;

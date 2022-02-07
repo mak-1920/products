@@ -22,17 +22,18 @@ class Logger
 
     /**
      * @param array{file: File, originalName: string, isRemoving: bool} $filesInfo
-     * @param CSVSettings[] $settings
+     * @param string[] $settings
+     * @param string $token
      *
      * @return int[]
      */
-    public function createStatuses(array $filesInfo, array $settings): array
+    public function createStatuses(array $filesInfo, array $settings, string $token): array
     {
-        $settings = array_pad($settings, count($filesInfo), CSVSettings::getDefault());
+        $settings = array_pad($settings, count($filesInfo), CSVSettings::getDefaultInString());
         $ids = [];
 
         for ($i = 0; $i < count($filesInfo); ++$i) {
-            $ids[] = $this->createStatus($filesInfo[$i], $settings[$i]);
+            $ids[] = $this->createStatus($filesInfo[$i], $settings[$i], $token);
         }
 
         return $ids;
@@ -40,18 +41,20 @@ class Logger
 
     /**
      * @param array{file: File, originalName: string} $fileInfo
-     * @param CSVSettings $settings
+     * @param string $settings
+     * @param string $token
      *
      * @return int row's id in db
      */
-    public function createStatus(array $fileInfo, CSVSettings $settings): int
+    public function createStatus(array $fileInfo, string $settings, string $token): int
     {
         $status = new ImportStatus();
 
         $status->setStatus('STATUS_NEW');
+        $status->setToken($token);
         $status->setFileOriginalName($fileInfo['originalName']);
         $status->setFileTmpName($fileInfo['file']->getRealPath());
-        $status->setCsvSettings((string) $settings);
+        $status->setCsvSettings($settings);
         $status->setRemovingFile($fileInfo['isRemoving']);
 
         return $this->repository->addStatus($status);

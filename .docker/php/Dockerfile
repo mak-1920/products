@@ -24,5 +24,3 @@ RUN apt-get update \
         sockets \
     && docker-php-ext-enable xdebug \
     && docker-php-source delete
-
-USER www-data

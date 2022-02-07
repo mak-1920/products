@@ -44,7 +44,7 @@ class ImportSendConsumer implements ConsumerInterface
             }
 
             $update = new Update(
-                '/import/send/' . $status->getId(),
+                '/import/send/'.$status->getToken(),
                 json_encode([
                     'id' => $status->getId(),
                     'file' => $status->getFileOriginalName(),
@@ -55,7 +55,6 @@ class ImportSendConsumer implements ConsumerInterface
                 ])
             );
             $this->hub->publish($update);
-
         }
     }
 }
