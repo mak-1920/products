@@ -65,18 +65,23 @@ class SaverTest extends KernelTestCase
      * @param string[] $paths
      * @param CSVSettings[] $settings
      *
-     * @return ImportCSV
+     * @return ImportCSV[]
      */
-    private function getImport(array $paths, array $settings = []): ImportCSV
+    private function getImports(array $paths, array $settings = []): array
     {
-        $import = new ImportCSV(
-            $this->getFiles($paths),
-            $settings,
-            false,
-            $this->saver
-        );
+        $files = $this->getFiles($paths);
+        $settings = array_pad($settings, count($files), CSVSettings::getDefault());
+        $imports = [];
 
-        return $import;
+        for($i = 0; $i < count($files); $i++) {
+            $imports[] = new ImportCSV(
+                $files[$i],
+                $settings[$i],
+                $this->saver
+            );
+        }
+
+        return $imports;
     }
 
     public function testAllRowsValidWithoutErrorsAndNotDiscontinueds() : void
@@ -85,7 +90,7 @@ class SaverTest extends KernelTestCase
             __DIR__.'/csv/saver_valid_without_errors_and_not_disctontinueds.csv',
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
         
         $import->SaveRequests();
 
@@ -100,7 +105,7 @@ class SaverTest extends KernelTestCase
             __DIR__.'/csv/saver_with_exists_and_repeaters_product_codes_and_not_disctontinueds.csv',
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
         
         $import->SaveRequests();
 
@@ -115,7 +120,7 @@ class SaverTest extends KernelTestCase
             __DIR__.'/csv/saver_discontinueds.csv',
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
         
         $import->SaveRequests();
         $requests = $import->getComplete();
@@ -145,10 +150,18 @@ class SaverTest extends KernelTestCase
         $this->assertEquals($result['Cd Player'], new DateTime('2022-01-20 16:10:00'));
     }
 
+    /**
+     * @param object $object
+     * @param string $methodName
+     * @param array $parameters
+     *
+     * @return mixed
+     */
     private function invokeMethod(
         object &$object, 
         string $methodName, 
-        array $parameters = [])
+        array $parameters = []
+    ): mixed
     {
         $reflection = new ReflectionClass(get_class($object));
         $method = $reflection->getMethod($methodName);

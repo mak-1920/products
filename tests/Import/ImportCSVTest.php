@@ -4,7 +4,10 @@ namespace App\Tests\Import;
 
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
+use App\Services\Import\Savers\DoctrineSaver;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Port\Writer\ArrayWriter;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -33,19 +36,46 @@ class ImportCSVTest extends TestCase
      * @param string[] $paths
      * @param CSVSettings[] $settings
      *
-     * @return ImportCSV
+     * @return ImportCSV[]
      */
-    private function getImport(array $paths, array $settings = []): ImportCSV
+    private function getImports(array $paths, array $settings = []): array
     {
-        $import = new ImportCSV(
-            $this->getFiles($paths),
-            $settings,
-            true
-        );
+        $imports = [];
+        $files = $this->getFiles($paths);
+        $settings = array_pad($settings, count($files), CSVSettings::getDefault());
 
-        $import->saveRequests();
+        for($i = 0; $i < count($files); $i++) {
+            $import = new ImportCSV(
+                $files[$i],
+                $settings[$i],
+                $this->getSaver()
+            );
+            $import->saveRequests();
+            $imports[] = $import;
+        }
 
-        return $import;
+        return $imports;
+    }
+
+    private function getSaver() : DoctrineSaver
+    {
+        $saver = $this->getMockBuilder(DoctrineSaver::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['save'])
+            ->getMock();
+
+        $saver->expects($this->any())
+            ->method('save')
+            ->will(
+                $this->returnCallback(function($transporter) {
+                    $valid = [];
+                    $transporter->addWriter(new ArrayWriter($valid));
+                    $transporter->process();
+                    return $valid;
+                })
+            );
+
+        return $saver;
     }
 
     public function testValid() : void
@@ -54,7 +84,7 @@ class ImportCSVTest extends TestCase
             __DIR__.'/csv/normal_data_with_header.csv', 
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
 
         $this->assertCount(5, $import->getComplete());
         $this->assertCount(0, $import->getFailed());
@@ -66,7 +96,7 @@ class ImportCSVTest extends TestCase
             __DIR__.'/csv/invalid_rows_by_syntax.csv', 
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
 
         $this->assertCount(0, $import->getComplete());
         $this->assertCount(3, $import->getFailed());
@@ -78,7 +108,7 @@ class ImportCSVTest extends TestCase
             __DIR__.'/csv/invalid_rows_by_rules.csv', 
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
 
         $this->assertCount(0, $import->getComplete());
         $this->assertCount(3, $import->getFailed());
@@ -90,7 +120,7 @@ class ImportCSVTest extends TestCase
             __DIR__.'/csv/2_valid_3_invalid.csv', 
         ];
 
-        $import = $this->getImport($paths);
+        $import = $this->getImports($paths)[0];
 
         $this->assertCount(2, $import->getComplete());
         $this->assertCount(3, $import->getFailed());
@@ -102,10 +132,14 @@ class ImportCSVTest extends TestCase
             __DIR__.'/csv/header_with_more_columns.csv', 
         ];
 
-        $import = $this->getImport($paths);
+        $typeError = false;
+        try {
+            $this->getImports($paths)[0];
+        } catch(\TypeError) {
+            $typeError = true;
+        }
 
-        $this->assertCount(0, $import->getComplete());
-        $this->assertCount(0, $import->getFailed());
+        $this->assertTrue($typeError);
     }
 
     public function testCheckHeader() : void
@@ -120,7 +154,7 @@ class ImportCSVTest extends TestCase
         foreach($headers as $header => $testResult) {
             $titles = explode(',', $header);
 
-            $import = $this->getImport([__DIR__ . '/csv/header_valid.csv']);
+            $import = $this->getImports([__DIR__ . '/csv/header_valid.csv'])[0];
 
             $this->assertEquals($testResult, $this->invokeMethod($import, 'isValidHeader', [$titles]));
         }
@@ -135,7 +169,7 @@ class ImportCSVTest extends TestCase
             __DIR__ . '/csv/multiple_4.csv',
         ];
 
-        $import = $this->getImport(
+        $imports = $this->getImports(
             $fileTitles,
             [
                 new CSVSettings(),
@@ -144,24 +178,34 @@ class ImportCSVTest extends TestCase
                 new CSVSettings(haveHeader: false),
             ]
         );
-        $requests = $import->getRequests();
 
-        $this->assertCount(4, $requests);
-        $this->assertCount(4, $import->getComplete());
-        $this->assertCount(0, $import->getFailed());
-        $this->assertEquals('TV, P0001, , 32” Tv, 10, 399.99', implode(', ', $requests[0]));
-        $this->assertEquals('P0009, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[1]));
-        $this->assertEquals('P0010, Harddisk, Great for storing data, 0, 99.99, ', implode(', ', $requests[2]));
-        $this->assertEquals('P0002, TV, 32” Tv, 10, 399.99, ', implode(', ', $requests[3]));
+        $rows = [
+            'TV, P0001, , 32” Tv, 10, 399.99',
+            'P0009, Harddisk, Great for storing data, 0, 99.99, ',
+            'P0010, Harddisk, Great for storing data, 0, 99.99, ',
+            'P0002, TV, 32” Tv, 10, 399.99, ',
+        ];
+
+        for($i=0; $i < 4; $i++){
+            $this->assertCount(1, $imports[$i]->getRequests());
+            $this->assertCount(1, $imports[$i]->getComplete());
+            $this->assertCount(0, $imports[$i]->getFailed());
+            $this->assertEquals($rows[$i], implode(', ', $imports[$i]->getRequests()[0]));
+        }
     }
 
     /**
-     * @throws \ReflectionException
+     * @param object $object
+     * @param string $methodName
+     * @param array $parameters
+     *
+     * @return mixed
      */
     private function invokeMethod(
         object &$object, 
         string $methodName, 
-        array $parameters = [])
+        array $parameters = []
+    ) : mixed
     {
         $reflection = new ReflectionClass(get_class($object));
         $method = $reflection->getMethod($methodName);

@@ -32,7 +32,7 @@ class Sender
             return [];
         }
 
-        $filesInfo = $this->getFilesInfo($files);
+        $filesInfo = $this->saveFilesAndGetInfo($files);
         $ids = $this->logger->createStatuses($filesInfo, $settings, $token);
         $this->sendIDs($ids);
 
@@ -44,7 +44,7 @@ class Sender
      *
      * @return array{file: File, originalName: string, isRemoving: bool}
      */
-    private function getFilesInfo(array $files): array
+    private function saveFilesAndGetInfo(array $files): array
     {
         $filesInfo = $this->filesManager->saveFilesAndGetInfo($files);
 

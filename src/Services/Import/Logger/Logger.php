@@ -42,13 +42,31 @@ class Logger
     }
 
     /**
-     * @param array{file: File, originalName: string} $fileInfo
+     * @param array{file: File, originalName: string, isRemoving: bool} $fileInfo
      * @param string $settings
      * @param string $token
      *
      * @return int row's id in db
      */
     public function createStatus(array $fileInfo, string $settings, string $token): int
+    {
+        $status = $this->setNewStatus($fileInfo, $settings, $token);
+
+        $id = $this->repository->addStatus($status);
+        $message = sprintf('create request with id%d', $id);
+        $this->logger->info($this->getLogMessage($message, $status));
+
+        return $id;
+    }
+
+    /**
+     * @param array{file: File, originalName: string, isRemoving: bool} $fileInfo
+     * @param string $settings
+     * @param string $token
+     *
+     * @return ImportStatus
+     */
+    private function setNewStatus(array $fileInfo, string $settings, string $token): ImportStatus
     {
         $status = new ImportStatus();
 
@@ -59,11 +77,7 @@ class Logger
         $status->setCsvSettings($settings);
         $status->setRemovingFile($fileInfo['isRemoving']);
 
-        $id = $this->repository->addStatus($status);
-        $message = sprintf('create request with id%d', $id);
-        $this->logger->info($this->getLogMessage($message, $status));
-
-        return $id;
+        return $status;
     }
 
     /**
