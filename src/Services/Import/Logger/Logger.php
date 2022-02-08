@@ -8,6 +8,7 @@ use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -17,6 +18,7 @@ class Logger
     public function __construct(
         private ImportStatusRepository $repository,
         private MailerInterface $mailer,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -57,7 +59,11 @@ class Logger
         $status->setCsvSettings($settings);
         $status->setRemovingFile($fileInfo['isRemoving']);
 
-        return $this->repository->addStatus($status);
+        $id = $this->repository->addStatus($status);
+        $message = sprintf('create request with id%d', $id);
+        $this->logger->info($this->getLogMessage($message, $status));
+
+        return $id;
     }
 
     /**
@@ -82,6 +88,8 @@ class Logger
         $this->repository->changeStatus($status, false);
 
         $this->sendMail($status);
+        $message = sprintf('invalid settings import; request id: %d', $status->getId());
+        $this->logger->warning($this->getLogMessage($message, $status));
     }
 
     public function changeStatusToComplete(ImportStatus $status, ImportCSV $import): void
@@ -96,6 +104,8 @@ class Logger
         );
 
         $this->sendMail($status);
+        $message = sprintf('file imported; request id: %d', $status->getId());
+        $this->logger->info($this->getLogMessage($message, $status));
     }
 
     /**
@@ -112,5 +122,14 @@ class Logger
             ->text((string) $status);
 
         $this->mailer->send($mail);
+    }
+
+    private function getLogMessage(string $message, ImportStatus $status): string
+    {
+        return sprintf(
+            '%s; file: %s',
+            $message,
+            $status->getFileOriginalName(),
+        );
     }
 }

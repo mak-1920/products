@@ -28,3 +28,7 @@ services:
     App\Services\Import\Sender:
         arguments:
             $producer: '@old_sound_rabbit_mq.import_send_producer'
+
+    App\Services\Import\Logger\Logger:
+        arguments:
+            $logger: '@monolog.logger.import'
