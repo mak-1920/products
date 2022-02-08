@@ -45,16 +45,12 @@ class ImportSendConsumer implements ConsumerInterface
 
             $update = new Update(
                 '/import/send/'.$status->getToken(),
-                json_encode([
-                    'id' => $status->getId(),
-                    'file' => $status->getFileOriginalName(),
-                    'status' => $status->getStatus(),
-                    'complete' => $status->getValidRows(),
-                    'failed' => $status->getInvalidRows(),
-                    'settings' => $status->getCsvSettings(),
-                ])
+                $status->toJson()
             );
-            $this->hub->publish($update);
+
+            if($status->isSent()) {
+                $this->hub->publish($update);
+            }
         }
     }
 }

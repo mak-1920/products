@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ImportStatusRepository::class)]
 class ImportStatus
 {
+    public const COMMAND_TOKEN_PREFIX = 'command_upload_';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -56,6 +58,28 @@ class ImportStatus
         }
 
         return $text;
+    }
+
+    /**
+     * @return string
+     */
+    public function toJson(): string
+    {
+        $data = [
+            'id' => $this->id,
+            'file' => $this->fileOriginalName,
+            'status' => $this->status,
+            'complete' => $this->validRows,
+            'failed' => $this->invalidRows,
+            'settings' => $this->csvSettings,
+        ];
+
+        return json_encode($data);
+    }
+
+    public function isSent(): bool
+    {
+        return !str_contains($this->token, self::COMMAND_TOKEN_PREFIX);
     }
 
     /**
