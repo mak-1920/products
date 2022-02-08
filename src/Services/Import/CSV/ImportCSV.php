@@ -41,12 +41,12 @@ class ImportCSV extends Import
     /**
      * @param File $file
      * @param CSVSettings $csvSetting
-     * @param Saver|null $saver
+     * @param Saver $saver
      */
     public function __construct(
         File $file,
         CSVSettings $csvSetting,
-        Saver $saver = null,
+        Saver $saver,
     ) {
         $reader = $this->getReader($file, $csvSetting);
 

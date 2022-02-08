@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer;
 
+use App\Entity\ImportStatus;
 use App\Services\Import\CSV\ImportCSV;
 use App\Services\Import\Logger\Logger;
 use App\Services\Import\Savers\DoctrineSaver;
@@ -29,28 +30,41 @@ class ImportSendConsumer implements ConsumerInterface
         $id = (int) $msg->getBody();
         $status = $this->logger->getStatus($id);
 
+        $this->tryImport($status);
+        $this->tryRemoveFile($status);
+        $this->sentResult($status);
+    }
+
+    private function tryImport(ImportStatus $status): void
+    {
         try {
             $import = ImportCSV::ImportFileByStatus($status, $this->saver);
             $this->logger->changeStatusToComplete($status, $import);
         } catch (Throwable) {
             $this->logger->changeStatusToFailed($status);
-        } finally {
-            try {
-                if ($status->getRemovingFile()) {
-                    $this->filesManager->removeFile($status->getFileTmpName());
-                }
-            } catch (Throwable) {
-                echo 'File '.$status->getFileTmpName().' not removed';
-            }
+        }
+    }
 
-            $update = new Update(
-                '/import/send/'.$status->getToken(),
-                $status->toJson()
-            );
-
-            if ($status->isSent()) {
-                $this->hub->publish($update);
+    private function tryRemoveFile(ImportStatus $status): void
+    {
+        try {
+            if ($status->getRemovingFile()) {
+                $this->filesManager->removeFile($status->getFileTmpName());
             }
+        } catch (Throwable) {
+            echo 'File '.$status->getFileTmpName().' not removed';
+        }
+    }
+
+    private function sentResult(ImportStatus $status): void
+    {
+        $update = new Update(
+            '/import/send/'.$status->getToken(),
+            $status->toJson()
+        );
+
+        if ($status->isSent()) {
+            $this->hub->publish($update);
         }
     }
 }

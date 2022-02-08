@@ -34,10 +34,10 @@ class ImportCommand extends Command
         $this
             ->setHelp('Files is separated by ",", characters are written without separators ')
             ->addArgument('files', InputArgument::REQUIRED, 'array of CSV file for import')
-            ->addOption('delimiter', 'd', InputOption::VALUE_REQUIRED, 'Columns separator character for each file')
-            ->addOption('enclosure', 'a', InputOption::VALUE_REQUIRED, 'Character around fields for each file')
-            ->addOption('escape', 's', InputOption::VALUE_REQUIRED, 'Rows separator character for each file')
-            ->addOption('haveHeader', null, InputOption::VALUE_REQUIRED, '1 if CSV have header, 0 if haven\'t for each file')
+            ->addOption('delimiter', 'D', InputOption::VALUE_REQUIRED, 'Columns separator character for each file')
+            ->addOption('enclosure', 'E', InputOption::VALUE_REQUIRED, 'Character around fields for each file')
+            ->addOption('escape', 'S', InputOption::VALUE_REQUIRED, 'Rows separator character for each file')
+            ->addOption('haveHeader', 'H', InputOption::VALUE_REQUIRED, '1 if CSV have header, 0 if haven\'t for each file')
         ;
     }
 
@@ -76,25 +76,35 @@ class ImportCommand extends Command
     private function getCSVSettings(InputInterface $input, int $fileCount): array
     {
         $settings = [];
-
         $options = ['delimiter' => [], 'enclosure' => [], 'escape' => [], 'haveHeader' => []];
-
         $this->setCharacters($options, $input, $fileCount);
 
         for ($i = 0; $i < $fileCount; ++$i) {
-            $setting = '';
-            foreach ($options as $option => $val) {
-                if ($this->isValidCharacter($val[$i])) {
-                    $setting .= $val[$i];
-                } else {
-                    $setting .= $this->getSettingsDefaultChar($option);
-                }
-            }
-
-            $settings[] = $setting;
+            $settings[] = $this->getCSVSetting($options, $i);
         }
 
         return $settings;
+    }
+
+    /**
+     * @param array<string, string[]> $options
+     * @param int $fileIndex
+     *
+     * @return string
+     */
+    private function getCSVSetting(array $options, int $fileIndex): string
+    {
+        $setting = '';
+
+        foreach ($options as $option => $val) {
+            if ($this->isValidCharacter($val[$fileIndex])) {
+                $setting .= $val[$fileIndex];
+            } else {
+                $setting .= $this->getSettingsDefaultChar($option);
+            }
+        }
+
+        return $setting;
     }
 
     /**

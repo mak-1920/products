@@ -2,6 +2,7 @@
 
 namespace App\Tests\Import;
 
+use App\Entity\ImportStatus;
 use App\Services\Import\CSV\CSVSettings;
 use App\Services\Import\CSV\ImportCSV;
 use App\Services\Import\Savers\DoctrineSaver;
@@ -194,6 +195,35 @@ class ImportCSVTest extends TestCase
         }
     }
 
+    public function testBigFile(): void
+    {
+        $paths = [
+            __DIR__.'/csv/bf/1_2451_2549.csv',
+        ];
+
+        $import = $this->getImports($paths)[0];
+
+        $this->assertCount(2451, $import->getComplete());
+        $this->assertCount(2549, $import->getFailed());
+
+        $this->checkFailedInBigFile($import, '1_f_2549.csv');
+    }
+
+    public function testImportBigFileByStatus(): void
+    {
+        $status = new ImportStatus();
+        $status->setFileTmpName(__DIR__ . '/csv/bf/2_2472_2528.csv');
+        $status->setFileOriginalName('orig.file');
+        $status->setCsvSettings(',  1');
+
+        $import = ImportCSV::ImportFileByStatus($status, $this->getSaver());
+
+        $this->assertCount(2472, $import->getComplete());
+        $this->assertCount(2528, $import->getFailed());
+
+        $this->checkFailedInBigFile($import, '2_f_2528.csv');
+    }
+
     /**
      * @param object $object
      * @param string $methodName
@@ -212,5 +242,21 @@ class ImportCSVTest extends TestCase
         $method->setAccessible(true);
 
         return $method->invokeArgs($object, $parameters);
+    }
+
+    /**
+     * @param ImportCSV $import
+     * @param string $fileWithErrors
+     *
+     * @return void
+     */
+    private function checkFailedInBigFile(ImportCSV $import, string $fileWithErrors): void
+    {
+        $failed = file_get_contents(__DIR__.'/csv/bf/failed/'.$fileWithErrors);
+        $result = $import->getFailed();
+
+        foreach($result as $row) {
+            $this->assertStringContainsString(implode(',', $row), $failed);
+        }
     }
 }

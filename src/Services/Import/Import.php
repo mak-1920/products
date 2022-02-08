@@ -29,11 +29,11 @@ abstract class Import
 
     /**
      * @param Reader $reader
-     * @param Saver|null $saver
+     * @param Saver $saver
      */
     public function __construct(
         private Reader $reader,
-        private ?Saver $saver = null,
+        private Saver $saver,
     ) {
         $this->requests = [];
         $this->success = [];
