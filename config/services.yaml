@@ -21,7 +21,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
 
-    App\Services\Import\Savers\DoctrineSaver:
+    App\Services\Import\Savers\Doctrine\Saver:
         arguments:
             $em: '@doctrine.orm.entity_manager'
 
@@ -29,6 +29,7 @@ services:
         arguments:
             $producer: '@old_sound_rabbit_mq.import_send_producer'
 
-    App\Services\Import\Logger\Logger:
+
+    App\Services\Import\Loggers\FileLogger:
         arguments:
             $logger: '@monolog.logger.import'

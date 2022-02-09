@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Consumer;
 
 use App\Entity\ImportStatus;
-use App\Services\Import\CSV\ImportCSV;
-use App\Services\Import\Logger\Logger;
-use App\Services\Import\Savers\DoctrineSaver;
+use App\Services\Import\Import;
+use App\Services\Import\Readers\ReaderInterface;
+use App\Services\Import\Readers\StatusOfCSV\Reader;
+use App\Services\Import\Savers\Doctrine\Saver;
+use App\Services\Import\Status;
+use App\Services\Import\Transform\Doctrine\Converter;
+use App\Services\Import\Transform\Doctrine\Filter;
 use App\Services\TempFilesManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -18,8 +22,10 @@ use Throwable;
 class ImportSendConsumer implements ConsumerInterface
 {
     public function __construct(
-        private DoctrineSaver $saver,
-        private Logger $logger,
+        private Filter $filter,
+        private Converter $converter,
+        private Saver $saver,
+        private Status $status,
         private TempFilesManager $filesManager,
         private HubInterface $hub,
     ) {
@@ -28,7 +34,7 @@ class ImportSendConsumer implements ConsumerInterface
     public function execute(AMQPMessage $msg): void
     {
         $id = (int) $msg->getBody();
-        $status = $this->logger->getStatus($id);
+        $status = $this->status->getStatus($id);
 
         $this->tryImport($status);
         $this->tryRemoveFile($status);
@@ -37,11 +43,14 @@ class ImportSendConsumer implements ConsumerInterface
 
     private function tryImport(ImportStatus $status): void
     {
-        try {
-            $import = ImportCSV::ImportFileByStatus($status, $this->saver);
-            $this->logger->changeStatusToComplete($status, $import);
-        } catch (Throwable) {
-            $this->logger->changeStatusToFailed($status);
+        $import = $this->getImport($status);
+
+        $import->import();
+
+        if ($import->isFailed()) {
+            $this->status->changeStatusToFailed($status);
+        } else {
+            $this->status->changeStatusToComplete($status, $import);
         }
     }
 
@@ -66,5 +75,29 @@ class ImportSendConsumer implements ConsumerInterface
         if ($status->isSent()) {
             $this->hub->publish($update);
         }
+    }
+
+    private function getImport(ImportStatus $status): Import
+    {
+        $import = new Import(
+            $this->getReader($status),
+            $this->saver,
+            $this->converter,
+            $this->filter,
+        );
+
+        return $import;
+    }
+
+    /**
+     * @param ImportStatus $status
+     *
+     * @return ReaderInterface
+     */
+    private function getReader(ImportStatus $status): ReaderInterface
+    {
+        $reader = new Reader($status);
+
+        return $reader;
     }
 }

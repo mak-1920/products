@@ -15,7 +15,7 @@ class TempFilesManager
     /**
      * @param UploadedFile[]|string[] $files
      *
-     * @return array<array{file: File, originalName: string}>
+     * @return array<array{file: File, originalName: string, isRemoving: bool}>
      */
     public function saveFilesAndGetInfo(array $files): array
     {

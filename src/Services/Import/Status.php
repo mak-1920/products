@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Import\Logger;
+namespace App\Services\Import;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
-use App\Services\Import\CSV\CSVSettings;
-use App\Services\Import\CSV\ImportCSV;
-use Psr\Log\LoggerInterface;
+use App\Services\Import\Loggers\FileLogger;
+use App\Services\Import\Loggers\LoggerCollection;
+use App\Services\Import\Loggers\LoggerInterface;
+use App\Services\Import\Loggers\MailLogger;
+use App\Services\Import\Readers\CSV\Settings;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 
-class Logger
+class Status
 {
     public function __construct(
         private ImportStatusRepository $repository,
-        private MailerInterface $mailer,
-        private LoggerInterface $logger,
+        private LoggerCollection $loggerCollection,
+        MailLogger $mailLogger,
+        FileLogger $fileLogger,
     ) {
+        $this->loggerCollection->addLogger($mailLogger->setFrom('products@prod.com')->setTo('consumer@test.ru'));
+        $this->loggerCollection->addLogger($fileLogger);
     }
 
     /**
@@ -31,7 +34,7 @@ class Logger
      */
     public function createStatuses(array $filesInfo, array $settings, string $token): array
     {
-        $settings = array_pad($settings, count($filesInfo), CSVSettings::getDefaultInString());
+        $settings = array_pad($settings, count($filesInfo), Settings::getDefaultInString());
         $ids = [];
 
         for ($i = 0; $i < count($filesInfo); ++$i) {
@@ -53,8 +56,7 @@ class Logger
         $status = $this->setNewStatus($fileInfo, $settings, $token);
 
         $id = $this->repository->addStatus($status);
-        $message = sprintf('create request with id%d', $id);
-        $this->logger->info($this->getLogMessage($message, $status));
+        $this->loggerCollection->created($status);
 
         return $id;
     }
@@ -89,6 +91,8 @@ class Logger
     {
         $status = $this->repository->find($id);
 
+        $this->loggerCollection->beforeProcessing($status);
+
         return $status;
     }
 
@@ -101,12 +105,10 @@ class Logger
     {
         $this->repository->changeStatus($status, false);
 
-        $this->sendMail($status);
-        $message = sprintf('invalid settings import; request id: %d', $status->getId());
-        $this->logger->warning($this->getLogMessage($message, $status));
+        $this->loggerCollection->afterProcessing($status);
     }
 
-    public function changeStatusToComplete(ImportStatus $status, ImportCSV $import): void
+    public function changeStatusToComplete(ImportStatus $status, Import $import): void
     {
         $this->repository->changeStatus(
             $status,
@@ -117,33 +119,11 @@ class Logger
             ]
         );
 
-        $this->sendMail($status);
-        $message = sprintf('file imported; request id: %d', $status->getId());
-        $this->logger->info($this->getLogMessage($message, $status));
+        $this->loggerCollection->afterProcessing($status);
     }
 
-    /**
-     * @param ImportStatus $status
-     *
-     * @return void
-     */
-    private function sendMail(ImportStatus $status): void
+    public function addLogger(LoggerInterface $logger): void
     {
-        $mail = (new Email())
-            ->from('products@prod.com')
-            ->to('some-user@some.domain')
-            ->subject('import')
-            ->text((string) $status);
-
-        $this->mailer->send($mail);
-    }
-
-    private function getLogMessage(string $message, ImportStatus $status): string
-    {
-        return sprintf(
-            '%s; file: %s',
-            $message,
-            $status->getFileOriginalName(),
-        );
+        $this->loggerCollection->addLogger($logger);
     }
 }

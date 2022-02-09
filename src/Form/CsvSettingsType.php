@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Services\Import\CSV\CSVSettings;
+use App\Services\Import\Readers\CSV\Settings;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -58,7 +58,7 @@ class CsvSettingsType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => CSVSettings::class,
+            'data_class' => Settings::class,
         ]);
     }
 }

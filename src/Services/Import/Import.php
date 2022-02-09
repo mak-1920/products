@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Import;
 
-use App\Services\Import\Savers\Saver;
-use DateTime;
-use Port\Reader;
-use Port\Steps\Step\ConverterStep;
-use Port\Steps\Step\FilterStep;
-use Port\Steps\StepAggregator;
+use App\Services\Import\Exceptions\ImportException;
+use App\Services\Import\Readers\ReaderInterface;
+use App\Services\Import\Savers\SaverInterface;
+use App\Services\Import\Transform\ConverterInterface;
+use App\Services\Import\Transform\FilterInterface;
 
-abstract class Import
+class Import
 {
-    protected static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
-
-    /** @var StepAggregator $transporter */
-    private StepAggregator $transporter;
+    public static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
 
     /** @var string[][] $success */
     private array $success;
@@ -27,29 +23,54 @@ abstract class Import
     /** @var string[][] $requests */
     private array $requests;
 
+    private bool $isFailed;
+
     /**
-     * @param Reader $reader
-     * @param Saver $saver
+     * @param ReaderInterface $reader
+     * @param SaverInterface $saver
+     * @param ConverterInterface|null $converter
+     * @param FilterInterface|null $filter
      */
     public function __construct(
-        private Reader $reader,
-        private Saver $saver,
+        private ReaderInterface $reader,
+        private SaverInterface $saver,
+        private ?ConverterInterface $converter = null,
+        private ?FilterInterface $filter = null,
     ) {
         $this->requests = [];
         $this->success = [];
         $this->failed = [];
-
-        $this->setTransporter();
+        $this->isFailed = false;
     }
 
     /**
-     * @return void
+     * @return string[][] imported rows
      */
-    public function saveRequests(): void
+    public function import(): array
     {
-        $this->setRequests();
+        $rows = [];
 
-        $this->success = $this->saver->save($this->transporter);
+        try {
+            $rows = $this->reader->read();
+            if (false === $rows) {
+                throw new ImportException();
+            }
+            $this->setRequests($rows);
+
+            $rows = $this->filter?->filter($rows);
+            $rows = $this->converter?->convert($rows);
+            $rows = $this->saver->save($rows);
+            $this->setResult($rows);
+        } catch (ImportException $e) {
+            $this->isFailed = true;
+        }
+
+        return $rows;
+    }
+
+    private function setResult(array $validRows): void
+    {
+        $this->success = $validRows;
         $this->failed = array_udiff($this->requests, $this->success, [$this, 'productsCompare']);
     }
 
@@ -74,113 +95,6 @@ abstract class Import
     }
 
     /**
-     * @return StepAggregator
-     */
-    public function getTransporter(): StepAggregator
-    {
-        return $this->transporter;
-    }
-
-    /**
-     * @return void
-     */
-    private function setTransporter(): void
-    {
-        $this->transporter = new StepAggregator($this->reader);
-        $this->transporter->addStep($this->getFilters());
-        $this->transporter->addStep($this->getConverters());
-    }
-
-    /**
-     * @return FilterStep
-     */
-    private function getFilters(): FilterStep
-    {
-        $filter = new FilterStep();
-
-        $filter->add(fn ($el) => $this->isValidData($el));
-
-        return $filter;
-    }
-
-    /**
-     * @return ConverterStep
-     */
-    private function getConverters(): ConverterStep
-    {
-        $converter = new ConverterStep();
-
-        $converter->add(function ($el) {
-            $el['Stock'] = (int) $el['Stock'];
-            $el['Cost in GBP'] = (float) $el['Cost in GBP'];
-            $discontinued = !$this->stringIsNullOrEmpty($el['Discontinued']) && $el['Discontinued'];
-            if ($discontinued) {
-                $el['Discontinued'] = new DateTime();
-            }
-
-            return $el;
-        });
-
-        return $converter;
-    }
-
-    /**
-     * @param string[] $data
-     *
-     * @return bool
-     */
-    private function isValidData(array $data): bool
-    {
-        return $this->isValidArgsCount($data)
-            && !$this->stringIsNullOrEmpty($data['Product Code'])
-            && !$this->stringIsNullOrEmpty($data['Product Name'])
-            && !$this->stringIsNullOrEmpty($data['Stock'])
-            && $this->isValidCost($data['Cost in GBP'])
-            && $this->isSatisfiesRules($data);
-    }
-
-    /**
-     * @param string[] $data
-     *
-     * @return bool
-     */
-    private function isValidArgsCount(array $data): bool
-    {
-        return count(self::$headerTitles) == count($data);
-    }
-
-    /**
-     * @param string|null $str
-     *
-     * @return bool
-     */
-    private function stringIsNullOrEmpty(?string $str): bool
-    {
-        return null == $str || '' == trim($str);
-    }
-
-    /**
-     * @param string $cost
-     *
-     * @return bool
-     */
-    private function isValidCost(string $cost): bool
-    {
-        return (bool) preg_match('/^\d+(\.\d{2})?$/i', $cost);
-    }
-
-    /**
-     * @param string[] $data
-     *
-     * @return bool
-     */
-    private function isSatisfiesRules(array $data): bool
-    {
-        return !(round((float) $data['Cost in GBP'], 2) < 5 && (int) $data['Stock'] < 10)
-            && !(round((float) $data['Cost in GBP'], 2) > 1000);
-    }
-
-    /**
      * @return string[][]
      */
     public function getRequests(): array
@@ -189,11 +103,13 @@ abstract class Import
     }
 
     /**
+     * @param string[][] $rows
+     *
      * @return void
      */
-    private function setRequests(): void
+    private function setRequests(array $rows): void
     {
-        foreach ($this->reader as $row) {
+        foreach ($rows as $row) {
             $this->requests[] = $row;
         }
     }
@@ -212,5 +128,10 @@ abstract class Import
     public function getComplete(): array
     {
         return $this->success;
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->isFailed;
     }
 }

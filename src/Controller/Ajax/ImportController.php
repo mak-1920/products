@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Ajax;
 
 use App\Services\Import\Sender;
+use App\Services\TempFilesManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,12 +22,13 @@ class ImportController extends AbstractController
     public function index(
         Request $request,
         Sender $sender,
+        TempFilesManager $filesManager,
     ): Response {
         if (0 === count($request->files) || is_null($request->get('settings'))) {
             return $this->json(['ids' => ''], Response::HTTP_NO_CONTENT);
         }
 
-        $files = $request->files->get('files');
+        $files = $filesManager->saveFilesAndGetInfo($request->files->get('files'));
         $settings = $request->get('settings');
         $token = $request->get('token');
 

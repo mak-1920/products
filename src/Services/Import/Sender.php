@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace App\Services\Import;
 
-use App\Services\Import\Logger\Logger;
-use App\Services\TempFilesManager;
+use App\Services\Import\Loggers\FileLogger;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Sender
 {
     public function __construct(
-        private Logger $logger,
-        private TempFilesManager $filesManager,
+        private Status $status,
         private ProducerInterface $producer,
+        FileLogger $fileLogger,
     ) {
+        $this->status->addLogger($fileLogger);
     }
 
     /**
-     * @param UploadedFile[]|string[] $files
+     * @param array{file: File, originalName: string, isRemoving: bool} $files
      * @param string[] $settings
      * @param string $token
      *
@@ -28,27 +27,10 @@ class Sender
      */
     public function send(array $files, array $settings, string $token): array
     {
-        if (0 === count($files)) {
-            return [];
-        }
-
-        $filesInfo = $this->saveFilesAndGetInfo($files);
-        $ids = $this->logger->createStatuses($filesInfo, $settings, $token);
+        $ids = $this->status->createStatuses($files, $settings, $token);
         $this->sendIDs($ids);
 
         return $ids;
-    }
-
-    /**
-     * @param UploadedFile[]|string[] $files
-     *
-     * @return array{file: File, originalName: string, isRemoving: bool}
-     */
-    private function saveFilesAndGetInfo(array $files): array
-    {
-        $filesInfo = $this->filesManager->saveFilesAndGetInfo($files);
-
-        return $filesInfo;
     }
 
     /**

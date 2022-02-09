@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Import\CSV;
+namespace App\Services\Import\Readers\CSV;
 
-class CSVSettings
+class Settings
 {
     public const DEF_CHAR_DELIMITER = ',';
     public const DEF_CHAR_ENCLOSURE = ' ';
     public const DEF_CHAR_ESCAPE = ' ';
     public const DEF_CHAR_HAVEHEADER = '1';
 
-    private static ?CSVSettings $default = null;
+    private static ?Settings $default = null;
 
-    public static function fromString(string $settings): CSVSettings
+    public static function fromString(string $settings): Settings
     {
-        $csvSet = new CSVSettings(
+        $csvSet = new Settings(
             $settings[0],
             $settings[1],
             $settings[2],
@@ -51,14 +51,14 @@ class CSVSettings
     }
 
     /**
-     * @return CSVSettings
+     * @return Settings
      */
-    public static function getDefault(): CSVSettings
+    public static function getDefault(): Settings
     {
         if (null !== self::$default) {
             return self::$default;
         }
-        self::$default = new CSVSettings();
+        self::$default = new Settings();
 
         return self::$default;
     }

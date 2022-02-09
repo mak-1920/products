@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ImportStatusRepository;
-use App\Services\Import\CSV\CSVSettings;
+use App\Services\Import\Readers\CSV\Settings;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ImportStatusRepository::class)]
@@ -117,7 +117,7 @@ class ImportStatus
      */
     private function getTextForInvalid(): string
     {
-        $settings = CSVSettings::fromString($this->getCsvSettings());
+        $settings = Settings::fromString($this->getCsvSettings());
 
         $text = 'Settings of CSV:'.PHP_EOL;
         $text .= 'Delimiter: '.$settings->getDelimiter().PHP_EOL;
