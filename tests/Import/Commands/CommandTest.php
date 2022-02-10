@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Import;
+namespace App\Tests\Import\Commands;
 
 use App\Command\ImportCommand;
 use PHPUnit\Framework\TestCase;
@@ -9,9 +9,9 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class CommandTest extends TestCase
 {
-    public function testGetFiles(): void
+    public function testGetFilesNames(): void
     {
-        $res = $this->invokeMethod('getFiles', ['12,3,4']);
+        $res = $this->invokeMethod('getNameFilesFromString', ['12,3,4']);
 
         $this->assertCount(3, $res);
         $this->assertEquals('12', $res[0]);
@@ -29,7 +29,7 @@ class CommandTest extends TestCase
             '12' => false,
         ];
 
-        foreach($characters as $character => $result) {
+        foreach ($characters as $character => $result) {
             $this->assertEquals($result, $this->invokeMethod('isValidCharacter', [$character]));
         }
     }
@@ -60,7 +60,6 @@ class CommandTest extends TestCase
 
     public function testGetCSVSetting(): void
     {
-
         $options = ['delimiter' => [','], 'enclosure' => [' '], 'escape' => [null], 'haveHeader' => ['0']];
 
         $res = $this->invokeMethod('getCSVSetting', [$options, 0]);

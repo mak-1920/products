@@ -1,7 +1,7 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->exclude(['public', 'tests', 'vendor', 'var'])
+    ->exclude(['public', 'vendor', 'var'])
     ->notPath('*')
     ->in(__DIR__);
 

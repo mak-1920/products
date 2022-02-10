@@ -1,33 +1,26 @@
 <?php
 
-namespace App\Tests\Import;
+namespace App\Tests\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
-use App\Services\Import\Logger\Logger;
+use App\Services\Import\Status;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Mailer\MailerInterface;
 
-class LoggerTest extends TestCase
+class StatusTest extends TestCase
 {
-    private function getLogger(
+    private function getImportStatus(
         ImportStatusRepository $repository,
-        MailerInterface $mailer,
-        LoggerInterface $logger,
-    ): Logger
-    {
-        return new Logger($repository, $mailer, $logger);
+    ): Status {
+        return new Status($repository);
     }
 
     public function testSetNewStatus(): void
     {
-        $logger = $this->getLogger(
+        $logger = $this->getImportStatus(
             $this->getRepository(),
-            $this->getMailer(),
-            $this->getTextLogger(),
         );
 
         $fileName = 'some.file';
@@ -65,13 +58,11 @@ class LoggerTest extends TestCase
         $repository->expects($this->once())
             ->method('addStatus')
             ->will(
-                $this->returnCallback(fn ($status) => (int)$status->getToken())
+                $this->returnCallback(fn ($status) => (int) $status->getToken())
             );
 
-        $logger = $this->getLogger(
+        $logger = $this->getImportStatus(
             $repository,
-            $this->getMailer(),
-            $this->getTextLogger(),
         );
 
         $fileName = 'some.file';
@@ -96,29 +87,27 @@ class LoggerTest extends TestCase
         $repository->expects($this->any())
             ->method('addStatus')
             ->will(
-                $this->returnCallback(fn ($status) => (int)$status->getFileOriginalName())
+                $this->returnCallback(fn ($status) => (int) $status->getFileOriginalName())
             );
 
-        $logger = $this->getLogger(
+        $logger = $this->getImportStatus(
             $repository,
-            $this->getMailer(),
-            $this->getTextLogger(),
         );
 
         $filesInfo = [];
-        for($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $num = $i * $mult;
             $filesInfo[] = [
-                'file' => $this->getFile((string)$num),
-                'originalName' => (string)$num,
+                'file' => $this->getFile((string) $num),
+                'originalName' => (string) $num,
                 'isRemoving' => false,
             ];
         }
 
         $ids = $logger->createStatuses($filesInfo, [], '123');
 
-        for($i = 1; $i <= 5; $i++) {
-            $this->assertEquals($i * $mult, $ids[$i-1]);
+        for ($i = 1; $i <= 5; ++$i) {
+            $this->assertEquals($i * $mult, $ids[$i - 1]);
         }
     }
 
@@ -133,8 +122,7 @@ class LoggerTest extends TestCase
         object &$object,
         string $methodName,
         array $parameters = []
-    ): mixed
-    {
+    ): mixed {
         $reflection = new ReflectionClass(get_class($object));
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
@@ -153,31 +141,6 @@ class LoggerTest extends TestCase
             ->getMock();
 
         return $repository;
-    }
-
-    /**
-     * @return MailerInterface
-     */
-    private function getMailer(): MailerInterface
-    {
-        $mailer = $this->getMockBuilder(MailerInterface::class)
-            ->onlyMethods(['send'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        return $mailer;
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    private function getTextLogger(): LoggerInterface
-    {
-        $logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        return $logger;
     }
 
     private function getFile(string $fileName): File
