@@ -13,7 +13,6 @@ use Port\Doctrine\DoctrineWriter;
 use Port\Exception;
 use Port\Reader\ArrayReader;
 use Port\Steps\StepAggregator;
-use Port\Writer\ArrayWriter;
 
 class Saver implements SaverInterface
 {
@@ -35,16 +34,12 @@ class Saver implements SaverInterface
     public function save(array $rows): array
     {
         try {
-            $writer = new ArrayWriter($rows);
-
             $transporter = new StepAggregator(new ArrayReader($rows));
-            $transporter->addWriter($writer);
 
-            if ('test' != $_ENV['APP_ENV']) {
-                $doctrineWriter = new DoctrineWriter($this->em, ProductData::class);
-                $doctrineWriter->disableTruncate();
-                $transporter->addWriter($doctrineWriter);
-            }
+            $doctrineWriter = new DoctrineWriter($this->em, ProductData::class);
+            $doctrineWriter->disableTruncate();
+
+            $transporter->addWriter($doctrineWriter);
             $transporter->process();
         } catch (Exception $e) {
             throw new SaverException('Rows can\'t been saved!', previous: $e);

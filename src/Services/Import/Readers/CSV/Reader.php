@@ -114,8 +114,13 @@ class Reader implements ReaderInterface
      */
     private function setExistsHeaderSettings(CsvReader $reader): bool
     {
-        $reader->setHeaderRowNumber(0);
-        $header = $reader->getColumnHeaders();
+        try {
+            $reader->setHeaderRowNumber(0);
+            $header = $reader->getColumnHeaders();
+        } catch (Exception\DuplicateHeadersException) {
+            return false;
+        }
+
         if (!$this->isValidHeader($header)) {
             return false;
         }

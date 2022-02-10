@@ -15,7 +15,7 @@ class Sender
         private ProducerInterface $producer,
         FileLogger $fileLogger,
     ) {
-        $this->status->addLogger($fileLogger);
+        $this->status->setLogger($fileLogger);
     }
 
     /**

@@ -155,11 +155,21 @@ class ImportCommand extends Command
      */
     private function getFiles(string $filesInStr): array
     {
-        $files = explode(',', $filesInStr);
+        $files = $this->getNameFilesFromString($filesInStr);
 
         $files = $this->filesManager->saveFilesAndGetInfo($files);
 
         return $files;
+    }
+
+    /**
+     * @param string $filesInStr
+     *
+     * @return string[]
+     */
+    private function getNameFilesFromString(string $filesInStr): array
+    {
+        return explode(',', $filesInStr);
     }
 
     /**

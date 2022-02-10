@@ -6,23 +6,20 @@ namespace App\Services\Import;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
-use App\Services\Import\Loggers\FileLogger;
 use App\Services\Import\Loggers\LoggerCollection;
 use App\Services\Import\Loggers\LoggerInterface;
-use App\Services\Import\Loggers\MailLogger;
+use App\Services\Import\Loggers\LoggingInterface;
 use App\Services\Import\Readers\CSV\Settings;
 use Symfony\Component\HttpFoundation\File\File;
 
-class Status
+class Status implements LoggingInterface
 {
+    private LoggerInterface $logger;
+
     public function __construct(
         private ImportStatusRepository $repository,
-        private LoggerCollection $loggerCollection,
-        MailLogger $mailLogger,
-        FileLogger $fileLogger,
     ) {
-        $this->loggerCollection->addLogger($mailLogger->setFrom('products@prod.com')->setTo('consumer@test.ru'));
-        $this->loggerCollection->addLogger($fileLogger);
+        $this->logger = new LoggerCollection();
     }
 
     /**
@@ -56,7 +53,7 @@ class Status
         $status = $this->setNewStatus($fileInfo, $settings, $token);
 
         $id = $this->repository->addStatus($status);
-        $this->loggerCollection->created($status);
+        $this->logger->created($status);
 
         return $id;
     }
@@ -91,7 +88,7 @@ class Status
     {
         $status = $this->repository->find($id);
 
-        $this->loggerCollection->beforeProcessing($status);
+        $this->logger->beforeProcessing($status);
 
         return $status;
     }
@@ -105,9 +102,15 @@ class Status
     {
         $this->repository->changeStatus($status, false);
 
-        $this->loggerCollection->afterProcessing($status);
+        $this->logger->afterProcessing($status);
     }
 
+    /**
+     * @param ImportStatus $status
+     * @param Import $import
+     *
+     * @return void
+     */
     public function changeStatusToComplete(ImportStatus $status, Import $import): void
     {
         $this->repository->changeStatus(
@@ -119,11 +122,16 @@ class Status
             ]
         );
 
-        $this->loggerCollection->afterProcessing($status);
+        $this->logger->afterProcessing($status);
     }
 
-    public function addLogger(LoggerInterface $logger): void
+    /**
+     * @param LoggerInterface $logger
+     *
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger): void
     {
-        $this->loggerCollection->addLogger($logger);
+        $this->logger = $logger;
     }
 }

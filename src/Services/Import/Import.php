@@ -52,22 +52,24 @@ class Import
 
         try {
             $rows = $this->reader->read();
-            if (false === $rows) {
-                throw new ImportException();
-            }
             $this->setRequests($rows);
 
             $rows = $this->filter?->filter($rows);
             $rows = $this->converter?->convert($rows);
             $rows = $this->saver->save($rows);
             $this->setResult($rows);
-        } catch (ImportException $e) {
+        } catch (ImportException) {
             $this->isFailed = true;
         }
 
         return $rows;
     }
 
+    /**
+     * @param string[][] $validRows
+     *
+     * @return void
+     */
     private function setResult(array $validRows): void
     {
         $this->success = $validRows;
@@ -130,6 +132,9 @@ class Import
         return $this->success;
     }
 
+    /**
+     * @return bool
+     */
     public function isFailed(): bool
     {
         return $this->isFailed;

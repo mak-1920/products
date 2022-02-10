@@ -6,6 +6,9 @@ namespace App\Consumer;
 
 use App\Entity\ImportStatus;
 use App\Services\Import\Import;
+use App\Services\Import\Loggers\FileLogger;
+use App\Services\Import\Loggers\LoggerCollection;
+use App\Services\Import\Loggers\MailLogger;
 use App\Services\Import\Readers\ReaderInterface;
 use App\Services\Import\Readers\StatusOfCSV\Reader;
 use App\Services\Import\Savers\Doctrine\Saver;
@@ -28,7 +31,15 @@ class ImportSendConsumer implements ConsumerInterface
         private Status $status,
         private TempFilesManager $filesManager,
         private HubInterface $hub,
+        MailLogger $mailLogger,
+        FileLogger $fileLogger,
     ) {
+        $loggers = $this->getLoggerCollection([
+            $mailLogger->setFrom('products@prod.com')->setTo('consumer@test.ru'),
+            $fileLogger,
+        ]);
+
+        $this->status->setLogger($loggers);
     }
 
     public function execute(AMQPMessage $msg): void
@@ -41,6 +52,27 @@ class ImportSendConsumer implements ConsumerInterface
         $this->sentResult($status);
     }
 
+    /**
+     * @param array $loggers
+     *
+     * @return LoggerCollection
+     */
+    private function getLoggerCollection(array $loggers): LoggerCollection
+    {
+        $loggerCollection = new LoggerCollection();
+
+        foreach ($loggers as $logger) {
+            $loggerCollection->addLogger($logger);
+        }
+
+        return $loggerCollection;
+    }
+
+    /**
+     * @param ImportStatus $status
+     *
+     * @return void
+     */
     private function tryImport(ImportStatus $status): void
     {
         $import = $this->getImport($status);
@@ -54,6 +86,11 @@ class ImportSendConsumer implements ConsumerInterface
         }
     }
 
+    /**
+     * @param ImportStatus $status
+     *
+     * @return void
+     */
     private function tryRemoveFile(ImportStatus $status): void
     {
         try {
@@ -65,6 +102,11 @@ class ImportSendConsumer implements ConsumerInterface
         }
     }
 
+    /**
+     * @param ImportStatus $status
+     *
+     * @return void
+     */
     private function sentResult(ImportStatus $status): void
     {
         $update = new Update(
@@ -77,6 +119,11 @@ class ImportSendConsumer implements ConsumerInterface
         }
     }
 
+    /**
+     * @param ImportStatus $status
+     *
+     * @return Import
+     */
     private function getImport(ImportStatus $status): Import
     {
         $import = new Import(
