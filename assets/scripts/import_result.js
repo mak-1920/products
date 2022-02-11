@@ -1,11 +1,12 @@
 let block = $('.import-result')
 
 function getImportResultToHtml(data) {
-    let div = $('<div style="border: 1px solid black; padding: 4px;"></div>')
+    let div = $('<div class="border border-1 p-2 my-1 rounded"></div>')
     $(div).append('<p>ID' + data.id + '</p>')
     $(div).append('<p>Status' + data.status + '</p>')
 
     if (data.status === 'STATUS_FAILED') {
+        $(div).addClass('border-danger')
         $(div).append('<p>Settings:</p>')
         $(div).append('<p>Delimiter: ' + data.settings[0] + '</p>')
         $(div).append('<p>Enclosure: ' + data.settings[1] + '</p>')
@@ -13,6 +14,7 @@ function getImportResultToHtml(data) {
         $(div).append('<p>Have header: ' + data.settings[3] + '</p>')
 
     } else if (data.status === 'STATUS_IMPORTED') {
+        $(div).addClass('border-success')
         $(div).append('<p>Requests: ' + (data.failed.length + data.complete.length) + '</p>')
         $(div).append('<p>Count of valid rows: ' + data.complete.length + '</p>')
         $(div).append('<p>Count of invalid rows: ' + data.failed.length + '</p><ul>')
