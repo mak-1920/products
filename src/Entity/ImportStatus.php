@@ -77,11 +77,6 @@ class ImportStatus
         return json_encode($data);
     }
 
-    public function isSent(): bool
-    {
-        return !str_contains($this->token, self::COMMAND_TOKEN_PREFIX);
-    }
-
     /**
      * @return string
      */

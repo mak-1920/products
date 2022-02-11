@@ -43,20 +43,14 @@ function getProcessedInfo(ids) {
     return info
 }
 
-function setEventSource() {
-    const url = JSON.parse($('#import-upload-url').html())
-    const eventSource = new EventSource(url)
-    eventSource.onmessage = response => {
+$(() => {
+    setEventSource('#import-upload-url', response => {
         let result = JSON.parse(response.data)
         $(block).append(getImportResultToHtml(result))
-    }
-}
-
-$(() => {
-    setEventSource()
+    })
 })
 
-$('#import-form').on('submit', (form) => {
+$('#import-form').on('submit', () => {
     block.html('')
 
     let data = new FormData()
@@ -81,8 +75,9 @@ $('#import-form').on('submit', (form) => {
         processData: false,
         data: data,
         success: (res) => {
-            $('#import-form').wrap('<form>').closest('form').get(0).reset();
-            $('#import-form').unwrap();
+            let form = $('#import-form')
+            form.wrap('<form>').closest('form').get(0).reset();
+            form.unwrap();
             $('.csv-sets').html('')
             let ids = res.ids
             if(ids.length !== 0) {

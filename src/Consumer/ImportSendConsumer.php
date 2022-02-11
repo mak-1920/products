@@ -114,9 +114,7 @@ class ImportSendConsumer implements ConsumerInterface
             $status->toJson()
         );
 
-        if ($status->isSent()) {
-            $this->hub->publish($update);
-        }
+        $this->hub->publish($update);
     }
 
     /**

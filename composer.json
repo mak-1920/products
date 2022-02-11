@@ -12,6 +12,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.11",
         "friendsofsymfony/jsrouting-bundle": "^3.1",
+        "knplabs/knp-paginator-bundle": "^5.8",
         "league/csv": "^9.8",
         "php-amqplib/rabbitmq-bundle": "^2.11",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -50,6 +51,7 @@
         "symfony/webpack-encore-bundle": "^1.13",
         "symfony/yaml": "6.0.*",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/intl-extra": "^3.3",
         "twig/twig": "^2.12|^3.0"
     },
     "require-dev": {

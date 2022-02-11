@@ -1,0 +1,16 @@
+<table class="table">
+    <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Decription</th>
+        <th>Stock</th>
+        <th>Cost</th>
+        <th>Date added</th>
+        <th>Date discontinued</th>
+    </tr>
+    {% for product in products %}
+        {% include('main/blocks/products_table/row.html.twig') with {
+            'product': product
+        } %}
+    {% endfor %}
+</table>

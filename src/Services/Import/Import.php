@@ -73,7 +73,7 @@ class Import
     private function setResult(array $validRows): void
     {
         $this->success = $validRows;
-        $this->failed = array_udiff($this->requests, $this->success, [$this, 'productsCompare']);
+        $this->failed = array_values(array_udiff($this->requests, $this->success, [$this, 'productsCompare']));
     }
 
     /**

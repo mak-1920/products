@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page {{ page }}{% endblock %}
+
+{% block body %}
+
+<div class="container-md">
+    <div class="new-products">
+        <div class="display-3">New products</div>
+        {% include 'main/blocks/products_table/table.html.twig' with {
+            'products': {},
+        } %}
+    </div>
+
+    <div class="display-3">Exists products</div>
+    {% include 'main/blocks/products_table/table.html.twig' with {
+        'products': products,
+    } %}
+
+    <div class="navigation">
+        {{ knp_pagination_render(products) }}
+    </div>
+</div>
+
+<script type="application/json" id="import-uploaded-url">
+    {{ mercure('/import/send/{token}')|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG'))|raw }}
+</script>
+
+{% endblock %}

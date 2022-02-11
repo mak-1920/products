@@ -8,6 +8,8 @@ use App\Entity\ProductData;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\UnexpectedResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -56,5 +58,41 @@ class ProductDataRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult()
             ;
+    }
+
+    /**
+     * @param int $lastId
+     * @return Query
+     */
+    public function getQueryForTakeAllProducts(int $lastId): Query
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        if($lastId != -1) {
+            $qb->where('p.id <= :lastId')
+                ->setParameter('lastId', $lastId);
+        }
+        return $qb->orderBy('p.id', 'desc')
+            ->getQuery()
+            ;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastProductId(): int
+    {
+        try {
+            $result = $this->createQueryBuilder('p')
+                ->select('p.id')
+                ->orderBy('p.id', 'desc')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            return (int)$result;
+        } catch (UnexpectedResultException) {
+            return -1;
+        }
     }
 }
