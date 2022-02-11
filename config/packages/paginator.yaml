@@ -5,3 +5,4 @@ knp_paginator:
         sort_field_name: id
     template:
         pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig'
+        filtration: '@KnpPaginator/Pagination/bootstrap_v5_filtration.html.twig'

@@ -13,6 +13,10 @@
     </div>
 
     <div class="display-3">Exists products</div>
+    {{ knp_pagination_filter(products, {
+        'p.code': 'Code',
+        'p.name': 'Name',
+    }) }}
     {% include 'main/blocks/products_table/table.html.twig' with {
         'products': products,
     } %}
