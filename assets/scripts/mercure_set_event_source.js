@@ -1,10 +1,10 @@
 global.setEventSource = function(blockWithURL, callback) {
     if($(blockWithURL).length === 0) {
-        return null
+        return null;
     }
 
-    const url = JSON.parse($(blockWithURL).html())
-    const eventSource = new EventSource(url)
-    eventSource.onmessage = callback
-    return eventSource
+    const url = JSON.parse($(blockWithURL).html());
+    const eventSource = new EventSource(url);
+    eventSource.onmessage = callback;
+    return eventSource;
 }

@@ -5,13 +5,6 @@
 {% block body %}
 
 <div class="container-md">
-    <div class="new-products">
-        <div class="display-3">New products</div>
-        {% include 'main/blocks/products_table/table.html.twig' with {
-            'products': {},
-        } %}
-    </div>
-
     <div class="display-3">Exists products</div>
     {{ knp_pagination_filter(products, {
         'p.code': 'Code',
@@ -23,6 +16,13 @@
 
     <div class="navigation">
         {{ knp_pagination_render(products) }}
+    </div>
+
+    <div class="new-products">
+        <div class="display-3">New products</div>
+        {% include 'main/blocks/products_table/table.html.twig' with {
+            'products': {},
+        } %}
     </div>
 </div>
 

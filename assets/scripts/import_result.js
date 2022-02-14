@@ -1,73 +1,87 @@
-let block = $('.import-result')
+let block = $('.import-result');
 
-function getImportResultToHtml(data) {
-    let div = $('<div class="border border-1 p-2 my-1 rounded"></div>')
-    $(div).append('<p>ID' + data.id + '</p>')
-    $(div).append('<p>Status' + data.status + '</p>')
+function printImportResult(data) {
+    function getHead() {
+        $(div).append('<p>ID' + data.id + '</p>');
+        $(div).append('<p>Status: ' + data.status + '</p>');
+    }
+
+    function getFailedInfo() {
+        let params = ['Delimiter', 'Enclosure', 'Escape', 'Have header'];
+        $(div).addClass('border-danger');
+        $(div).append('<p>Settings:</p>');
+
+        for(let i = 0; i < params.length; i++) {
+            $(div).append('<p>' + params[i] + ': ' + data.settings[i] + '</p>');
+        }
+    }
+
+    function getSuccessInfo() {
+        let rowFields = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
+
+        $(div).addClass('border-success');
+        $(div).append('<p>Requests: ' + (data.failed.length + data.complete.length) + '</p>');
+        $(div).append('<p>Count of valid rows: ' + data.complete.length + '</p>');
+        $(div).append('<p>Count of invalid rows: ' + data.failed.length + '</p><ul>');
+        for(let row of data.failed) {
+            let li = $('<li style="margin-left: 10px"></li>');
+            for(let i = 0; i < rowFields.length; i++) {
+                $(li).append(row[rowFields[i]] + ', ');
+            }
+            $(div).append(li);
+        }
+        $(div).append('</ul>');
+    }
+
+    let div = $('.request-' + data.id);
+    $(div).html('');
+
+    getHead();
 
     if (data.status === 'STATUS_FAILED') {
-        $(div).addClass('border-danger')
-        $(div).append('<p>Settings:</p>')
-        $(div).append('<p>Delimiter: ' + data.settings[0] + '</p>')
-        $(div).append('<p>Enclosure: ' + data.settings[1] + '</p>')
-        $(div).append('<p>Escape: ' + data.settings[2] + '</p>')
-        $(div).append('<p>Have header: ' + data.settings[3] + '</p>')
-
+        getFailedInfo();
     } else if (data.status === 'STATUS_IMPORTED') {
-        $(div).addClass('border-success')
-        $(div).append('<p>Requests: ' + (data.failed.length + data.complete.length) + '</p>')
-        $(div).append('<p>Count of valid rows: ' + data.complete.length + '</p>')
-        $(div).append('<p>Count of invalid rows: ' + data.failed.length + '</p><ul>')
-        for(let row of data.failed) {
-            $(div).append('<li style="margin-left: 10px;">'
-                + row['Product Code'] + ', '
-                + row['Product Name'] + ', '
-                + row['Product Description'] + ', '
-                + row['Stock'] + ', '
-                + row['Cost in GBP'] + ', '
-                + row['Discontinued']
-                +'</li>')
-        }
-        $(div).append('</ul>')
+        getSuccessInfo();
     }
-    $(div).append()
-
-    return div
 }
 
-function getProcessedInfo(ids) {
-    let info = $('<div></div>')
-    $(info).append('<p>Files have been uploaded and will be processed!</p><p>')
+function createBlocksWithRequestsInfo(ids) {
     for(let id of ids) {
-        $(info).append('id' + id + '; ')
+        let request = $('<div class="request-' + id + ' border border-1 p-2 my-1 rounded"></div>');
+        $(request).append('ID' + id + ' (Wait result)');
+        block.append(request);
     }
-    $(info).append('</p>')
-    return info
 }
 
 $(() => {
     setEventSource('#import-upload-url', response => {
-        let result = JSON.parse(response.data)
-        $(block).append(getImportResultToHtml(result))
+        let result = JSON.parse(response.data);
+        setTimeout(function waitCreateBlock() {
+            if($('.request-' + result.id).length > 0) {
+                printImportResult(result);
+            } else {
+                waitCreateBlock();
+            }
+        }, 100);
     })
 })
 
 $('#import-form').on('submit', () => {
-    block.html('')
+    block.html('');
 
-    let data = new FormData()
-    let token = $('#import_by_csv__token').val()
+    let data = new FormData();
+    let token = $('#import_by_csv__token').val();
 
-    data.append('token', token)
+    data.append('token', token);
 
     for(let file of $('#import_by_csv_file')[0].files) {
-        data.append('files[]', file)
+        data.append('files[]', file);
     }
 
     for(let setting of $('.csv-sets > fieldset > div')) {
-        let params = $(setting).find('input')
-        let set = $(params[0]).val() + $(params[1]).val() + $(params[2]).val() + +$(params[3]).is(':checked')
-        data.append('settings[]', set)
+        let params = $(setting).find('input');
+        let set = $(params[0]).val() + $(params[1]).val() + $(params[2]).val() + +$(params[3]).is(':checked');
+        data.append('settings[]', set);
     }
 
     $.ajax({
@@ -83,13 +97,13 @@ $('#import-form').on('submit', () => {
             $('.csv-sets').html('')
             let ids = res.ids
             if(ids.length !== 0) {
-                $(block).prepend(getProcessedInfo(ids))
+                createBlocksWithRequestsInfo(ids);
             }
         },
         error: () => {
-            console.log('Error!!!')
+            console.log('Error!!!');
         }
-    })
+    });
 
-    return false
+    return false;
 })
