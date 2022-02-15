@@ -8,6 +8,7 @@ use App\Repository\ProductDataRepository;
 use App\Services\Import\Transform\Doctrine\Converter;
 use App\Services\Import\Transform\Doctrine\Filter;
 use DateTime;
+use JetBrains\PhpStorm\ArrayShape;
 use PHPUnit\Framework\TestCase;
 
 class DoctrineTransformersTest extends TestCase
@@ -86,7 +87,7 @@ class DoctrineTransformersTest extends TestCase
         $this->assertSame(100., $result[0]['Cost in GBP']);
     }
 
-    public function testConvertDisctontinueds(): void
+    public function testConvertDiscontinueds(): void
     {
         $converter = $this->getConverter();
 
@@ -112,6 +113,13 @@ class DoctrineTransformersTest extends TestCase
      *
      * @return string[]
      */
+    #[ArrayShape([
+        'Product Code' => "string",
+        'Product Name' => "string",
+        'Product Description' => "string",
+        'Stock' => "string",
+        'Cost in GBP' => "string",
+        'Discontinued' => "string"])]
     private function getRow(string $code = 'some code', string $name = 'Product', string $stock = '10', string $cost = '100.00'): array
     {
         if ('some code' == $code) {

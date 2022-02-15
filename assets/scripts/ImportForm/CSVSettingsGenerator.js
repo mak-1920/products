@@ -1,5 +1,5 @@
 jQuery(function() {
-    $('.import_files').on('change', (e, info) => {
+    $('.import_files').on('change', (e) => {
         $('.csv-sets').html('');
         let files = e.target.files;
         let prototype = $('#prototype').data('prototype');

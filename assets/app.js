@@ -20,7 +20,7 @@ import Routing from '../vendor/friendsofsymfony/jsrouting-bundle/Resources/publi
 Routing.setRoutingData(routes)
 global.Routing = Routing
 
-require('./scripts/mercure_set_event_source');
-require('./scripts/csvsettings_forms_generator');
-require('./scripts/import_result');
-require('./scripts/import_new_products')
+import './scripts/ImportForm/CSVSettingsGenerator';
+import './scripts/ImportForm/SubmitForm';
+import './scripts/Mercure/ResultListener';
+import './scripts/Mercure/NewProductListener';

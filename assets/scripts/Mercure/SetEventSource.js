@@ -1,4 +1,4 @@
-global.setEventSource = function(blockWithURL, callback) {
+export let SetEventSource = function(blockWithURL, callback) {
     if($(blockWithURL).length === 0) {
         return null;
     }

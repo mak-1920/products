@@ -140,7 +140,7 @@ class CSVReaderTest extends TestCase
      * @return mixed
      */
     private function invokeMethod(
-        object &$object,
+        object $object,
         string $methodName,
         array $parameters = []
     ): mixed {
