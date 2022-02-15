@@ -14,14 +14,10 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
-
 /.vscode/
 /.idea/
 /tmp/
+/public/tmp/
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php

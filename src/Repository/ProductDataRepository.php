@@ -62,16 +62,18 @@ class ProductDataRepository extends ServiceEntityRepository
 
     /**
      * @param int $lastId
+     *
      * @return Query
      */
     public function getQueryForTakeAllProducts(int $lastId): Query
     {
         $qb = $this->createQueryBuilder('p');
 
-        if($lastId != -1) {
+        if (-1 != $lastId) {
             $qb->where('p.id <= :lastId')
                 ->setParameter('lastId', $lastId);
         }
+
         return $qb->orderBy('p.id', 'desc')
             ->getQuery()
             ;
@@ -90,7 +92,7 @@ class ProductDataRepository extends ServiceEntityRepository
                 ->getQuery()
                 ->getSingleScalarResult();
 
-            return (int)$result;
+            return (int) $result;
         } catch (UnexpectedResultException) {
             return -1;
         }

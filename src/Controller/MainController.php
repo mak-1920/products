@@ -34,8 +34,8 @@ class MainController extends AbstractController
         PaginatorInterface $paginator,
         ProductDataRepository $repository,
     ): Response {
-        $lastId = (int)$request->get('last', $repository->getLastProductId());
-        $page = (int)$request->get('page', 1);
+        $lastId = (int) $request->get('last', $repository->getLastProductId());
+        $page = (int) $request->get('page', 1);
 
         $query = $repository->getQueryForTakeAllProducts($lastId);
 

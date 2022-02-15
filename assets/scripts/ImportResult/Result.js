@@ -1,11 +1,15 @@
 import {Status} from "./Status";
 
-export let Result = function(data) {
-    let status = new Status().allStatuses[data.id];
-    let block = status.htmlBlock;
+export let Result = function(resultContainer, data) {
     let that = {};
 
-    status.getHead.call(this, data);
+    that.status = new Status().allStatuses[data.id];
+    if(that.status === undefined) {
+        that.status = new Status(resultContainer, data.id);
+    }
+    let block = that.status.htmlBlock;
+
+    that.status.getHead.call(this, data);
 
     that.printSuccessInfo = function() {
         let rowFields = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];

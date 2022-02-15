@@ -114,12 +114,12 @@ class DoctrineTransformersTest extends TestCase
      * @return string[]
      */
     #[ArrayShape([
-        'Product Code' => "string",
-        'Product Name' => "string",
-        'Product Description' => "string",
-        'Stock' => "string",
-        'Cost in GBP' => "string",
-        'Discontinued' => "string"])]
+        'Product Code' => 'string',
+        'Product Name' => 'string',
+        'Product Description' => 'string',
+        'Stock' => 'string',
+        'Cost in GBP' => 'string',
+        'Discontinued' => 'string', ])]
     private function getRow(string $code = 'some code', string $name = 'Product', string $stock = '10', string $cost = '100.00'): array
     {
         if ('some code' == $code) {
