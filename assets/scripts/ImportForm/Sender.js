@@ -2,23 +2,23 @@ import {Data} from "./Data";
 import {Status} from "../ImportResult/Status";
 
 export let Sender = function(formBlockSelector) {
-    let that = new Data(formBlockSelector);
+    this.__proto__ = new Data(formBlockSelector);
     let block = $('.import-result');
 
-    let resetForm = function() {
-        that.form.wrap('<form>').closest('form').get(0).reset();
-        that.form.unwrap();
+    this.resetForm = function() {
+        this.form.wrap('<form>').closest('form').get(0).reset();
+        this.form.unwrap();
     }
 
-    that.send = function() {
+    this.send = function() {
         $.ajax({
             url: Routing.generate('ajax_import_upload'),
             method: 'post',
             contentType: false,
             processData: false,
-            data: that.data,
+            data: this.data,
             success: (res) => {
-                resetForm();
+                this.resetForm();
                 $('.csv-sets').html('')
                 let ids = res.ids
                 for(let i = 0, length = ids.length; i < length; i++) {
@@ -30,6 +30,4 @@ export let Sender = function(formBlockSelector) {
             }
         });
     }
-
-    return that;
 }

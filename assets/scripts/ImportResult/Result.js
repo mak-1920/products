@@ -19,10 +19,11 @@ export let Result = function(resultContainer, data) {
         $(block).append('<p>Count of valid rows: ' + data.complete.length + '</p>');
         $(block).append('<p>Count of invalid rows: ' + data.failed.length + '</p><ul>');
 
-        for(let row of data.failed) {
+        let rows = data.failed;
+        for(let i = 0, length = rows.length; i < length; i++) {
             let li = $('<li style="margin-left: 10px"></li>');
-            for(let i = 0; i < rowFields.length; i++) {
-                $(li).append(row[rowFields[i]] + ', ');
+            for(let j = 0, length = rowFields.length; j < length; j++) {
+                $(li).append(rows[i][rowFields[j]] + ', ');
             }
             $(block).append(li);
         }
@@ -35,7 +36,7 @@ export let Result = function(resultContainer, data) {
         $(block).addClass('border-danger');
         $(block).append('<p>Settings:</p>');
 
-        for(let i = 0; i < params.length; i++) {
+        for(let i = 0, length = params.length; i < length; i++) {
             $(block).append('<p>' + params[i] + ': ' + data.settings[i] + '</p>');
         }
     }

@@ -3,25 +3,20 @@ export let Status = function(resultContainer, requestId) {
         return;
     }
 
-    let that = {};
-    that.id = requestId;
-    that.htmlBlock = $('.request-' + that.id);
+    this.id = requestId;
+    this.allStatuses[this.id] = this;
+    this.htmlBlock = $('.request-' + this.id);
 
-    that.getHead = function(data) {
-        $(that.htmlBlock).append('<p>ID' + data.id + '</p>');
-        $(that.htmlBlock).append('<p>Status: ' + data.status + '</p>');
+    if(this.htmlBlock.length === 0) {
+        this.htmlBlock = $('<div class="request-' + this.id + ' border border-1 p-2 my-1 rounded"></div>');
+        this.getHead({id: this.id, status: 'IMPORT_NEW'});
+        $(resultContainer).prepend(this.htmlBlock);
     }
-
-    if(that.htmlBlock.length === 0) {
-        that.htmlBlock = $('<div class="request-' + that.id + ' border border-1 p-2 my-1 rounded"></div>');
-        that.getHead({id: that.id, status: 'IMPORT_NEW'});
-        $(resultContainer).prepend(that.htmlBlock);
-    } else {
-        that.htmlBlock.html('');
-    }
-
-    this.allStatuses[that.id] = that;
-    return that;
 }
 
+Status.prototype.getHead = function(data) {
+    $(this.htmlBlock).html('');
+    $(this.htmlBlock).append('<p>ID' + data.id + '</p>');
+    $(this.htmlBlock).append('<p>Status: ' + data.status + '</p>');
+}
 Status.prototype.allStatuses = {};

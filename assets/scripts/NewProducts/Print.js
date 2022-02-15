@@ -27,7 +27,9 @@ export let Print = function(rows) {
     }
 
     for(let rowKey in rows) {
-        let tr = getRow(rows[rowKey]);
-        $('.new-products table').append(tr);
+        if(rows.hasOwnProperty(rowKey)) {
+            let tr = getRow(rows[rowKey]);
+            $('.new-products table').append(tr);
+        }
     }
 }
