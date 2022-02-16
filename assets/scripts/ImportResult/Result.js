@@ -1,17 +1,16 @@
 import {Status} from "./Status";
 
 export let Result = function(resultContainer, data) {
-    let that = {};
-
-    that.status = new Status().allStatuses[data.id];
-    if(that.status === undefined) {
-        that.status = new Status(resultContainer, data.id);
+    let status = new Status().allStatuses[data.id];
+    if(status === undefined) {
+        status = new Status(resultContainer, data.id);
     }
-    let block = that.status.htmlBlock;
+    this.__proto__ = status;
+    let block = this.htmlBlock;
 
-    that.status.getHead.call(this, data);
+    this.getHead(data);
 
-    that.printSuccessInfo = function() {
+    this.printSuccessInfo = function() {
         let rowFields = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
 
         $(block).addClass('border-success');
@@ -20,9 +19,9 @@ export let Result = function(resultContainer, data) {
         $(block).append('<p>Count of invalid rows: ' + data.failed.length + '</p><ul>');
 
         let rows = data.failed;
-        for(let i = 0, length = rows.length; i < length; i++) {
+        for(let i = 0, rowsLength = rows.length; i < rowsLength; i++) {
             let li = $('<li style="margin-left: 10px"></li>');
-            for(let j = 0, length = rowFields.length; j < length; j++) {
+            for(let j = 0, fieldsLength = rowFields.length; j < fieldsLength; j++) {
                 $(li).append(rows[i][rowFields[j]] + ', ');
             }
             $(block).append(li);
@@ -31,7 +30,7 @@ export let Result = function(resultContainer, data) {
         $(block).append('</ul>');
     }
 
-    that.printFailedInfo = function() {
+    this.printFailedInfo = function() {
         let params = ['Delimiter', 'Enclosure', 'Escape', 'Have header'];
         $(block).addClass('border-danger');
         $(block).append('<p>Settings:</p>');
@@ -40,6 +39,4 @@ export let Result = function(resultContainer, data) {
             $(block).append('<p>' + params[i] + ': ' + data.settings[i] + '</p>');
         }
     }
-
-    return that;
 }
