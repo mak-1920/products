@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Csv import{% endblock %}
+
+{% block body %}
+
+<div class="container-sm">
+    {{ form_start(form, { 'attr': {'novalidate' : 'novalidate', 'id' : 'import-form'} }) }}
+        {{ form_row(form.file) }}
+        <div id="prototype" data-prototype="{{ form_widget(form.csvSettings.vars.prototype)|e }}"></div>
+        <div class="csv-sets"></div>
+        {{ form_row(form.import) }}
+        {{ form_row(form._token) }}
+    {{ form_end(form, { 'render_rest': false }) }}
+
+    <div class="import-result"></div>
+</div>
+
+<script type="application/json" id="import-upload-url">
+    {{ mercure('/import/send/' ~ form._token.vars.value)|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG'))|raw }}
+</script>
+{% endblock %}

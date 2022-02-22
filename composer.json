@@ -11,8 +11,16 @@
         "doctrine/doctrine-bundle": "^2.5",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.11",
+        "friendsofsymfony/jsrouting-bundle": "^3.1",
+        "knplabs/knp-paginator-bundle": "^5.8",
+        "league/csv": "^9.8",
+        "php-amqplib/rabbitmq-bundle": "^2.11",
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.2",
+        "portphp/csv": "dev-master",
+        "portphp/doctrine": "dev-master",
+        "portphp/portphp": "dev-master",
+        "portphp/steps": "dev-master",
         "sensio/framework-extra-bundle": "^6.1",
         "symfony/asset": "6.0.*",
         "symfony/console": "6.0.*",
@@ -24,6 +32,7 @@
         "symfony/http-client": "6.0.*",
         "symfony/intl": "6.0.*",
         "symfony/mailer": "6.0.*",
+        "symfony/mercure-bundle": "^0.3.4",
         "symfony/mime": "6.0.*",
         "symfony/monolog-bundle": "^3.1",
         "symfony/notifier": "6.0.*",
@@ -39,11 +48,15 @@
         "symfony/twig-bundle": "6.0.*",
         "symfony/validator": "6.0.*",
         "symfony/web-link": "6.0.*",
+        "symfony/webpack-encore-bundle": "^1.13",
         "symfony/yaml": "6.0.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/intl-extra": "^3.3",
+        "twig/twig": "^2.12|^3.0",
+        "": ""
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.5",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.0.*",
         "symfony/css-selector": "6.0.*",
@@ -56,6 +69,24 @@
     "require-migr": {
         "symfony/maker-bundle": "^1.36"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/portphp"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/csv"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/doctrine"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mak-1920/steps"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
@@ -103,8 +134,9 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
-            "require": "6.0.*"
+            "allow-contrib": true,
+            "require": "6.0.*",
+            "docker": true
         }
     }
 }

@@ -1,4 +1,13 @@
 {
+    "composer/pcre": {
+        "version": "1.0.1"
+    },
+    "composer/semver": {
+        "version": "3.2.7"
+    },
+    "composer/xdebug-handler": {
+        "version": "3.0.1"
+    },
     "doctrine/annotations": {
         "version": "1.13",
         "recipe": {
@@ -82,11 +91,50 @@
     "egulias/email-validator": {
         "version": "3.1.2"
     },
+    "friendsofphp/php-cs-fixer": {
+        "version": "3.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "be2103eb4a20942e28a6dd87736669b757132435"
+        },
+        "files": [
+            ".php-cs-fixer.dist.php"
+        ]
+    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.5"
     },
+    "friendsofsymfony/jsrouting-bundle": {
+        "version": "3.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.3",
+            "ref": "a9f2e49180f75cdc71ae279a929c4b2e0638de84"
+        },
+        "files": [
+            "config/routes/fos_js_routing.yaml"
+        ]
+    },
+    "knplabs/knp-components": {
+        "version": "v3.5.0"
+    },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v5.8.0"
+    },
     "laminas/laminas-code": {
         "version": "4.5.1"
+    },
+    "lcobucci/clock": {
+        "version": "2.1.0"
+    },
+    "lcobucci/jwt": {
+        "version": "4.1.5"
+    },
+    "league/csv": {
+        "version": "9.8.0"
     },
     "monolog/monolog": {
         "version": "2.3.5"
@@ -97,11 +145,36 @@
     "nikic/php-parser": {
         "version": "v4.13.2"
     },
+    "paragonie/constant_time_encoding": {
+        "version": "v2.5.0"
+    },
+    "paragonie/random_compat": {
+        "version": "v9.99.100"
+    },
     "phar-io/manifest": {
         "version": "2.0.3"
     },
     "phar-io/version": {
         "version": "3.1.0"
+    },
+    "php-amqplib/php-amqplib": {
+        "version": "v3.1.2"
+    },
+    "php-amqplib/rabbitmq-bundle": {
+        "version": "2.11",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.12",
+            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
+        },
+        "files": [
+            "config/packages/old_sound_rabbit_mq.yaml",
+            "src/Consumer/.gitignore"
+        ]
+    },
+    "php-cs-fixer/diff": {
+        "version": "v2.0.2"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -111,6 +184,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.6.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "3.0.13"
     },
     "phpspec/prophecy": {
         "version": "v1.15.0"
@@ -146,6 +222,18 @@
             "phpunit.xml.dist",
             "tests/bootstrap.php"
         ]
+    },
+    "portphp/csv": {
+        "version": "2.0.x-dev"
+    },
+    "portphp/doctrine": {
+        "version": "dev-master"
+    },
+    "portphp/portphp": {
+        "version": "dev"
+    },
+    "portphp/steps": {
+        "version": "dev-master"
     },
     "psr/cache": {
         "version": "3.0.0"
@@ -209,6 +297,9 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
+    },
+    "seld/signal-handler": {
+        "version": "1.2.0"
     },
     "sensio/framework-extra-bundle": {
         "version": "6.2",
@@ -318,7 +409,7 @@
             "repo": "github.com/symfony/recipes",
             "branch": "master",
             "version": "5.4",
-            "ref": "d4131812e20853626928e73d3effef44014944c0"
+            "ref": "3cd216a4d007b78d8554d44a5b1c0a446dab24fb"
         },
         "files": [
             "config/packages/cache.yaml",
@@ -366,6 +457,21 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/mercure": {
+        "version": "v0.6.1"
+    },
+    "symfony/mercure-bundle": {
+        "version": "0.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "0.3",
+            "ref": "e0a854b5439186e04b28fb8887b42c54f24a0d32"
+        },
+        "files": [
+            "config/packages/mercure.yaml"
+        ]
     },
     "symfony/mime": {
         "version": "v6.0.2"
@@ -568,6 +674,28 @@
             "config/routes/dev/web_profiler.yaml"
         ]
     },
+    "symfony/webpack-encore-bundle": {
+        "version": "1.13",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.9",
+            "ref": "d2d1e09675fff3fa4193aa9950a7c39934524a25"
+        },
+        "files": [
+            "assets/app.js",
+            "assets/bootstrap.js",
+            "assets/controllers.json",
+            "assets/controllers/hello_controller.js",
+            "assets/styles/app.css",
+            "config/packages/assets.yaml",
+            "config/packages/prod/webpack_encore.yaml",
+            "config/packages/test/webpack_encore.yaml",
+            "config/packages/webpack_encore.yaml",
+            "package.json",
+            "webpack.config.js"
+        ]
+    },
     "symfony/yaml": {
         "version": "v6.0.2"
     },
@@ -577,10 +705,16 @@
     "twig/extra-bundle": {
         "version": "v3.3.7"
     },
+    "twig/intl-extra": {
+        "version": "v3.3.5"
+    },
     "twig/twig": {
         "version": "v3.3.7"
     },
     "webmozart/assert": {
         "version": "1.10.0"
+    },
+    "willdurand/jsonp-callback-validator": {
+        "version": "v1.1.0"
     }
 }
