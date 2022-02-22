@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Consumer;
 
 use App\Entity\ImportStatus;
+use App\Services\FilesManagers\FileManagerInterface;
 use App\Services\Import\Import;
 use App\Services\Import\Loggers\FileLogger;
 use App\Services\Import\Loggers\LoggerCollection;
 use App\Services\Import\Loggers\MailLogger;
 use App\Services\Import\Readers\ReaderInterface;
 use App\Services\Import\Readers\StatusOfCSV\Reader;
-use App\Services\Import\Savers\Doctrine\Saver;
-use App\Services\Import\Status;
-use App\Services\Import\Transform\Doctrine\Converter;
-use App\Services\Import\Transform\Doctrine\Filter;
-use App\Services\TempFilesManager;
+use App\Services\Import\Savers\SaverInterface;
+use App\Services\Import\Statuses\StatusInterface;
+use App\Services\Import\Transform\ConverterInterface;
+use App\Services\Import\Transform\FilterInterface;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Mercure\HubInterface;
@@ -25,11 +25,11 @@ use Throwable;
 class ImportSendConsumer implements ConsumerInterface
 {
     public function __construct(
-        private Filter $filter,
-        private Converter $converter,
-        private Saver $saver,
-        private Status $status,
-        private TempFilesManager $filesManager,
+        private FilterInterface $filter,
+        private ConverterInterface $converter,
+        private SaverInterface $saver,
+        private StatusInterface $status,
+        private FileManagerInterface $filesManager,
         private HubInterface $hub,
         MailLogger $mailLogger,
         FileLogger $fileLogger,

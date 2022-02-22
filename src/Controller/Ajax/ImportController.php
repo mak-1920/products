@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Ajax;
 
-use App\Services\Import\Sender;
-use App\Services\TempFilesManager;
+use App\Services\FilesManagers\TempFilesManager;
+use App\Services\Import\Senders\MercureSender;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +19,9 @@ class ImportController extends AbstractController
         options: ['expose' => true],
         methods: 'post',
     )]
-    public function index(
+    public function upload(
         Request $request,
-        Sender $sender,
+        MercureSender $sender,
         TempFilesManager $filesManager,
     ): Response {
         if (0 === count($request->files) || is_null($request->get('settings'))) {

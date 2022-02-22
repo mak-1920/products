@@ -17,7 +17,7 @@
 /.vscode/
 /.idea/
 /tmp/
-/public/tmp/
+/public/tmp/*
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php

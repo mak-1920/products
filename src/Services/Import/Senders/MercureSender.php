@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Import;
+namespace App\Services\Import\Senders;
 
-use App\Services\Import\Loggers\FileLogger;
+use App\Services\Import\Loggers\LoggerInterface;
+use App\Services\Import\Statuses\StatusInterface;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
-class Sender
+class MercureSender implements SenderInterface
 {
     public function __construct(
-        private Status $status,
+        private StatusInterface $status,
         private ProducerInterface $producer,
-        FileLogger $fileLogger,
+        LoggerInterface $logger,
     ) {
-        $this->status->setLogger($fileLogger);
+        $this->status->setLogger($logger);
     }
 
     /**

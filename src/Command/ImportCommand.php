@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Entity\ImportStatus;
+use App\Services\FilesManagers\FileManagerInterface;
 use App\Services\Import\Readers\CSV\Settings;
-use App\Services\Import\Savers\Doctrine\Saver;
-use App\Services\Import\Sender;
-use App\Services\TempFilesManager;
+use App\Services\Import\Savers\SaverInterface;
+use App\Services\Import\Senders\SenderInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -24,9 +24,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ImportCommand extends Command
 {
     public function __construct(
-        private Sender $sender,
-        private Saver $saver,
-        private TempFilesManager $filesManager,
+        private SenderInterface $sender,
+        private SaverInterface $saver,
+        private FileManagerInterface $filesManager,
     ) {
         parent::__construct();
     }

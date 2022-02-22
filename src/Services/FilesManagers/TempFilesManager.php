@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Services\FilesManagers;
 
 use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class TempFilesManager
+class TempFilesManager implements FileManagerInterface
 {
-    private const TMP_DIR = __DIR__.'/../../public/tmp/';
+    private const TMP_DIR = __DIR__.'/../../../public/tmp/';
 
     /**
      * @param UploadedFile[]|string[] $files
@@ -34,7 +34,7 @@ class TempFilesManager
      * @return array{file: File, originalName: string, isRemoving: bool}
      */
     #[ArrayShape([
-        'file' => "\Symfony\Component\HttpFoundation\File\File",
+        'file' => File::class,
         'originalName' => 'string',
         'isRemoving' => 'bool',
     ])]
@@ -58,7 +58,7 @@ class TempFilesManager
     }
 
     /**
-     * @param UploadedFile[] $files
+     * @param File[] $files
      *
      * @return void
      */

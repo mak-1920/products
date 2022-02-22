@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Import;
+namespace App\Services\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
+use App\Services\Import\Import;
 use App\Services\Import\Loggers\LoggerCollection;
 use App\Services\Import\Loggers\LoggerInterface;
 use App\Services\Import\Loggers\LoggingInterface;
 use App\Services\Import\Readers\CSV\Settings;
 use Symfony\Component\HttpFoundation\File\File;
 
-class Status implements LoggingInterface
+class DoctrineStatus implements LoggingInterface, StatusInterface
 {
     private LoggerInterface $logger;
 

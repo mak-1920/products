@@ -4,7 +4,7 @@ namespace App\Tests\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
-use App\Services\Import\Status;
+use App\Services\Import\Statuses\DoctrineStatus;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\File\File;
@@ -13,8 +13,8 @@ class StatusTest extends TestCase
 {
     private function getImportStatus(
         ImportStatusRepository $repository,
-    ): Status {
-        return new Status($repository);
+    ): DoctrineStatus {
+        return new DoctrineStatus($repository);
     }
 
     public function testSetNewStatus(): void
