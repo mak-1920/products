@@ -50,8 +50,14 @@ class Reader implements ReaderInterface
      */
     private function getReader(File $file, Settings $settings): ?CsvReader
     {
+        $path = $file->getRealPath();
+
+        if (false === $path) {
+            return null;
+        }
+
         $reader = new CsvReader(
-            new SplFileObject($file->getRealPath()),
+            new SplFileObject($path),
             $settings->getDelimiter(),
             $settings->getEnclosure(),
             $settings->getEscape()

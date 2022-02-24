@@ -9,11 +9,12 @@ use App\Services\FilesManagers\FileManagerInterface;
 use App\Services\Import\Import;
 use App\Services\Import\Loggers\FileLogger;
 use App\Services\Import\Loggers\LoggerCollection;
+use App\Services\Import\Loggers\LoggerInterface;
 use App\Services\Import\Loggers\MailLogger;
 use App\Services\Import\Readers\ReaderInterface;
 use App\Services\Import\Readers\StatusOfCSV\Reader;
 use App\Services\Import\Savers\SaverInterface;
-use App\Services\Import\Statuses\StatusInterface;
+use App\Services\Import\Statuses\LoggingStatusInterface;
 use App\Services\Import\Transform\ConverterInterface;
 use App\Services\Import\Transform\FilterInterface;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
@@ -28,7 +29,7 @@ class ImportSendConsumer implements ConsumerInterface
         private FilterInterface $filter,
         private ConverterInterface $converter,
         private SaverInterface $saver,
-        private StatusInterface $status,
+        private LoggingStatusInterface $status,
         private FileManagerInterface $filesManager,
         private HubInterface $hub,
         MailLogger $mailLogger,
@@ -42,7 +43,7 @@ class ImportSendConsumer implements ConsumerInterface
         $this->status->setLogger($loggers);
     }
 
-    public function execute(AMQPMessage $msg): void
+    public function execute(AMQPMessage $msg): int
     {
         $id = (int) $msg->getBody();
         $status = $this->status->getStatus($id);
@@ -50,10 +51,12 @@ class ImportSendConsumer implements ConsumerInterface
         $this->tryImport($status);
         $this->tryRemoveFile($status);
         $this->sentResult($status);
+
+        return 0;
     }
 
     /**
-     * @param array $loggers
+     * @param LoggerInterface[] $loggers
      *
      * @return LoggerCollection
      */
@@ -109,9 +112,11 @@ class ImportSendConsumer implements ConsumerInterface
      */
     private function sentResult(ImportStatus $status): void
     {
+        $msg = $status->toJson();
+
         $update = new Update(
             '/import/send/'.$status->getToken(),
-            $status->toJson()
+            $msg ? $msg : 'parse error'
         );
 
         $this->hub->publish($update);

@@ -6,6 +6,7 @@ namespace App\Services\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
+use App\Services\Import\Exceptions\SaverException;
 use App\Services\Import\Import;
 use App\Services\Import\Loggers\LoggerCollection;
 use App\Services\Import\Loggers\LoggerInterface;
@@ -24,11 +25,13 @@ class DoctrineStatus implements LoggingInterface, StatusInterface
     }
 
     /**
-     * @param array{file: File, originalName: string, isRemoving: bool} $filesInfo
+     * @param array<array{file: File, originalName: string, isRemoving: bool}> $filesInfo
      * @param string[] $settings
      * @param string $token
      *
      * @return int[]
+     *
+     * @throws SaverException
      */
     public function createStatuses(array $filesInfo, array $settings, string $token): array
     {
@@ -48,6 +51,8 @@ class DoctrineStatus implements LoggingInterface, StatusInterface
      * @param string $token
      *
      * @return int row's id in db
+     *
+     * @throws SaverException
      */
     public function createStatus(array $fileInfo, string $settings, string $token): int
     {
@@ -65,15 +70,22 @@ class DoctrineStatus implements LoggingInterface, StatusInterface
      * @param string $token
      *
      * @return ImportStatus
+     *
+     * @throws SaverException
      */
     private function setNewStatus(array $fileInfo, string $settings, string $token): ImportStatus
     {
         $status = new ImportStatus();
+        $path = $fileInfo['file']->getRealPath();
+
+        if (false === $path) {
+            throw new SaverException('path was clear');
+        }
 
         $status->setStatus('STATUS_NEW');
         $status->setToken($token);
         $status->setFileOriginalName($fileInfo['originalName']);
-        $status->setFileTmpName($fileInfo['file']->getRealPath());
+        $status->setFileTmpName($path);
         $status->setCsvSettings($settings);
         $status->setRemovingFile($fileInfo['isRemoving']);
 

@@ -23,7 +23,6 @@ class CommandTest extends TestCase
     {
         $characters = [
             null => false,
-            '' => false,
             ' ' => true,
             '1' => true,
             '12' => false,

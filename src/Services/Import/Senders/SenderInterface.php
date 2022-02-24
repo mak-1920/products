@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\File\File;
 interface SenderInterface
 {
     /**
-     * @param array{file: File, originalName: string, isRemoving: bool} $files
+     * @param array<array{file: File, originalName: string, isRemoving: bool}> $files
      * @param string[] $settings
      * @param string $token
      *

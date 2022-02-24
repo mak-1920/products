@@ -30,10 +30,10 @@ class ProductData
     private string $code;
 
     #[ORM\Column(name: 'dtmAdded', type: 'datetime', nullable: true)]
-    private ?DateTime $createdAt;
+    private ?DateTimeInterface $createdAt;
 
     #[ORM\Column(name: 'dtmDiscontinued', type: 'datetime', nullable: true)]
-    private ?DateTime $discontinuedAt;
+    private ?DateTimeInterface $discontinuedAt;
 
     #[ORM\Column(name: 'stmTimestamp', type: 'datetime', nullable: false)]
     private DateTime $stmtimestamp;

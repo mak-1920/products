@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\File\File;
 interface StatusInterface
 {
     /**
-     * @param array{file: File, originalName: string, isRemoving: bool} $filesInfo
+     * @param array<array{file: File, originalName: string, isRemoving: bool}> $filesInfo
      * @param string[] $settings
      * @param string $token
      *

@@ -7,7 +7,6 @@ namespace App\Command;
 use App\Entity\ImportStatus;
 use App\Services\FilesManagers\FileManagerInterface;
 use App\Services\Import\Readers\CSV\Settings;
-use App\Services\Import\Savers\SaverInterface;
 use App\Services\Import\Senders\SenderInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -16,6 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[AsCommand(
     name: 'app:import',
@@ -25,7 +25,6 @@ class ImportCommand extends Command
 {
     public function __construct(
         private SenderInterface $sender,
-        private SaverInterface $saver,
         private FileManagerInterface $filesManager,
     ) {
         parent::__construct();
@@ -56,7 +55,7 @@ class ImportCommand extends Command
     }
 
     /**
-     * @param string[] $files
+     * @param array<array{file: File, originalName: string, isRemoving: bool}> $files
      * @param string[] $settings
      * @param string $token
      * @param SymfonyStyle $io
@@ -151,7 +150,7 @@ class ImportCommand extends Command
     /**
      * @param string $filesInStr
      *
-     * @return string[]
+     * @return array<array{file: File, originalName: string, isRemoving: bool}>
      */
     private function getFiles(string $filesInStr): array
     {

@@ -16,6 +16,10 @@ use Port\Writer\ArrayWriter;
 
 class Filter implements FilterInterface
 {
+    private const MAX_COST = 1000;
+    private const MIN_COST = 5;
+    private const MIN_STOCK = 10;
+
     /** @var string[][] $rows */
     private array $rows;
 
@@ -25,7 +29,7 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param array $rows
+     * @param string[][] $rows
      *
      * @return string[][] filtered rows
      *
@@ -218,7 +222,7 @@ class Filter implements FilterInterface
      */
     private function isSatisfiesRules(array $data): bool
     {
-        return !(round((float) $data['Cost in GBP'], 2) < 5 && (int) $data['Stock'] < 10)
-            && !(round((float) $data['Cost in GBP'], 2) > 1000);
+        return !(round((float) $data['Cost in GBP'], 2) < self::MIN_COST && (int) $data['Stock'] < self::MIN_STOCK)
+            && !(round((float) $data['Cost in GBP'], 2) > self::MAX_COST);
     }
 }

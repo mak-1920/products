@@ -1,4 +1,6 @@
 {
+    "name": "mak-1920/products",
+    "description": "import products from csv to mysql",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
@@ -26,7 +28,7 @@
         "symfony/console": "6.0.*",
         "symfony/dotenv": "6.0.*",
         "symfony/expression-language": "6.0.*",
-        "symfony/flex": "^2",
+        "symfony/flex": "2.1.4",
         "symfony/form": "6.0.*",
         "symfony/framework-bundle": "6.0.*",
         "symfony/http-client": "6.0.*",
@@ -52,12 +54,16 @@
         "symfony/yaml": "6.0.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.3",
-        "twig/twig": "^2.12|^3.0",
-        "": ""
+        "twig/twig": "^2.12|^3.0"
     },
     "require-dev": {
+        "captainhook/captainhook": "^5.10",
         "friendsofphp/php-cs-fixer": "^3.5",
+        "jetbrains/phpstorm-attributes": "^1.0",
+        "phpstan/phpstan": "^1.4",
         "phpunit/phpunit": "^9.5",
+        "povils/phpmnd": "dev-master",
+        "sebastian/phpcpd": "^6.0",
         "symfony/browser-kit": "6.0.*",
         "symfony/css-selector": "6.0.*",
         "symfony/debug-bundle": "6.0.*",
@@ -65,9 +71,6 @@
         "symfony/phpunit-bridge": "^6.0",
         "symfony/stopwatch": "6.0.*",
         "symfony/web-profiler-bundle": "6.0.*"
-    },
-    "require-migr": {
-        "symfony/maker-bundle": "^1.36"
     },
     "repositories": [
         {

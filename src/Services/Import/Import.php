@@ -12,6 +12,7 @@ use App\Services\Import\Transform\FilterInterface;
 
 class Import
 {
+    /** @var string[] $headerTitles */
     public static array $headerTitles = ['Product Code', 'Product Name', 'Product Description', 'Stock', 'Cost in GBP', 'Discontinued'];
 
     /** @var string[][] $success */
@@ -125,7 +126,7 @@ class Import
     }
 
     /**
-     * @return string[]
+     * @return string[][]
      */
     public function getComplete(): array
     {

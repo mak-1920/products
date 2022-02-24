@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Services\Import\Senders;
 
 use App\Services\Import\Loggers\LoggerInterface;
-use App\Services\Import\Statuses\StatusInterface;
+use App\Services\Import\Statuses\LoggingStatusInterface;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Symfony\Component\HttpFoundation\File\File;
 
 class MercureSender implements SenderInterface
 {
     public function __construct(
-        private StatusInterface $status,
+        private LoggingStatusInterface $status,
         private ProducerInterface $producer,
         LoggerInterface $logger,
     ) {
@@ -20,7 +20,7 @@ class MercureSender implements SenderInterface
     }
 
     /**
-     * @param array{file: File, originalName: string, isRemoving: bool} $files
+     * @param array<array{file: File, originalName: string, isRemoving: bool}> $files
      * @param string[] $settings
      * @param string $token
      *
@@ -42,7 +42,7 @@ class MercureSender implements SenderInterface
     private function sendIDs(array $ids): void
     {
         foreach ($ids as $id) {
-            $this->producer->publish($id);
+            $this->producer->publish((string) $id);
         }
     }
 }

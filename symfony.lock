@@ -1,4 +1,7 @@
 {
+    "captainhook/captainhook": {
+        "version": "5.10.7"
+    },
     "composer/pcre": {
         "version": "1.0.1"
     },
@@ -118,6 +121,9 @@
             "config/routes/fos_js_routing.yaml"
         ]
     },
+    "jetbrains/phpstorm-attributes": {
+        "version": "1.0"
+    },
     "knplabs/knp-components": {
         "version": "v3.5.0"
     },
@@ -175,6 +181,12 @@
     },
     "php-cs-fixer/diff": {
         "version": "v2.0.2"
+    },
+    "php-parallel-lint/php-console-color": {
+        "version": "v0.3"
+    },
+    "php-parallel-lint/php-console-highlighter": {
+        "version": "v0.5"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -234,6 +246,9 @@
     },
     "portphp/steps": {
         "version": "dev-master"
+    },
+    "povils/phpmnd": {
+        "version": "2.5-dev"
     },
     "psr/cache": {
         "version": "3.0.0"
@@ -297,6 +312,15 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
+    },
+    "sebastianfeldmann/camino": {
+        "version": "0.9.5"
+    },
+    "sebastianfeldmann/cli": {
+        "version": "3.4.1"
+    },
+    "sebastianfeldmann/git": {
+        "version": "3.8.2"
     },
     "seld/signal-handler": {
         "version": "1.2.0"

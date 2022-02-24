@@ -46,6 +46,11 @@ class Converter implements ConverterInterface
         return $this->rows;
     }
 
+    /**
+     * @param string[][] $rows
+     *
+     * @return void
+     */
     private function initFields(array $rows): void
     {
         $this->rows = $rows;
@@ -144,7 +149,7 @@ class Converter implements ConverterInterface
     }
 
     /**
-     * @param array{name: string, discontinuedAt: DateTime} $array
+     * @param array<array{name: string, discontinuedAt: DateTime}> $array
      *
      * @return array<string, DateTime>
      */

@@ -21,11 +21,13 @@ class ImportStatus
     #[ORM\Column(name: 'status', type: 'string', length: 20)]
     private string $status;
 
+    /** @var string[][]|null $validRows */
     #[ORM\Column(name: 'valid_rows', type: 'array', nullable: true)]
-    private array $validRows = [];
+    private ?array $validRows = [];
 
+    /** @var string[][]|null $invalidRows */
     #[ORM\Column(name: 'invalid_rows', type: 'array', nullable: true)]
-    private array $invalidRows = [];
+    private ?array $invalidRows = [];
 
     #[ORM\Column(name: 'file_name_original', type: 'string', length: 255)]
     private string $fileOriginalName;
@@ -61,9 +63,9 @@ class ImportStatus
     }
 
     /**
-     * @return string
+     * @return string|false
      */
-    public function toJson(): string
+    public function toJson(): string|false
     {
         $data = [
             'id' => $this->id,
@@ -74,7 +76,9 @@ class ImportStatus
             'settings' => $this->csvSettings,
         ];
 
-        return json_encode($data);
+        $json = json_encode($data);
+
+        return $json;
     }
 
     /**
@@ -152,7 +156,7 @@ class ImportStatus
     }
 
     /**
-     * @return string[]|null
+     * @return string[][]|null
      */
     public function getValidRows(): ?array
     {
@@ -160,7 +164,7 @@ class ImportStatus
     }
 
     /**
-     * @param string[] $validRows
+     * @param string[][] $validRows
      *
      * @return $this
      */
@@ -172,7 +176,7 @@ class ImportStatus
     }
 
     /**
-     * @return string[]|null
+     * @return string[][]|null
      */
     public function getInvalidRows(): ?array
     {
@@ -180,7 +184,7 @@ class ImportStatus
     }
 
     /**
-     * @param string[]|null $invalidRows
+     * @param string[][]|null $invalidRows
      *
      * @return $this
      */

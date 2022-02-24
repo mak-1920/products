@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Import\Savers\Doctrine;
 
 use App\Entity\ProductData;
-use App\Repository\ProductDataRepository;
 use App\Services\Import\Exceptions\SaverException;
 use App\Services\Import\Savers\SaverInterface;
 use Doctrine\ORM\EntityManager;
@@ -16,12 +15,9 @@ use Port\Steps\StepAggregator;
 
 class Saver implements SaverInterface
 {
-    private ProductDataRepository $productRepository;
-
     public function __construct(
         private EntityManager $em,
     ) {
-        $this->productRepository = $em->getRepository(ProductData::class);
     }
 
     /**

@@ -63,7 +63,6 @@ services:
     App\Command\ImportCommand:
         arguments:
             $sender: '@import.sender.mercure'
-            $saver: '@import.saver.doctrine'
             $filesManager: '@file_manager.temp'
 
     App\Consumer\ImportSendConsumer:

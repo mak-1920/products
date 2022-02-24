@@ -44,11 +44,12 @@ class ProductDataRepository extends ServiceEntityRepository
     /**
      * @param string[] $names
      *
-     * @return array{name: string, discontinuedAt: DateTime}
+     * @return array<array{name: string, discontinuedAt: DateTime}>
      */
     public function getDiscontinuedProductsByNames(array $names): array
     {
-        return $this->createQueryBuilder('p')
+        /** @var array<array{name: string, discontinuedAt: DateTime}> $result */
+        $result = $this->createQueryBuilder('p')
             ->select('p.name, p.discontinuedAt')
             ->distinct()
             ->where('p.name IN (:names)')
@@ -58,6 +59,8 @@ class ProductDataRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult()
             ;
+
+        return $result;
     }
 
     /**

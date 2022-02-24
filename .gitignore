@@ -18,6 +18,7 @@
 /.idea/
 /tmp/
 /public/tmp/*
+/tools/
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
