@@ -24,13 +24,12 @@ class ImportController extends AbstractController
         MercureSender $sender,
         TempFilesManager $filesManager,
     ): Response {
-        if (0 === count($request->files) || is_null($request->request->get('settings'))) {
+        if (0 === count($request->files) || 0 === count($request->request->all('settings'))) {
             return $this->json(['ids' => ''], Response::HTTP_NO_CONTENT);
         }
 
         $files = $filesManager->saveFilesAndGetInfo($request->files->get('files'));
-        /** @var string[] $settings */
-        $settings = (array) $request->request->get('settings');
+        $settings = $request->request->all('settings');
         $token = (string) $request->request->get('token');
 
         $ids = $sender->send(

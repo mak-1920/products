@@ -10,11 +10,10 @@ use App\Services\Import\Exceptions\SaverException;
 use App\Services\Import\Import;
 use App\Services\Import\Loggers\LoggerCollection;
 use App\Services\Import\Loggers\LoggerInterface;
-use App\Services\Import\Loggers\LoggingInterface;
 use App\Services\Import\Readers\CSV\Settings;
 use Symfony\Component\HttpFoundation\File\File;
 
-class DoctrineStatus implements LoggingInterface, StatusInterface
+class DoctrineStatus implements LoggingStatusInterface
 {
     private LoggerInterface $logger;
 
