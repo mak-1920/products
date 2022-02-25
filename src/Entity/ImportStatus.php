@@ -98,7 +98,7 @@ class ImportStatus
      */
     private function getTextForValid(): string
     {
-        $text = 'Requests: '.count($this->invalidRows) + count($this->validRows).PHP_EOL;
+        $text = 'Requests: '.(count($this->invalidRows) + count($this->validRows)).PHP_EOL;
         $text .= 'Count of valid rows: '.count($this->validRows).PHP_EOL;
         $text .= 'Count of invalid rows: '.count($this->invalidRows).PHP_EOL;
         if (count($this->invalidRows) > 0) {

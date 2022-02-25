@@ -46,7 +46,7 @@ class Settings
             $this->getDelimiter(),
             $this->getEnclosure(),
             $this->getEscape(),
-            $this->getHaveHeader(),
+            (string) $this->getHaveHeader(),
         );
     }
 

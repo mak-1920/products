@@ -8,6 +8,3 @@ parameters:
         -
             message: '#Property [a-zA-Z0-9\:_\\\$]+ is never written, only read#'
             path: src/Entity/*
-        -
-            message: '#PHPDoc tag @throws with type [a-zA-Z0-9\\_]+ is not subtype of Throwable#'
-            path: src/*

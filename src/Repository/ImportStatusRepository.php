@@ -9,10 +9,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method ImportStatus|null find($id, $lockMode = null, $lockVersion = null)
- * @method ImportStatus|null findOneBy(array $criteria, array $orderBy = null)
- * @method ImportStatus[] findAll()
- * @method ImportStatus[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @template-extends ServiceEntityRepository<ImportStatus>
  */
 class ImportStatusRepository extends ServiceEntityRepository
 {
