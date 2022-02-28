@@ -41,6 +41,7 @@ class ImportStatusRepository extends ServiceEntityRepository
     public function changeStatus(ImportStatus $status, bool $isComplete, ?array $result = null): void
     {
         if ($isComplete) {
+            /** @var array{success: array<array<string>>, failed: array<array<string>>} $result */
             $status->setValidRows($result['success']);
             $status->setInvalidRows($result['failed']);
             $status->setStatus('STATUS_IMPORTED');

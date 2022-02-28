@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Readers;
 
-use App\Services\Import\Exceptions\ReaderException;
+use App\Services\Import\Exceptions\Reader\ReaderException;
 
 interface ReaderInterface
 {

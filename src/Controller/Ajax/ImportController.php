@@ -28,7 +28,7 @@ class ImportController extends AbstractController
             return $this->json(['ids' => ''], Response::HTTP_NO_CONTENT);
         }
 
-        $files = $filesManager->saveFilesAndGetInfo($request->files->get('files'));
+        $files = $filesManager->saveFilesAndGetInfo($request->files->all('files'));
         $settings = $request->request->all('settings');
         $token = (string) $request->request->get('token');
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Readers;
 
 use App\Entity\ImportStatus;
-use App\Services\Import\Exceptions\ReaderException;
+use App\Services\Import\Exceptions\Reader\ReaderException;
 use App\Services\Import\Readers\StatusOfCSV\Reader;
 use PHPUnit\Framework\TestCase;
 

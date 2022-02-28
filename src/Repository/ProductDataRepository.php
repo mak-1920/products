@@ -29,13 +29,16 @@ class ProductDataRepository extends ServiceEntityRepository
      */
     public function getExistsProductCodes(array $codes): array
     {
-        return $this->createQueryBuilder('p')
+        /** @var string[] $existsCodes */
+        $existsCodes = $this->createQueryBuilder('p')
             ->select('p.code')
             ->where('p.code IN (:codes)')
             ->setParameter('codes', $codes, Connection::PARAM_STR_ARRAY)
             ->getQuery()
             ->getSingleColumnResult()
             ;
+
+        return $existsCodes;
     }
 
     /**
@@ -85,14 +88,16 @@ class ProductDataRepository extends ServiceEntityRepository
     public function getLastProductId(): int
     {
         try {
-            $result = $this->createQueryBuilder('p')
+            $result = intval(
+                $this->createQueryBuilder('p')
                 ->select('p.id')
                 ->orderBy('p.id', 'desc')
                 ->setMaxResults(1)
                 ->getQuery()
-                ->getSingleScalarResult();
+                ->getSingleScalarResult()
+            );
 
-            return (int) $result;
+            return $result;
         } catch (UnexpectedResultException) {
             return -1;
         }

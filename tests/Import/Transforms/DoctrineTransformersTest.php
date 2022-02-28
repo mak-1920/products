@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Transforms;
 
 use App\Repository\ProductDataRepository;
+use App\Services\Import\Exceptions\Transform\FilterException;
 use App\Services\Import\Transform\Doctrine\Converter;
 use App\Services\Import\Transform\Doctrine\Filter;
 use DateTime;
@@ -15,6 +16,9 @@ class DoctrineTransformersTest extends TestCase
 {
     private static int $counter = 0;
 
+    /**
+     * @throws FilterException
+     */
     public function testValidation(): void
     {
         $filter = $this->getFilter();
@@ -34,12 +38,15 @@ class DoctrineTransformersTest extends TestCase
             $this->getRow(cost: '1000.01'),
         ];
 
-        $result = $filter->filter($data);
+        $result = $filter->transform($data);
 
         $this->assertCount(4, $result);
         $this->assertEquals([$data[0], $data[5], $data[6], $data[9]], $result);
     }
 
+    /**
+     * @throws FilterException
+     */
     public function testExistsCodes(): void
     {
         $filter = $this->getFilter();
@@ -51,12 +58,15 @@ class DoctrineTransformersTest extends TestCase
             $this->getRow(code: 'P0005'),
         ];
 
-        $result = $filter->filter($data);
+        $result = $filter->transform($data);
 
         $this->assertCount(2, $result);
         $this->assertEquals([$data[0], $data[2]], $result);
     }
 
+    /**
+     * @throws FilterException
+     */
     public function testClonedCodes(): void
     {
         $filter = $this->getFilter();
@@ -69,7 +79,7 @@ class DoctrineTransformersTest extends TestCase
             $this->getRow(code: 'P0001'),
         ];
 
-        $result = $filter->filter($data);
+        $result = $filter->transform($data);
 
         $this->assertCount(3, $result);
         $this->assertEquals([$data[0], $data[1], $data[3]], $result);
@@ -81,7 +91,7 @@ class DoctrineTransformersTest extends TestCase
 
         $data = [$this->getRow()];
 
-        $result = $converter->convert($data);
+        $result = $converter->transform($data);
 
         $this->assertSame(10, $result[0]['Stock']);
         $this->assertSame(100., $result[0]['Cost in GBP']);
@@ -98,7 +108,7 @@ class DoctrineTransformersTest extends TestCase
             $this->getRow(name: 'Cd Player'),
         ];
 
-        $result = $converter->convert($data);
+        $result = $converter->transform($data);
 
         $this->assertEquals(new DateTime('2022-01-20 15:12:38'), $result[1]['Discontinued']);
         $this->assertEquals(new DateTime('2022-01-20 16:10:00'), $result[3]['Discontinued']);

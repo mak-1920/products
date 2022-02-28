@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Savers;
 
-use App\Services\Import\Exceptions\SaverException;
+use App\Services\Import\Exceptions\Saver\SaverException;
 
 interface SaverInterface
 {

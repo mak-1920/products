@@ -14,14 +14,15 @@ return $config->setRules([
         'phpdoc_to_property_type' => true,
         'phpdoc_var_annotation_correct_order' => true,
         'phpdoc_var_without_name' => false,
+        'phpdoc_align' => [
+            'align' => 'left',
+        ],
+        'phpdoc_to_comment' => false,
         'global_namespace_import' => [
             'import_classes' => true, 
             'import_constants' => true, 
             'import_functions' => true
         ],
         'no_superfluous_phpdoc_tags' => false,
-        'phpdoc_align' => [
-            'align' => 'left',
-        ],
     ])
     ->setFinder($finder);

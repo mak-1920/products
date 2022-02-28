@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Import\Savers\Doctrine;
 
 use App\Entity\ProductData;
-use App\Services\Import\Exceptions\SaverException;
+use App\Services\Import\Exceptions\Saver\SaverException;
 use App\Services\Import\Savers\SaverInterface;
 use Doctrine\ORM\EntityManager;
 use Port\Doctrine\DoctrineWriter;

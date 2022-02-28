@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Readers\CSV;
 
-use App\Services\Import\Exceptions\ReaderException;
+use App\Services\Import\Exceptions\Reader\ReaderException;
 use App\Services\Import\Import;
 use App\Services\Import\Readers\ReaderInterface;
 use Port\Csv\CsvReader;

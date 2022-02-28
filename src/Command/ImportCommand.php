@@ -45,7 +45,9 @@ class ImportCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $files = $this->getFiles($input->getArgument('files'));
+        $filesFromArgs = strval($input->getArgument('files'));
+
+        $files = $this->getFiles($filesFromArgs);
         $settings = $this->getCSVSettings($input, count($files));
         $token = uniqid(ImportStatus::COMMAND_TOKEN_PREFIX, true);
 
@@ -118,7 +120,7 @@ class ImportCommand extends Command
     private function setCharacters(array &$characters, InputInterface $input, int $fileCount): void
     {
         foreach ($characters as $option => &$set) {
-            $val = $input->getOption($option) ?? '';
+            $val = strval($input->getOption($option));
             $set = array_pad(
                 str_split($val),
                 $fileCount,
@@ -134,7 +136,7 @@ class ImportCommand extends Command
      */
     private function getSettingsDefaultChar(string $option): string
     {
-        return constant(Settings::class.'::DEF_CHAR_'.mb_strtoupper($option));
+        return strval(constant(Settings::class.'::DEF_CHAR_'.mb_strtoupper($option)));
     }
 
     /**

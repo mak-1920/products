@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Import\Transform;
 
-use App\Services\Import\Exceptions\ConverterException;
+use App\Services\Import\Exceptions\Transform\ConverterException;
 
-interface ConverterInterface
+interface TransformInterface
 {
     /**
      * @param string[][] $rows
@@ -15,5 +15,5 @@ interface ConverterInterface
      *
      * @throws ConverterException
      */
-    public function convert(array $rows): array;
+    public function transform(array $rows): array;
 }

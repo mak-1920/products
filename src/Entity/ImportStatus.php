@@ -18,16 +18,17 @@ class ImportStatus
     #[ORM\Column(type: 'integer')]
     private int $id;
 
+    /** @var string IMPORT_NEW|STATUS_FAILED|STATUS_IMPORTED $status */
     #[ORM\Column(name: 'status', type: 'string', length: 20)]
     private string $status;
 
-    /** @var string[][]|null $validRows */
-    #[ORM\Column(name: 'valid_rows', type: 'array', nullable: true)]
-    private ?array $validRows = [];
+    /** @var string[][] $validRows */
+    #[ORM\Column(name: 'valid_rows', type: 'array')]
+    private array $validRows = [];
 
-    /** @var string[][]|null $invalidRows */
-    #[ORM\Column(name: 'invalid_rows', type: 'array', nullable: true)]
-    private ?array $invalidRows = [];
+    /** @var string[][] $invalidRows */
+    #[ORM\Column(name: 'invalid_rows', type: 'array')]
+    private array $invalidRows = [];
 
     #[ORM\Column(name: 'file_name_original', type: 'string', length: 255)]
     private string $fileOriginalName;
@@ -43,6 +44,10 @@ class ImportStatus
 
     #[ORM\Column(name: 'token', type: 'string', length: 255)]
     private string $token;
+
+    public function __construct()
+    {
+    }
 
     public function __toString(): string
     {
@@ -86,7 +91,8 @@ class ImportStatus
      */
     private function getStatusHeader(): string
     {
-        $text = substr($this->status, stripos($this->status, '_') + 1);
+        $statusTypeStart = (int) stripos($this->status, '_') + 1;
+        $text = substr($this->status, $statusTypeStart);
         $text .= ' (id'.$this->id.')'.PHP_EOL;
         $text .= 'File: '.$this->fileOriginalName.PHP_EOL.PHP_EOL;
 
@@ -98,10 +104,13 @@ class ImportStatus
      */
     private function getTextForValid(): string
     {
-        $text = 'Requests: '.(count($this->invalidRows) + count($this->validRows)).PHP_EOL;
-        $text .= 'Count of valid rows: '.count($this->validRows).PHP_EOL;
-        $text .= 'Count of invalid rows: '.count($this->invalidRows).PHP_EOL;
-        if (count($this->invalidRows) > 0) {
+        $validRowsCount = count($this->validRows);
+        $invalidRowsCount = count($this->invalidRows);
+
+        $text = 'Requests: '.($validRowsCount + $invalidRowsCount).PHP_EOL;
+        $text .= 'Count of valid rows: '.$validRowsCount.PHP_EOL;
+        $text .= 'Count of invalid rows: '.$invalidRowsCount.PHP_EOL;
+        if ($invalidRowsCount > 0) {
             $text .= PHP_EOL.'Invalid rows: '.PHP_EOL;
             foreach ($this->invalidRows as $row) {
                 $text .= implode(', ', $row).PHP_EOL;
@@ -156,9 +165,9 @@ class ImportStatus
     }
 
     /**
-     * @return string[][]|null
+     * @return string[][]
      */
-    public function getValidRows(): ?array
+    public function getValidRows(): array
     {
         return $this->validRows;
     }
@@ -168,7 +177,7 @@ class ImportStatus
      *
      * @return $this
      */
-    public function setValidRows(?array $validRows): self
+    public function setValidRows(array $validRows): self
     {
         $this->validRows = $validRows;
 
@@ -176,19 +185,19 @@ class ImportStatus
     }
 
     /**
-     * @return string[][]|null
+     * @return string[][]
      */
-    public function getInvalidRows(): ?array
+    public function getInvalidRows(): array
     {
         return $this->invalidRows;
     }
 
     /**
-     * @param string[][]|null $invalidRows
+     * @param string[][] $invalidRows
      *
      * @return $this
      */
-    public function setInvalidRows(?array $invalidRows): self
+    public function setInvalidRows(array $invalidRows): self
     {
         $this->invalidRows = $invalidRows;
 

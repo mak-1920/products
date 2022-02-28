@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Import\Transform\Doctrine;
 
 use App\Repository\ProductDataRepository;
-use App\Services\Import\Exceptions\ConverterException;
-use App\Services\Import\Transform\ConverterInterface;
+use App\Services\Import\Exceptions\Transform\ConverterException;
+use App\Services\Import\Transform\TransformInterface;
 use DateTime;
 use Port\Exception;
 use Port\Reader\ArrayReader;
@@ -14,10 +14,10 @@ use Port\Steps\Step\ConverterStep;
 use Port\Steps\StepAggregator;
 use Port\Writer\ArrayWriter;
 
-class Converter implements ConverterInterface
+class Converter implements TransformInterface
 {
     /** @var string[][] $rows */
-    private array $rows;
+    private array $rows = [];
 
     private StepAggregator $transporter;
 
@@ -33,7 +33,7 @@ class Converter implements ConverterInterface
      *
      * @throws ConverterException
      */
-    public function convert(array $rows): array
+    public function transform(array $rows): array
     {
         $this->initFields($rows);
 
@@ -75,7 +75,7 @@ class Converter implements ConverterInterface
     {
         $converter = new ConverterStep();
 
-        $converter->add(function ($el) {
+        $converter->add(function (array $el): array {
             $el['Stock'] = (int) $el['Stock'];
             $el['Cost in GBP'] = (float) $el['Cost in GBP'];
             $discontinued = '' !== $el['Discontinued'] && $el['Discontinued'];
@@ -97,7 +97,7 @@ class Converter implements ConverterInterface
         $discontinued = $this->getDiscontinued($this->rows);
 
         $converter = new ConverterStep();
-        $converter->add(function ($el) use (&$discontinued) {
+        $converter->add(function (array $el) use (&$discontinued): array {
             if (array_key_exists($el['Product Name'], $discontinued)) {
                 $el['Discontinued'] = $discontinued[$el['Product Name']];
             } elseif ($el['Discontinued']) {
@@ -117,7 +117,7 @@ class Converter implements ConverterInterface
     {
         $converter = new ConverterStep();
 
-        $converter->add(function ($el) {
+        $converter->add(function (array $el): array {
             $el['name'] = $el['Product Name'];
             $el['descriptions'] = $el['Product Description'];
             $el['code'] = $el['Product Code'];

@@ -6,7 +6,8 @@ namespace App\Services\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
-use App\Services\Import\Exceptions\SaverException;
+use App\Services\Import\Exceptions\Saver\SaverException;
+use App\Services\Import\Exceptions\Status\UndefinedStatusIdException;
 use App\Services\Import\Import;
 use App\Services\Import\Loggers\LoggerCollection;
 use App\Services\Import\Loggers\LoggerInterface;
@@ -95,10 +96,16 @@ class DoctrineStatus implements LoggingStatusInterface
      * @param int $id
      *
      * @return ImportStatus
+     *
+     * @throws UndefinedStatusIdException
      */
     public function getStatus(int $id): ImportStatus
     {
         $status = $this->repository->find($id);
+
+        if (is_null($status)) {
+            throw new UndefinedStatusIdException('Undefined status id: '.$id);
+        }
 
         $this->logger->beforeProcessing($status);
 

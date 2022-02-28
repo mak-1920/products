@@ -11,9 +11,9 @@ use Symfony\Component\Mime\Email;
 
 class MailLogger implements LoggerInterface
 {
-    private string $from;
+    private string $from = '';
 
-    private string $to;
+    private string $to = '';
 
     public function __construct(
         private MailerInterface $mailer,

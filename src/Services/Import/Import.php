@@ -7,8 +7,7 @@ namespace App\Services\Import;
 use App\Services\Import\Exceptions\ImportException;
 use App\Services\Import\Readers\ReaderInterface;
 use App\Services\Import\Savers\SaverInterface;
-use App\Services\Import\Transform\ConverterInterface;
-use App\Services\Import\Transform\FilterInterface;
+use App\Services\Import\Transform\TransformInterface;
 
 class Import
 {
@@ -29,14 +28,14 @@ class Import
     /**
      * @param ReaderInterface $reader
      * @param SaverInterface $saver
-     * @param ConverterInterface|null $converter
-     * @param FilterInterface|null $filter
+     * @param TransformInterface|null $converter
+     * @param TransformInterface|null $filter
      */
     public function __construct(
         private ReaderInterface $reader,
         private SaverInterface $saver,
-        private ?ConverterInterface $converter = null,
-        private ?FilterInterface $filter = null,
+        private ?TransformInterface $converter = null,
+        private ?TransformInterface $filter = null,
     ) {
         $this->requests = [];
         $this->success = [];
@@ -55,8 +54,8 @@ class Import
             $rows = $this->reader->read();
             $this->setRequests($rows);
 
-            $rows = $this->filter?->filter($rows);
-            $rows = $this->converter?->convert($rows);
+            $rows = $this->tryTransform('filter', $rows);
+            $rows = $this->tryTransform('converter', $rows);
             $rows = $this->saver->save($rows);
             $this->setResult($rows);
         } catch (ImportException) {
@@ -95,6 +94,21 @@ class Import
         }
 
         return 0;
+    }
+
+    /**
+     * @param string $transformType
+     * @param string[][] $rows
+     *
+     * @return string[][]
+     */
+    private function tryTransform(string $transformType, array $rows): array
+    {
+        if (!is_null($this->$transformType)) {
+            $rows = $this->$transformType->transform($rows);
+        }
+
+        return $rows;
     }
 
     /**

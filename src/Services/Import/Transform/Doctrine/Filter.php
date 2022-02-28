@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Services\Import\Transform\Doctrine;
 
 use App\Repository\ProductDataRepository;
-use App\Services\Import\Exceptions\FilterException;
+use App\Services\Import\Exceptions\Transform\FilterException;
 use App\Services\Import\Import;
-use App\Services\Import\Transform\FilterInterface;
+use App\Services\Import\Transform\TransformInterface;
 use Port\Exception;
 use Port\Reader\ArrayReader;
 use Port\Steps\Step\FilterStep;
 use Port\Steps\StepAggregator;
 use Port\Writer\ArrayWriter;
 
-class Filter implements FilterInterface
+class Filter implements TransformInterface
 {
     private const MAX_COST = 1000;
     private const MIN_COST = 5;
     private const MIN_STOCK = 10;
 
     /** @var string[][] $rows */
-    private array $rows;
+    private array $rows = [];
 
     public function __construct(
         private ProductDataRepository $repository,
@@ -35,7 +35,7 @@ class Filter implements FilterInterface
      *
      * @throws FilterException
      */
-    public function filter(array $rows): array
+    public function transform(array $rows): array
     {
         $this->initFields($rows);
 
@@ -92,7 +92,7 @@ class Filter implements FilterInterface
     {
         $filter = new FilterStep();
 
-        $filter->add(fn ($el) => $this->isValidData($el));
+        $filter->add(fn (array $el) => $this->isValidData($el));
 
         return $filter;
     }
@@ -105,7 +105,7 @@ class Filter implements FilterInterface
         $existsCodes = $this->getExistsProductCodes($this->rows);
 
         $filter = new FilterStep();
-        $filter->add(fn ($el) => !in_array($el['Product Code'], $existsCodes));
+        $filter->add(fn (array $el) => !in_array($el['Product Code'], $existsCodes));
 
         return $filter;
     }
@@ -118,7 +118,7 @@ class Filter implements FilterInterface
         $codes = [];
 
         $filter = new FilterStep();
-        $filter->add(function ($el) use (&$codes) {
+        $filter->add(function (array $el) use (&$codes): bool {
             $exists = in_array($el['Product Code'], $codes);
             if (!$exists) {
                 $codes[] = $el['Product Code'];
