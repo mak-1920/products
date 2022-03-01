@@ -1,0 +1,15 @@
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>File</th>
+        <th>Settings</th>
+        <th>Valid</th>
+        <th>Invalid</th>
+    </tr>
+    {% for request in requests %}
+        {% include('main/blocks/requests_table/row.html.twig') with {
+            'request': request
+        } %}
+    {% endfor %}
+</table>

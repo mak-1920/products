@@ -17,10 +17,10 @@ stop:
 	@docker-compose stop
 
 rebuild:
-	@docker-compose -d --build --no-deps
+	@docker-compose up --build -d --no-deps
 
 build:
-	@docker-compose -d --build
+	@docker-compose up --build
 #<<<docker
 
 #>>>docker-container

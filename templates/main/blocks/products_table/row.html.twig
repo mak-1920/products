@@ -4,9 +4,11 @@
     <td>{{ product.descriptions }}</td>
     <td>{{ product.stock }}</td>
     <td>{{ product.cost }}</td>
-    <td>{{ product.createdAt | format_datetime('short', 'short') }}</td>
+    {% if withAdded %}
+        <td>{{ product.createdAt | format_datetime('short', 'short') }}</td>
+    {% endif %}
     <td>
-        {% if product.discontinuedAt is not null %}
+        {% if product.discontinuedAt is defined %}
             {{ product.discontinuedAt | format_datetime('short', 'short') }}
         {% else %}
             -

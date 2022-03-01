@@ -5,12 +5,15 @@
         <th>Description</th>
         <th>Stock</th>
         <th>Cost</th>
-        <th>Date added</th>
+        {% if withAdded %}
+            <th>Date added</th>
+        {% endif %}
         <th>Date discontinued</th>
     </tr>
     {% for product in products %}
         {% include('main/blocks/products_table/row.html.twig') with {
-            'product': product
+            'product': product,
+            'withAdded': withAdded,
         } %}
     {% endfor %}
 </table>

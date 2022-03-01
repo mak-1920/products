@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Page {{ page }}{% endblock %}
+{% block title %}Products (p-{{ page }}){% endblock %}
 
 {% block body %}
 
@@ -12,6 +12,7 @@
     }) }}
     {% include 'main/blocks/products_table/table.html.twig' with {
         'products': products,
+        'withAdded': true,
     } %}
 
     <div class="navigation">
@@ -22,6 +23,7 @@
         <div class="display-3">New products</div>
         {% include 'main/blocks/products_table/table.html.twig' with {
             'products': {},
+            'withAdded': false,
         } %}
     </div>
 </div>

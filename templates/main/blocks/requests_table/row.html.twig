@@ -1,0 +1,8 @@
+<tr>
+    <td><a href="{{ path('status_page', { 'id': request.id} ) }}">{{ request.id }}</a></td>
+    <td>{{ request.status }}</td>
+    <td>{{ request.fileOriginalName }}</td>
+    <td>{{ request.csvSettings }}</td>
+    <td>{{ request.validRows|length }}</td>
+    <td>{{ request.invalidRows|length }}</td>
+</tr>

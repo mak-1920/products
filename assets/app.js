@@ -16,3 +16,4 @@ import './scripts/ImportForm/CSVSettingsGenerator';
 import './scripts/ImportForm/SubmitForm';
 import './scripts/Mercure/ResultListener';
 import './scripts/Mercure/NewProductListener';
+import './scripts/Mercure/ShortResultListener';

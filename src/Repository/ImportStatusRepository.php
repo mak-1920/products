@@ -6,6 +6,8 @@ namespace App\Repository;
 
 use App\Entity\ImportStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\UnexpectedResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -51,5 +53,46 @@ class ImportStatusRepository extends ServiceEntityRepository
 
         $this->_em->persist($status);
         $this->_em->flush();
+    }
+
+    /**
+     * @param int $lastId
+     *
+     * @return Query
+     */
+    public function getQueryForTakeAllStatuses(int $lastId): Query
+    {
+        $qb = $this->createQueryBuilder('s');
+
+        if (-1 != $lastId) {
+            $qb
+                ->where('s.id <= :lastId')
+                ->setParameter('lastId', $lastId);
+        }
+
+        return $qb->orderBy('s.id', 'desc')
+            ->getQuery()
+            ;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLastStatusId(): int
+    {
+        try {
+            $result = intval(
+                $this->createQueryBuilder('s')
+                    ->select('s.id')
+                    ->orderBy('s.id', 'desc')
+                    ->setMaxResults(1)
+                    ->getQuery()
+                    ->getSingleScalarResult()
+            );
+
+            return $result;
+        } catch (UnexpectedResultException) {
+            return -1;
+        }
     }
 }
