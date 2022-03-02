@@ -7,6 +7,8 @@ namespace App\Controller;
 use App\Form\ImportByCSVType;
 use App\Repository\ImportStatusRepository;
 use App\Repository\ProductDataRepository;
+use App\Services\Import\Exceptions\Status\UndefinedStatusIdException;
+use App\Services\Import\Statuses\DoctrineStatus;
 use App\Services\Paginator\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,9 +78,13 @@ class MainController extends AbstractController
     )]
     public function statusPage(
         int $id,
-        ImportStatusRepository $repository,
+        DoctrineStatus $doctrineStatus,
     ): Response {
-        $status = $repository->findOneBy(['id' => $id]);
+        try {
+            $status = $doctrineStatus->getStatus($id);
+        } catch (UndefinedStatusIdException) {
+            throw $this->createNotFoundException('Request with id '.$id.' not found');
+        }
 
         return $this->render(
             'main/status.html.twig',

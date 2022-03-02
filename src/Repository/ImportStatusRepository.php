@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\ImportStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\UnexpectedResultException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,8 +16,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ImportStatusRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
         parent::__construct($registry, ImportStatus::class);
     }
 
@@ -94,5 +96,24 @@ class ImportStatusRepository extends ServiceEntityRepository
         } catch (UnexpectedResultException) {
             return -1;
         }
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return ImportStatus|null
+     *
+     * @throws NonUniqueResultException
+     */
+    public function findByID(int $id): ?ImportStatus
+    {
+        /** @var ImportStatus $result */
+        $result = $this->createQueryBuilder('s')
+            ->where('s.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result;
     }
 }

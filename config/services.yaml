@@ -1,5 +1,7 @@
 parameters:
-
+    memcached.servers:
+        - '%env(MEMCACHED_URL)%'
+    memcached.config: {} #see https://symfony.com/doc/current/components/cache/adapters/memcached_adapter.html#available-options
 
 services:
     # default configuration for services in *this* file
@@ -33,7 +35,6 @@ services:
 #>>>>>>>>>>>>>>>>> import >>>>>>>>>>>>>>>>>
     import.reader.csv:
         alias: 'App\Services\Import\Readers\CSV\Reader'
-
     import.reader.statuscsv:
         alias: 'App\Services\Import\Readers\StatusOfCSV\Reader'
 
@@ -72,4 +73,12 @@ services:
             $saver: '@import.saver.doctrine'
             $status: '@import.status.doctrine'
             $filesManager: '@file_manager.temp'
+
 #<<<<<<<<<<<<<<<<< import <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> memcache >>>>>>>>>>>>>>>>>
+    App\Services\Cache\Memcached\Memcached:
+        arguments:
+            $servers: '%memcached.servers%'
+            $settings: '%memcached.config%'
+#<<<<<<<<<<<<<<<<< memcache <<<<<<<<<<<<<<<<<

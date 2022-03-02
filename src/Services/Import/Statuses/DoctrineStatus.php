@@ -6,6 +6,7 @@ namespace App\Services\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
+use App\Services\Cache\Memcached\MCStatus;
 use App\Services\Import\Exceptions\Saver\SaverException;
 use App\Services\Import\Exceptions\Status\UndefinedStatusIdException;
 use App\Services\Import\Import;
@@ -20,6 +21,7 @@ class DoctrineStatus implements LoggingStatusInterface
 
     public function __construct(
         private ImportStatusRepository $repository,
+        private MCStatus $memcached,
     ) {
         $this->logger = new LoggerCollection();
     }
@@ -101,13 +103,55 @@ class DoctrineStatus implements LoggingStatusInterface
      */
     public function getStatus(int $id): ImportStatus
     {
+        $status = $this->getStatusFromMemcached($id);
+        if (false !== $status) {
+            return $status;
+        }
+
+        $status = $this->getStatusFromDoctrine($id);
+
+        $this->setStatusInMemcached($status);
+        $this->logger->beforeProcessing($status);
+
+        return $status;
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return ImportStatus|false
+     */
+    private function getStatusFromMemcached(int $id): ImportStatus|false
+    {
+        $status = $this->memcached->get($id);
+
+        return $status ?? false;
+    }
+
+    /**
+     * @param ImportStatus $status
+     *
+     * @return void
+     */
+    private function setStatusInMemcached(ImportStatus $status): void
+    {
+        $this->memcached->set($status);
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return ImportStatus
+     *
+     * @throws UndefinedStatusIdException
+     */
+    private function getStatusFromDoctrine(int $id): ImportStatus
+    {
         $status = $this->repository->find($id);
 
         if (is_null($status)) {
             throw new UndefinedStatusIdException('Undefined status id: '.$id);
         }
-
-        $this->logger->beforeProcessing($status);
 
         return $status;
     }
