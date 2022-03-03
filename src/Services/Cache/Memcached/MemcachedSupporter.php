@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Cache\Memcached;
 
-use App\Services\Cache\CacheInterface;
+use App\Services\Cache\CacheChangingInterface;
+use App\Services\Cache\CacheSupporterInterface;
 use ErrorException;
-use Memcached as OriginMemcached;
+use Memcached;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
-class Memcached implements CacheInterface
+class MemcachedSupporter implements CacheSupporterInterface, CacheChangingInterface
 {
-    private OriginMemcached $client;
+    private Memcached $client;
 
     /**
      * @param string[] $servers
-     * @param string[] $settings
+     * @param array<string, string> $settings
      *
      * @throws ErrorException
      */
@@ -36,13 +37,13 @@ class Memcached implements CacheInterface
      */
     public function get(string $key): mixed
     {
-        $status = $this->client->get($key);
+        $value = $this->client->get($key);
 
-        if (false === $status) {
+        if (false === $value) {
             return null;
         }
 
-        return $status;
+        return $value;
     }
 
     /**
@@ -79,5 +80,13 @@ class Memcached implements CacheInterface
     public function isKeyExists(string $key): bool
     {
         return null !== $this->get($key);
+    }
+
+    /**
+     * @return Memcached
+     */
+    public function getClient(): Memcached
+    {
+        return $this->client;
     }
 }

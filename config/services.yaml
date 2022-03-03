@@ -3,6 +3,9 @@ parameters:
         - '%env(MEMCACHED_URL)%'
     memcached.config: {} #see https://symfony.com/doc/current/components/cache/adapters/memcached_adapter.html#available-options
 
+    redis.server: '%env(REDIS_URL)%'
+    redis.config: {} #see https://symfony.com/doc/current/components/cache/adapters/redis_adapter.html#available-options
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -77,8 +80,25 @@ services:
 #<<<<<<<<<<<<<<<<< import <<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>> memcache >>>>>>>>>>>>>>>>>
-    App\Services\Cache\Memcached\Memcached:
+    App\Services\Cache\Memcached\MemcachedSupporter:
         arguments:
             $servers: '%memcached.servers%'
             $settings: '%memcached.config%'
 #<<<<<<<<<<<<<<<<< memcache <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> redis >>>>>>>>>>>>>>>>>
+    redis:
+        class: App\Services\Cache\Redis\RedisSupporter
+        arguments:
+            $server: '%redis.server%'
+            $settings: '%redis.config%'
+        calls:
+            - getClient: !returns_clone []
+#<<<<<<<<<<<<<<<<< redis <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> session >>>>>>>>>>>>>>>>>
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@redis'
+            #- { 'prefix': 'my_prefix', 'ttl': 600 }
+#<<<<<<<<<<<<<<<<< session <<<<<<<<<<<<<<<<<

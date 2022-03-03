@@ -13,6 +13,7 @@ use App\Services\Paginator\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
@@ -79,6 +80,7 @@ class MainController extends AbstractController
     public function statusPage(
         int $id,
         DoctrineStatus $doctrineStatus,
+        Session $session,
     ): Response {
         try {
             $status = $doctrineStatus->getStatus($id);
@@ -86,10 +88,18 @@ class MainController extends AbstractController
             throw $this->createNotFoundException('Request with id '.$id.' not found');
         }
 
+        $sessionKey = 'status:views:'.$id;
+        if (!$session->has($sessionKey)) {
+            $session->set($sessionKey, 1);
+        } else {
+            $session->set($sessionKey, $session->get($sessionKey) + 1);
+        }
+
         return $this->render(
             'main/status.html.twig',
             [
                 'status' => $status,
+                'views' => $session->get($sessionKey),
             ]
         );
     }

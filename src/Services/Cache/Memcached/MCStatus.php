@@ -11,7 +11,7 @@ class MCStatus
     private const PREFFIX = 'status_';
 
     public function __construct(
-        private Memcached $memcached,
+        private MemcachedSupporter $memcached,
     ) {
     }
 

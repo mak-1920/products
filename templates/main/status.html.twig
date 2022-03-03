@@ -5,7 +5,8 @@
 {% block body %}
 
 <div class="container-md">
-    <a href="{{ app.request.headers.get('referer') }}">go back</a>
+    <p><a href="{{ app.request.headers.get('referer') }}">go back</a></p>
+    <p>Views in session: {{ views }}</p>
     <p>id: {{ status.id }}</p>
     <p>status: {{ status.status }}</p>
     <p>file: {{ status.fileOriginalName }}</p>
@@ -19,15 +20,6 @@
                 'products': status.validRows,
                 'withAdded': false,
             } %}
-{#            <ul>#}
-{#                {% for row in status.validRows %}#}
-{#                    {% if not row['Discontinued'] is null %}#}
-{#                        {{ set row['Discontinued'] = row['Discontinued']|format_datetime('short', 'short') }}#}
-{#                    {% endif %}#}
-{#                    {{ dump(row) }}#}
-{#                    <li>{{ row|join(', ') }}</li>#}
-{#                {% endfor %}#}
-{#            </ul>#}
         {% endif %}
     </p>
 

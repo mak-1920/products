@@ -14,7 +14,10 @@ RUN apt-get update \
     libfreetype6-dev \
     procps \
     libmemcached-dev \
-&& pecl install xdebug memcached \
+&& pecl install \
+    xdebug \
+    memcached \
+    redis \
 && docker-php-ext-configure intl --enable-intl \
 && docker-php-ext-configure gd --with-freetype --with-jpeg \
 && docker-php-ext-install -j$(nproc) gd \
@@ -24,5 +27,8 @@ RUN apt-get update \
     zip pcntl \
     exif opcache \
     sockets \
-&& docker-php-ext-enable xdebug memcached \
+&& docker-php-ext-enable \
+    xdebug \
+    memcached \
+    redis \
 && docker-php-source delete

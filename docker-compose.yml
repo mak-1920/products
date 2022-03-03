@@ -85,6 +85,12 @@ services:
     image: memcached
     restart: unless-stopped
 
+  redis:
+    image: redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
 volumes:
   mariadb-data:
   pma-data:
@@ -94,3 +100,4 @@ volumes:
   mercure_data:
   mercure_config:
 ###< symfony/mercure-bundle ###
+  redis_data:
