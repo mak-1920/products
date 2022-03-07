@@ -9,6 +9,7 @@ services:
     volumes:
       - ./:/var/www/php
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./.docker/nginx/log:/var/log/nginx
     depends_on:
       - php
 
@@ -101,3 +102,9 @@ volumes:
   mercure_config:
 ###< symfony/mercure-bundle ###
   redis_data:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 192.195.0.0/16

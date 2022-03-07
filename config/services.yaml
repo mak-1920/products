@@ -84,9 +84,22 @@ services:
         arguments:
             $servers: '%memcached.servers%'
             $settings: '%memcached.config%'
+
+    memcache:
+        class: App\Services\Cache\Memcached\MemcachedSupporter
+        arguments:
+            $servers: '%memcached.servers%'
+            $settings: '%memcached.config%'
+        calls:
+            - getClient: !returns_clone []
 #<<<<<<<<<<<<<<<<< memcache <<<<<<<<<<<<<<<<<
 
 #>>>>>>>>>>>>>>>>> redis >>>>>>>>>>>>>>>>>
+    App\Services\Cache\Redis\RedisSupporter:
+        arguments:
+            $server: '%redis.server%'
+            $settings: '%redis.config%'
+
     redis:
         class: App\Services\Cache\Redis\RedisSupporter
         arguments:

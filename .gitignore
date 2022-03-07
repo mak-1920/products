@@ -19,6 +19,7 @@
 /tmp/
 /public/tmp/*
 /tools/
+/.docker/nginx/log/*
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php

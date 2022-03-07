@@ -38,6 +38,9 @@ bash:
 #>>>rabbit
 consumer-import:
 	@$(CONSOLE) rabbitmq:consumer import_send
+
+consumers-stop:
+	@$(DCE) sh -c " ps -F | grep rabbitmq | awk '{ print $$ 2 }' | xargs kill -9"
 #<<<rabbit
 
 #>>>checkers

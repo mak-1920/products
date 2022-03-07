@@ -58,7 +58,7 @@ class ImportSendConsumer implements ConsumerInterface
         $this->tryRemoveFile($status);
         $this->sentResult($status);
 
-        return true;
+        return 'IMPORT_NEW' !== $status->getStatus();
     }
 
     /**
