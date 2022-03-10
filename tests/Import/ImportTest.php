@@ -7,6 +7,7 @@ use App\Services\Import\Import;
 use App\Services\Import\Readers\CSV\Reader;
 use App\Services\Import\Readers\CSV\Settings;
 use App\Services\Import\Savers\Doctrine\Saver;
+use App\Services\Import\Transform\CostConverter;
 use App\Services\Import\Transform\Doctrine\Converter;
 use App\Services\Import\Transform\Doctrine\Filter;
 use PHPUnit\Framework\TestCase;
@@ -98,6 +99,7 @@ class ImportTest extends TestCase
         $import = new Import(
             $this->getReader($file, $settings),
             $this->getSaver(),
+            null,
             $this->getConverter(),
             $this->getFilter(),
         );
@@ -131,6 +133,13 @@ class ImportTest extends TestCase
         $filter = new Filter($this->getRepository());
 
         return $filter;
+    }
+
+    private function getCostConverter(): CostConverter
+    {
+        $cv = new CostConverter();
+
+        return $cv;
     }
 
     private function getConverter(): Converter

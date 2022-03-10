@@ -16,18 +16,20 @@ interface CacheChangingInterface
     /**
      * @param string $key
      * @param mixed $value
+     * @param int $timeout
      *
      * @return void
      */
-    public function add(string $key, mixed $value): void;
+    public function add(string $key, mixed $value, int $timeout = -1): void;
 
     /**
      * @param string $key
      * @param mixed $newValue
+     * @param int $timeout
      *
      * @return bool
      */
-    public function set(string $key, mixed $newValue): bool;
+    public function set(string $key, mixed $newValue, int $timeout = -1): bool;
 
     /**
      * @param string $key

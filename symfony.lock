@@ -139,6 +139,9 @@
             "config/routes/fos_js_routing.yaml"
         ]
     },
+    "fullpipe/cbr-currency-importer": {
+        "version": "v1.1.2"
+    },
     "jetbrains/phpstorm-attributes": {
         "version": "1.0"
     },

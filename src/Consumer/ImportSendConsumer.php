@@ -28,6 +28,7 @@ class ImportSendConsumer implements ConsumerInterface
     public function __construct(
         private TransformInterface $filter,
         private TransformInterface $converter,
+        private TransformInterface $costConverter,
         private SaverInterface $saver,
         private LoggingStatusInterface $status,
         private FileManagerInterface $filesManager,
@@ -138,6 +139,7 @@ class ImportSendConsumer implements ConsumerInterface
         $import = new Import(
             $this->getReader($status),
             $this->saver,
+            $this->costConverter,
             $this->converter,
             $this->filter,
         );

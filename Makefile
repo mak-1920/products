@@ -27,6 +27,7 @@ build:
 clear:
 	@$(CONSOLE) cache:clear
 	@composer cc
+	@$(VENDOR)psalm --clear-cache
 
 console:
 	@$(CONSOLE) $(COMMAND)

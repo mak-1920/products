@@ -14,7 +14,6 @@
     <p>
         valid rows: {{ status.validRows|length }}
         {% if status.validRows|length > 0 %}
-{#            {{ dump(status.validRows) }}#}
             {% include 'main/blocks/products_table/table.html.twig' with {
                 'products': status.validRows,
                 'withAdded': false,

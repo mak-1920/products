@@ -28,12 +28,14 @@ class Import
     /**
      * @param ReaderInterface $reader
      * @param SaverInterface $saver
+     * @param TransformInterface|null $costConverter
      * @param TransformInterface|null $converter
      * @param TransformInterface|null $filter
      */
     public function __construct(
         private ReaderInterface $reader,
         private SaverInterface $saver,
+        private ?TransformInterface $costConverter = null,
         private ?TransformInterface $converter = null,
         private ?TransformInterface $filter = null,
     ) {
@@ -54,6 +56,7 @@ class Import
             $rows = $this->reader->read();
             $this->setRequests($rows);
 
+            $rows = $this->tryTransform('costConverter', $rows);
             $rows = $this->tryTransform('filter', $rows);
             $rows = $this->tryTransform('converter', $rows);
             $rows = $this->saver->save($rows);

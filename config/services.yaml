@@ -38,6 +38,7 @@ services:
 #>>>>>>>>>>>>>>>>> import >>>>>>>>>>>>>>>>>
     import.reader.csv:
         alias: 'App\Services\Import\Readers\CSV\Reader'
+
     import.reader.statuscsv:
         alias: 'App\Services\Import\Readers\StatusOfCSV\Reader'
 
@@ -51,6 +52,10 @@ services:
 
     import.converter.doctrine:
         alias: 'App\Services\Import\Transform\Doctrine\Converter'
+
+    App\Services\Import\Transform\CostConverter:
+        arguments:
+            $provider: '@cost.provider.cbr'
 
     import.filter.doctrine:
         alias: 'App\Services\Import\Transform\Doctrine\Filter'
@@ -76,6 +81,7 @@ services:
             $saver: '@import.saver.doctrine'
             $status: '@import.status.doctrine'
             $filesManager: '@file_manager.temp'
+            $costConverter: '@App\Services\Import\Transform\CostConverter'
 
 #<<<<<<<<<<<<<<<<< import <<<<<<<<<<<<<<<<<
 
@@ -85,7 +91,13 @@ services:
             $servers: '%memcached.servers%'
             $settings: '%memcached.config%'
 
-    memcache:
+    memcache.supporter:
+        class: App\Services\Cache\Memcached\MemcachedSupporter
+        arguments:
+            $servers: '%memcached.servers%'
+            $settings: '%memcached.config%'
+
+    memcache.client:
         class: App\Services\Cache\Memcached\MemcachedSupporter
         arguments:
             $servers: '%memcached.servers%'
@@ -100,7 +112,13 @@ services:
             $server: '%redis.server%'
             $settings: '%redis.config%'
 
-    redis:
+    redis.supporter:
+        class: App\Services\Cache\Redis\RedisSupporter
+        arguments:
+            $server: '%redis.server%'
+            $settings: '%redis.config%'
+
+    redis.client:
         class: App\Services\Cache\Redis\RedisSupporter
         arguments:
             $server: '%redis.server%'
@@ -112,6 +130,23 @@ services:
 #>>>>>>>>>>>>>>>>> session >>>>>>>>>>>>>>>>>
     Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
         arguments:
-            - '@redis'
+            - '@redis.client'
             #- { 'prefix': 'my_prefix', 'ttl': 600 }
 #<<<<<<<<<<<<<<<<< session <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> converters >>>>>>>>>>>>>>>>>
+    cost.provider.cbr:
+        alias: App\Services\Currency\CBRProvider
+
+    App\Services\Currency\Converters\CurrencyConverterByCBR:
+        arguments:
+            $cache: '@App\Services\Currency\Cache\CurrencyCache'
+
+    App\Services\Currency\Cache\CurrencyCache:
+        arguments:
+            $supporter: '@redis.supporter'
+
+    App\Services\Currency\CBRProvider:
+        arguments:
+            $converter: '@App\Services\Currency\Converters\CurrencyConverterByCBR'
+#<<<<<<<<<<<<<<<<< converters <<<<<<<<<<<<<<<<<
