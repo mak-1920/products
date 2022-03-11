@@ -7,6 +7,10 @@ namespace App\Controller;
 use App\Form\ImportByCSVType;
 use App\Repository\ImportStatusRepository;
 use App\Repository\ProductDataRepository;
+use App\Services\Cache\Memcached\MemcachedSupporter;
+use App\Services\Currency\CurrencyProviderInterface;
+use App\Services\Import\Exceptions\Status\UndefinedStatusIdException;
+use App\Services\Import\Statuses\DoctrineStatus;
 use App\Services\Paginator\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,11 +21,15 @@ class MainController extends AbstractController
 {
     #[Route('/', name: 'products_create')]
     public function index(
+        CurrencyProviderInterface $provider,
     ): Response {
         $form = $this->createForm(ImportByCSVType::class);
 
+        $currencies = $provider->getCurrencyValues();
+
         return $this->renderForm('main/upload.html.twig', [
             'form' => $form,
+            'currencies' => $currencies,
         ]);
     }
 
@@ -76,15 +84,25 @@ class MainController extends AbstractController
     )]
     public function statusPage(
         int $id,
-        ImportStatusRepository $repository,
+        DoctrineStatus $doctrineStatus,
+        MemcachedSupporter $supporter,
+        Request $request,
     ): Response {
-        $status = $repository->findOneBy(['id' => $id]);
+        try {
+            $status = $doctrineStatus->getStatus($id);
+        } catch (UndefinedStatusIdException) {
+            throw $this->createNotFoundException('Request with id '.$id.' not found');
+        }
 
-        return $this->render(
+        $response = $this->render(
             'main/status.html.twig',
             [
                 'status' => $status,
             ]
         );
+
+        $supporter->add($request->getRequestUri(), $response->getContent());
+
+        return $response;
     }
 }

@@ -5,6 +5,13 @@
 {% block body %}
 
 <div class="container-sm">
+    {% include 'main/blocks/currency_converter.html.twig' with {
+        'currencies' : currencies,
+    } %}
+    <div class="currencies my-1 fs-6 p-2">
+        Supporting currencies:
+        {{ currencies | keys | join(', ') }}
+    </div>
     {{ form_start(form, { 'attr': {'novalidate' : 'novalidate', 'id' : 'import-form'} }) }}
         {{ form_row(form.file) }}
         <div id="prototype" data-prototype="{{ form_widget(form.csvSettings.vars.prototype)|e }}"></div>

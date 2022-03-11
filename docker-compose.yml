@@ -9,6 +9,7 @@ services:
     volumes:
       - ./:/var/www/php
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./.docker/nginx/log:/var/log/nginx
     depends_on:
       - php
 
@@ -21,11 +22,6 @@ services:
       - ./.docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     environment:
       PHP_IDE_CONFIG: "serverName=IDE"
-    depends_on:
-      - mariadb
-      - rabbitmq
-      - mailcatcher
-      - mercure
           
   mariadb:
     image: mariadb
@@ -89,8 +85,12 @@ services:
   memcached:
     image: memcached
     restart: unless-stopped
+
+  redis:
+    image: redis
+    restart: unless-stopped
     volumes:
-      - memcached_data:/data
+      - redis_data:/data
 
 volumes:
   mariadb-data:
@@ -101,4 +101,10 @@ volumes:
   mercure_data:
   mercure_config:
 ###< symfony/mercure-bundle ###
-  memcached_data:
+  redis_data:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 192.195.0.0/16

@@ -4,6 +4,7 @@ namespace App\Tests\Import\Statuses;
 
 use App\Entity\ImportStatus;
 use App\Repository\ImportStatusRepository;
+use App\Services\Cache\Memcached\MCStatus;
 use App\Services\Import\Statuses\DoctrineStatus;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -14,7 +15,7 @@ class StatusTest extends TestCase
     private function getImportStatus(
         ImportStatusRepository $repository,
     ): DoctrineStatus {
-        return new DoctrineStatus($repository);
+        return new DoctrineStatus($repository, $this->getMCStatus());
     }
 
     public function testSetNewStatus(): void
@@ -155,5 +156,14 @@ class StatusTest extends TestCase
             ->will($this->returnValue($fileName.'tmp'));
 
         return $file;
+    }
+
+    private function getMCStatus(): MCStatus
+    {
+        $mc = $this->getMockBuilder(MCStatus::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return $mc;
     }
 }

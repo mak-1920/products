@@ -5,7 +5,7 @@
 {% block body %}
 
 <div class="container-md">
-    <a href="{{ app.request.headers.get('referer') }}">go back</a>
+    <p><a href="{{ app.request.headers.get('referer') }}">go back</a></p>
     <p>id: {{ status.id }}</p>
     <p>status: {{ status.status }}</p>
     <p>file: {{ status.fileOriginalName }}</p>
@@ -14,20 +14,10 @@
     <p>
         valid rows: {{ status.validRows|length }}
         {% if status.validRows|length > 0 %}
-{#            {{ dump(status.validRows) }}#}
             {% include 'main/blocks/products_table/table.html.twig' with {
                 'products': status.validRows,
                 'withAdded': false,
             } %}
-{#            <ul>#}
-{#                {% for row in status.validRows %}#}
-{#                    {% if not row['Discontinued'] is null %}#}
-{#                        {{ set row['Discontinued'] = row['Discontinued']|format_datetime('short', 'short') }}#}
-{#                    {% endif %}#}
-{#                    {{ dump(row) }}#}
-{#                    <li>{{ row|join(', ') }}</li>#}
-{#                {% endfor %}#}
-{#            </ul>#}
         {% endif %}
     </p>
 

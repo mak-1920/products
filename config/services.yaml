@@ -1,5 +1,10 @@
 parameters:
+    memcached.servers:
+        - '%env(MEMCACHED_URL)%'
+    memcached.config: {} #see https://symfony.com/doc/current/components/cache/adapters/memcached_adapter.html#available-options
 
+    redis.server: '%env(REDIS_URL)%'
+    redis.config: {} #see https://symfony.com/doc/current/components/cache/adapters/redis_adapter.html#available-options
 
 services:
     # default configuration for services in *this* file
@@ -48,6 +53,10 @@ services:
     import.converter.doctrine:
         alias: 'App\Services\Import\Transform\Doctrine\Converter'
 
+    App\Services\Import\Transform\CostConverter:
+        arguments:
+            $provider: '@cost.provider.cbr'
+
     import.filter.doctrine:
         alias: 'App\Services\Import\Transform\Doctrine\Filter'
 
@@ -72,4 +81,72 @@ services:
             $saver: '@import.saver.doctrine'
             $status: '@import.status.doctrine'
             $filesManager: '@file_manager.temp'
+            $costConverter: '@App\Services\Import\Transform\CostConverter'
+
 #<<<<<<<<<<<<<<<<< import <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> memcache >>>>>>>>>>>>>>>>>
+    App\Services\Cache\Memcached\MemcachedSupporter:
+        arguments:
+            $servers: '%memcached.servers%'
+            $settings: '%memcached.config%'
+
+    memcache.supporter:
+        class: App\Services\Cache\Memcached\MemcachedSupporter
+        arguments:
+            $servers: '%memcached.servers%'
+            $settings: '%memcached.config%'
+
+    memcache.client:
+        class: App\Services\Cache\Memcached\MemcachedSupporter
+        arguments:
+            $servers: '%memcached.servers%'
+            $settings: '%memcached.config%'
+        calls:
+            - getClient: !returns_clone []
+#<<<<<<<<<<<<<<<<< memcache <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> redis >>>>>>>>>>>>>>>>>
+    App\Services\Cache\Redis\RedisSupporter:
+        arguments:
+            $server: '%redis.server%'
+            $settings: '%redis.config%'
+
+    redis.supporter:
+        class: App\Services\Cache\Redis\RedisSupporter
+        arguments:
+            $server: '%redis.server%'
+            $settings: '%redis.config%'
+
+    redis.client:
+        class: App\Services\Cache\Redis\RedisSupporter
+        arguments:
+            $server: '%redis.server%'
+            $settings: '%redis.config%'
+        calls:
+            - getClient: !returns_clone []
+#<<<<<<<<<<<<<<<<< redis <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> session >>>>>>>>>>>>>>>>>
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@redis.client'
+            #- { 'prefix': 'my_prefix', 'ttl': 600 }
+#<<<<<<<<<<<<<<<<< session <<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>>>>>>>> converters >>>>>>>>>>>>>>>>>
+    cost.provider.cbr:
+        alias: App\Services\Currency\CBRProvider
+
+    App\Services\Currency\Converters\CurrencyConverterByCBR:
+        arguments:
+            $cache: '@App\Services\Currency\Cache\CurrencyCache'
+
+    App\Services\Currency\Cache\CurrencyCache:
+        arguments:
+            $supporter: '@redis.supporter'
+
+    App\Services\Currency\CBRProvider:
+        arguments:
+            $converter: '@App\Services\Currency\Converters\CurrencyConverterByCBR'
+#<<<<<<<<<<<<<<<<< converters <<<<<<<<<<<<<<<<<

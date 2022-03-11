@@ -27,6 +27,7 @@ build:
 clear:
 	@$(CONSOLE) cache:clear
 	@composer cc
+	@$(VENDOR)psalm --clear-cache
 
 console:
 	@$(CONSOLE) $(COMMAND)
@@ -38,6 +39,9 @@ bash:
 #>>>rabbit
 consumer-import:
 	@$(CONSOLE) rabbitmq:consumer import_send
+
+consumers-stop:
+	@$(DCE) sh -c " ps -F | grep rabbitmq | awk '{ print $$ 2 }' | xargs kill -9"
 #<<<rabbit
 
 #>>>checkers
@@ -72,3 +76,8 @@ psalm:
 tests-run:
 	$(call FUNC_WITH_PRINT, tests, $(DCE) bin/phpunit)
 #<<<checkers
+
+#>>>git
+reindex:
+	@git diff --name-only --cached | xargs git add
+#<<<git

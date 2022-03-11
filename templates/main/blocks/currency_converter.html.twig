@@ -1,0 +1,31 @@
+<div class="currency-converter my-2 border-1 rounded-2 border p-2">
+    <div class="display-2 text-center mb-2">currency converter</div>
+    <div class="d-none" id="currency-converter-currencies">{{ currencies | json_encode }}</div>
+    <form action="#" id="currency-converter-form">
+        <div class="row my-1 px-4">
+            <div class="col-md-2 g-0">
+                <select class="form-select" id="currency-converter-from">
+                    {% for currency, value in currencies %}
+                        <option value="{{ currency }}">{{ currency }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 g-0">
+                <input type="number" step="0.01" value="1" id="currency-converter-value" class="form-control">
+            </div>
+            <div class="col-md-2 g-0">
+                <input type="text" readonly="readonly" value="to" class="form-control text-center">
+            </div>
+            <div class="col-md-2 g-0">
+                <select class="form-select" id="currency-converter-to">
+                    {% for currency, value in currencies %}
+                        <option value="{{ currency }}">{{ currency }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 g-0">
+                <input type="text" readonly="readonly" id="currency-converter-result" class="form-control col-md-3">
+            </div>
+        </div>
+    </form>
+</div>

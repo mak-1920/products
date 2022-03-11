@@ -17,6 +17,7 @@ use App\Services\Import\Readers\StatusOfCSV\Reader;
 use App\Services\Import\Savers\SaverInterface;
 use App\Services\Import\Statuses\LoggingStatusInterface;
 use App\Services\Import\Transform\TransformInterface;
+use Exception;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Mercure\HubInterface;
@@ -28,6 +29,7 @@ class ImportSendConsumer implements ConsumerInterface
     public function __construct(
         private TransformInterface $filter,
         private TransformInterface $converter,
+        private TransformInterface $costConverter,
         private SaverInterface $saver,
         private LoggingStatusInterface $status,
         private FileManagerInterface $filesManager,
@@ -54,11 +56,16 @@ class ImportSendConsumer implements ConsumerInterface
             return false;
         }
 
-        $this->tryImport($status);
-        $this->tryRemoveFile($status);
-        $this->sentResult($status);
+        try {
+            $this->tryImport($status);
+            $this->tryRemoveFile($status);
+            $this->sentResult($status);
+        } catch (Exception $e) {
+            $this->status->changeStatusToFailed($status);
+            echo 'Unhandled exception: '.$e->getMessage().PHP_EOL;
+        }
 
-        return true;
+        return 'IMPORT_NEW' !== $status->getStatus();
     }
 
     /**
@@ -138,6 +145,7 @@ class ImportSendConsumer implements ConsumerInterface
         $import = new Import(
             $this->getReader($status),
             $this->saver,
+            $this->costConverter,
             $this->converter,
             $this->filter,
         );

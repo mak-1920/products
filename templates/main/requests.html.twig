@@ -5,7 +5,7 @@
 {% block body %}
 
 <div class="container-md">
-    <div class="display-3">Exists products</div>
+    <div class="display-3">Requests</div>
     {{ knp_pagination_filter(requests, {
         's.status': 'Status',
     }) }}
@@ -18,7 +18,7 @@
     </div>
 
     <div class="new-requests">
-        <div class="display-3">New products</div>
+        <div class="display-3">New requests</div>
         {% include 'main/blocks/requests_table/table.html.twig' with {
             'requests': {},
         } %}
