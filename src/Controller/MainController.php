@@ -8,7 +8,7 @@ use App\Form\ImportByCSVType;
 use App\Repository\ImportStatusRepository;
 use App\Repository\ProductDataRepository;
 use App\Services\Cache\Memcached\MemcachedSupporter;
-use App\Services\Currency\CBRProvider;
+use App\Services\Currency\CurrencyProviderInterface;
 use App\Services\Import\Exceptions\Status\UndefinedStatusIdException;
 use App\Services\Import\Statuses\DoctrineStatus;
 use App\Services\Paginator\Paginator;
@@ -21,11 +21,11 @@ class MainController extends AbstractController
 {
     #[Route('/', name: 'products_create')]
     public function index(
-        CBRProvider $provider,
+        CurrencyProviderInterface $provider,
     ): Response {
         $form = $this->createForm(ImportByCSVType::class);
 
-        $currencies = $provider->getCurrenciesNames();
+        $currencies = $provider->getCurrencyValues();
 
         return $this->renderForm('main/upload.html.twig', [
             'form' => $form,

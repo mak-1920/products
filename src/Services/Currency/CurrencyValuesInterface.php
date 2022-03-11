@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Currency;
 
-interface CurrenciesNamesInterface
+interface CurrencyValuesInterface
 {
     /**
      * @return string[]
      */
-    public function getCurrenciesNames(): array;
+    public function getCurrencyValues(): array;
 }

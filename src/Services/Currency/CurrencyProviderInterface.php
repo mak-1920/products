@@ -6,6 +6,6 @@ namespace App\Services\Currency;
 
 use App\Services\Currency\Converters\CurrencyConverterInterface;
 
-interface CurrencyProviderInterface extends CurrencyConverterInterface, CurrenciesNamesInterface
+interface CurrencyProviderInterface extends CurrencyConverterInterface, CurrencyValuesInterface
 {
 }

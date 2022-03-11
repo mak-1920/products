@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Currency\Converters;
 
-use App\Services\Currency\CurrenciesNamesInterface;
+use App\Services\Currency\CurrencyValuesInterface;
 
-interface CurrencyConverterInterface extends CurrenciesNamesInterface
+interface CurrencyConverterInterface extends CurrencyValuesInterface
 {
     /**
      * @param string $fromCurrency

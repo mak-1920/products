@@ -29,8 +29,8 @@ class CBRProvider implements CurrencyProviderInterface
         }
     }
 
-    public function getCurrenciesNames(): array
+    public function getCurrencyValues(): array
     {
-        return $this->converter->getCurrenciesNames();
+        return $this->converter->getCurrencyValues();
     }
 }

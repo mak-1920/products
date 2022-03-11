@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Cache\Redis;
 
-use App\Services\Cache\CacheStructuresSupportInterface;
+use App\Services\Cache\CacheHashTableSupportInterface;
 use App\Services\Cache\CacheSupporterInterface;
 use Redis;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 
-class RedisSupporter implements CacheSupporterInterface, CacheStructuresSupportInterface
+class RedisSupporter implements CacheSupporterInterface, CacheHashTableSupportInterface
 {
     private Redis $client;
     private int $timeout = 0;
@@ -115,31 +115,15 @@ class RedisSupporter implements CacheSupporterInterface, CacheStructuresSupportI
     /**
      * {@inheritDoc}
      */
-    public function sAdd(string $key, string $value): void
+    public function htGetAll(string $key): array
     {
-        $this->client->sAdd($key, $value);
+        return $this->client->hGetAll($key) ?: [];
     }
 
     /**
      * {@inheritDoc}
      */
-    public function sRem(string $key, string $value): void
-    {
-        $this->client->sRem($key, $value);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function sGetAll(string $key): array
-    {
-        return $this->client->sMembers($key);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function initKey(string $key, int $timeout = -1): void
+    public function setTTL(string $key, int $timeout = -1): void
     {
         if (-1 !== $timeout) {
             $this->client->expire($key, $timeout);

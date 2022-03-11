@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Currency\Cache;
 
-use App\Services\Cache\CacheStructuresSupportInterface;
+use App\Services\Cache\CacheHashTableSupportInterface;
 
 class CurrencyCache implements CurrencyCacheInterface
 {
@@ -12,10 +12,8 @@ class CurrencyCache implements CurrencyCacheInterface
 
     private const CURRENCY_INIT_KEY = 'init';
 
-    private const CURRENCIES_NAMES_KEY = 'currencies';
-
     public function __construct(
-        private CacheStructuresSupportInterface $supporter,
+        private CacheHashTableSupportInterface $supporter,
     ) {
     }
 
@@ -36,10 +34,11 @@ class CurrencyCache implements CurrencyCacheInterface
     /**
      * {@inheritdoc}
      */
-    public function getCurrenciesNames(): array
+    public function getCurrencyValues(): array
     {
-        $names = $this->supporter->sGetAll(self::CURRENCIES_NAMES_KEY);
-        sort($names);
+        $names = $this->supporter->htGetAll(self::CURRENCY_KEY);
+        unset($names['init']);
+        ksort($names);
 
         return $names;
     }
@@ -50,11 +49,10 @@ class CurrencyCache implements CurrencyCacheInterface
     public function initCache($rates): void
     {
         $this->supporter->htSet(self::CURRENCY_KEY, self::CURRENCY_INIT_KEY, 'true');
-        $this->supporter->initKey(self::CURRENCY_KEY, $this->getTimeout());
+        $this->supporter->setTTL(self::CURRENCY_KEY, $this->getTimeout());
 
         foreach ($rates as $rate) {
             $this->supporter->htSet(self::CURRENCY_KEY, $rate->getCode(), (string) $rate->getExchangeRate());
-            $this->supporter->sAdd(self::CURRENCIES_NAMES_KEY, $rate->getCode());
         }
     }
 

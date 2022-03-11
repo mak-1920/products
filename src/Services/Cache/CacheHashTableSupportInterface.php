@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Cache;
 
-interface CacheStructuresSupportInterface extends CacheLifeTimeInterface
+interface CacheHashTableSupportInterface extends CacheLifeTimeInterface
 {
     /**
      * @param string $key
@@ -25,26 +25,10 @@ interface CacheStructuresSupportInterface extends CacheLifeTimeInterface
 
     /**
      * @param string $key
-     * @param string $value
      *
-     * @return void
+     * @return array<string, string>
      */
-    public function sAdd(string $key, string $value): void;
-
-    /**
-     * @param string $key
-     * @param string $value
-     *
-     * @return void
-     */
-    public function sRem(string $key, string $value): void;
-
-    /**
-     * @param string $key
-     *
-     * @return string[]
-     */
-    public function sGetAll(string $key): array;
+    public function htGetAll(string $key): array;
 
     /**
      * @param string $key
@@ -52,5 +36,5 @@ interface CacheStructuresSupportInterface extends CacheLifeTimeInterface
      *
      * @return void
      */
-    public function initKey(string $key, int $timeout = -1): void;
+    public function setTTL(string $key, int $timeout = -1): void;
 }

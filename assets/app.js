@@ -17,3 +17,4 @@ import './scripts/ImportForm/SubmitForm';
 import './scripts/Mercure/ResultListener';
 import './scripts/Mercure/NewProductListener';
 import './scripts/Mercure/ShortResultListener';
+import './scripts/Currency/Converter';

@@ -5,20 +5,30 @@ declare(strict_types=1);
 namespace App\Services\Currency\Converters;
 
 use App\Services\Currency\Cache\CurrencyCacheInterface;
+use App\Services\Currency\Exceptions\CurrenciesInitException;
 use App\Services\Currency\Exceptions\CurrencyNotFoundInCacheException;
 use Fullpipe\CbrCurrency\Importer;
+use Throwable;
 
 class CurrencyConverterByCBR implements CurrencyConverterInterface
 {
     private const CACHE_LIFETIME_IN_SECONDS = 3600;
 
+    /**
+     * @throws CurrenciesInitException
+     */
     public function __construct(
         private CurrencyCacheInterface $cache,
     ) {
         $this->cache->setTimeout(self::CACHE_LIFETIME_IN_SECONDS);
 
         if (!$this->cache->isInit()) {
-            $rates = (new Importer())->import();
+            $rates = [];
+            try {
+                $rates = (new Importer())->import();
+            } catch (Throwable $e) {
+//                throw new CurrenciesInitException('Can\'t get data from CBR\'s site', previous: $e);
+            }
             $this->cache->initCache($rates);
         }
     }
@@ -77,8 +87,8 @@ class CurrencyConverterByCBR implements CurrencyConverterInterface
     /**
      * @return string[]
      */
-    public function getCurrenciesNames(): array
+    public function getCurrencyValues(): array
     {
-        return $this->cache->getCurrenciesNames();
+        return $this->cache->getCurrencyValues();
     }
 }

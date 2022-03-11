@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Services\Currency\Cache;
 
 use App\Services\Cache\CacheLifeTimeInterface;
-use App\Services\Currency\CurrenciesNamesInterface;
+use App\Services\Currency\CurrencyValuesInterface;
 use Fullpipe\CbrCurrency\CurrencyInterface;
 
-interface CurrencyCacheInterface extends CacheLifeTimeInterface, CurrenciesNamesInterface
+interface CurrencyCacheInterface extends CacheLifeTimeInterface, CurrencyValuesInterface
 {
     /**
      * @param CurrencyInterface[] $rates
