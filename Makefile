@@ -76,3 +76,8 @@ psalm:
 tests-run:
 	$(call FUNC_WITH_PRINT, tests, $(DCE) bin/phpunit)
 #<<<checkers
+
+#>>>git
+reindex:
+	@git diff --name-only --cached | xargs git add
+#<<<git

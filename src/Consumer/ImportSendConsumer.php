@@ -17,6 +17,7 @@ use App\Services\Import\Readers\StatusOfCSV\Reader;
 use App\Services\Import\Savers\SaverInterface;
 use App\Services\Import\Statuses\LoggingStatusInterface;
 use App\Services\Import\Transform\TransformInterface;
+use Exception;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Mercure\HubInterface;
@@ -55,9 +56,14 @@ class ImportSendConsumer implements ConsumerInterface
             return false;
         }
 
-        $this->tryImport($status);
-        $this->tryRemoveFile($status);
-        $this->sentResult($status);
+        try {
+            $this->tryImport($status);
+            $this->tryRemoveFile($status);
+            $this->sentResult($status);
+        } catch (Exception $e) {
+            $this->status->changeStatusToFailed($status);
+            echo 'Unhandled exception: '.$e->getMessage().PHP_EOL;
+        }
 
         return 'IMPORT_NEW' !== $status->getStatus();
     }

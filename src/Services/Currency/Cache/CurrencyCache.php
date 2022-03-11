@@ -49,8 +49,8 @@ class CurrencyCache implements CurrencyCacheInterface
      */
     public function initCache($rates): void
     {
-        $this->supporter->initKey(self::CURRENCY_KEY, $this->getTimeout());
         $this->supporter->htSet(self::CURRENCY_KEY, self::CURRENCY_INIT_KEY, 'true');
+        $this->supporter->initKey(self::CURRENCY_KEY, $this->getTimeout());
 
         foreach ($rates as $rate) {
             $this->supporter->htSet(self::CURRENCY_KEY, $rate->getCode(), (string) $rate->getExchangeRate());

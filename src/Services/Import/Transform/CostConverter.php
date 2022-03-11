@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services\Import\Transform;
 
 use App\Services\Currency\CurrencyProviderInterface;
+use App\Services\Currency\Exceptions\ConvertException;
+use App\Services\Import\Exceptions\Transform\ConverterException;
 use Port\Exception;
 use Port\Reader\ArrayReader;
 use Port\Steps\Step\ConverterStep;
@@ -48,6 +50,8 @@ class CostConverter implements TransformInterface
      * @param string[] $el
      *
      * @return string[]
+     *
+     * @throws ConverterException
      */
     private function convertCosts(array $el): array
     {
@@ -59,8 +63,11 @@ class CostConverter implements TransformInterface
         if (!array_key_exists(2, $costParse)) {
             return $el;
         }
-        $el['Cost in GBP'] = (string) $this->provider->convert($costParse[2], 'USD', floatval($costParse[1]));
-        echo $costParse[1].' '.$el['Cost in GBP'];
+        try {
+            $el['Cost in GBP'] = (string) $this->provider->convert($costParse[2], 'USD', floatval($costParse[1]));
+        } catch (ConvertException $e) {
+            throw new ConverterException('Can\'t get valid currencies from CBR', previous: $e);
+        }
 
         return $el;
     }
