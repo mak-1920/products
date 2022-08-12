@@ -1,0 +1,10 @@
+parameters:
+    level: 9
+    paths:
+        - src
+    checkGenericClassInNonGenericObjectType: false
+    exceptions:
+    ignoreErrors:
+        -
+            message: '#Property [a-zA-Z0-9\:_\\\$]+ is never written, only read#'
+            path: src/Entity/*

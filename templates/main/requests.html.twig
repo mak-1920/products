@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Requests (p-{{ page }}){% endblock %}
+
+{% block body %}
+
+<div class="container-md">
+    <div class="display-3">Exists products</div>
+    {{ knp_pagination_filter(requests, {
+        's.status': 'Status',
+    }) }}
+    {% include 'main/blocks/requests_table/table.html.twig' with {
+        'requests': requests,
+    } %}
+
+    <div class="navigation">
+        {{ knp_pagination_render(requests) }}
+    </div>
+
+    <div class="new-requests">
+        <div class="display-3">New products</div>
+        {% include 'main/blocks/requests_table/table.html.twig' with {
+            'requests': {},
+        } %}
+    </div>
+</div>
+
+<script type="application/json" id="import-upload-short-info-url">
+    {{ mercure('/import/send/{token}')|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG'))|raw }}
+</script>
+
+{% endblock %}
+
+
